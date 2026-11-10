@@ -146,6 +146,13 @@ export const TaskSet = z.object({
 });
 export type TaskSet = z.infer<typeof TaskSet>;
 
+/** У задачи с кодом есть чем проверить решение: язык с раннером и тесты (JS/Python) или правила (HTML/CSS). */
+export function hasChecks(t: Task): boolean {
+  if (t.type !== "code" && t.type !== "fix_bug") return false;
+  if (!RUNNABLE_LANGUAGES.has(t.language)) return false;
+  return RULE_LANGUAGES.has(t.language) ? t.rules.length > 0 : t.tests.length > 0;
+}
+
 /** Задания, ответ на которые проверяет сервер. */
 export const SERVER_CHECKED: ReadonlySet<TaskType> = new Set([
   "short_answer",

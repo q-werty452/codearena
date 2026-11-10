@@ -1,5 +1,5 @@
 import { AnimatePresence } from "motion/react";
-import { ArrowLeft, Code2, FolderOpen, Library, ListChecks, Play, Save, Sparkles, Type } from "lucide-react";
+import { ArrowLeft, Code2, FolderOpen, Library, ListChecks, Play, Save, Sparkles, Type, Wand2 } from "lucide-react";
 import type { Task, TaskSet } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
 import { Card } from "../../ui/Card.tsx";
@@ -32,6 +32,7 @@ export function RaceEditor({
   onStart,
   onSample,
   onBank,
+  onAi,
   onLoad,
   onSave,
 }: {
@@ -47,6 +48,7 @@ export function RaceEditor({
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
   onBank?: () => void;
+  onAi?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -89,6 +91,11 @@ export function RaceEditor({
             {onBank && (
               <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
                 {t("bank.open")}
+              </Button>
+            )}
+            {onAi && (
+              <Button size="sm" icon={<Wand2 size={14} />} onClick={onAi}>
+                {t("ai.short")}
               </Button>
             )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>

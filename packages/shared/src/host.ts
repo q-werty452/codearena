@@ -18,7 +18,9 @@ import type {
   TeamMode,
   TeamIndex,
 } from "./protocol.ts";
-import type { HtmlRule, Language, PublicTask, TaskSet } from "./tasks.ts";
+import type { HtmlRule, Language, PublicTask, Task, TaskSet } from "./tasks.ts";
+import type { SkippedTask } from "./importer.ts";
+import type { AiRequest } from "./ai.ts";
 import type { TestReport } from "./protocol.ts";
 
 /** Результат одного теста при локальном запуске (у ученика или учителя). */
@@ -201,7 +203,15 @@ export type UiToHost =
   | { type: "choose_lesson_file" }
   /** Набор заданий учителя: сохранить в файл / загрузить из файла. */
   | { type: "save_tasks"; set: TaskSet }
-  | { type: "load_tasks" }
+  /** Свои задания из файла (JSON, текст, Word) — разложатся по играм. */
+  | { type: "import_tasks" }
+  /** Вставленный текст уже разобран в webview — сохранить в «Мои задания». */
+  | { type: "my_tasks_add"; title: string; tasks: Task[] }
+  | { type: "my_tasks_delete"; id: string }
+  | { type: "ai_generate"; req: AiRequest }
+  | { type: "ai_cancel" }
+  | { type: "ai_set_key" }
+  | { type: "ai_clear_key" }
   /** Codewars у ученика: открыть файл задачи, прогнать тесты, отправить. */
   | { type: "open_task_file" }
   | { type: "run_tests" }
@@ -217,7 +227,9 @@ export type HostToUi =
   | { type: "prefill"; code: string }
   | { type: "server"; msg: ServerMessage }
   | { type: "toast"; text: string }
-  | { type: "tasks_loaded"; set: TaskSet }
+  | { type: "import_result"; result: ImportResult }
+  | { type: "my_tasks"; sets: MySet[] }
+  | { type: "ai_state"; state: AiState }
   | { type: "check_result"; requestId: string; results: TestResult[]; error: LocalRun["error"]; message?: string };
 
 /* ───────────────────────── Разбор игровых сообщений ───────────────────────── */
@@ -327,4 +339,40 @@ export function applyGameMessage(
     default:
       return undefined;
   }
+}
+
+/** Набор в «Моих заданиях» (хранится у учителя в VS Code). */
+export interface MySet {
+  id: string;
+  title: string;
+  source: "file" | "ai" | "paste";
+  fileName?: string;
+  createdAt: number;
+  tasks: Task[];
+}
+
+/** Итог загрузки файла или ИИ-генерации: что в какую игру попало и что пропущено. */
+export interface ImportResult {
+  source: MySet["source"];
+  title: string;
+  fileName?: string;
+  byGame: Partial<Record<GameKind, Task[]>>;
+  skipped: SkippedTask[];
+  /** Формат файла не распознан — можно разобрать с ИИ (текст файла уже у расширения). */
+  unrecognized?: boolean;
+  /** Задания с кодом, эталон которых не удалось проверить (нет Python у учителя). */
+  unverified?: number;
+  setId?: string;
+}
+
+/** Состояние ИИ-помощника для UI. */
+export interface AiState {
+  hasKey: boolean;
+  busy: boolean;
+  stage?: "model" | "generate" | "verify" | "repair";
+  done?: number;
+  total?: number;
+  model?: string;
+  error?: "bad_key" | "quota" | "network" | "server" | "blocked" | "empty" | "no_tasks" | "cancelled";
+  errorDetail?: string;
 }

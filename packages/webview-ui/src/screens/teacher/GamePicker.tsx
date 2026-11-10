@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Bug, Flag, MessageCircleQuestion, MoveHorizontal, ShieldCheck, SquareCode, type LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import type { AntiCheatSettings, GameKind, TeamMode } from "@codearena/shared";
 import { Card } from "../../ui/Card.tsx";
 import { Segmented, Toggle } from "../../ui/Controls.tsx";
@@ -7,7 +8,7 @@ import { Button } from "../../ui/Button.tsx";
 import { cn } from "../../lib/cn.ts";
 import { useT, type MessageKey } from "../../lib/i18n.ts";
 
-const GAMES: { kind: GameKind; icon: LucideIcon; color: string; ready: boolean }[] = [
+export const GAMES: { kind: GameKind; icon: LucideIcon; color: string; ready: boolean }[] = [
   { kind: "quiz", icon: MessageCircleQuestion, color: "#8B5CF6", ready: true },
   { kind: "bug", icon: Bug, color: "#F59E0B", ready: true },
   { kind: "tug", icon: MoveHorizontal, color: "#F43F5E", ready: true },
@@ -22,12 +23,15 @@ export function GamePicker({
   onBack,
   antiCheat,
   onAntiCheat,
+  extra,
 }: {
   mode: TeamMode;
   onPick: (g: GameKind) => void;
   onBack: () => void;
   antiCheat: AntiCheatSettings;
   onAntiCheat: (a: AntiCheatSettings) => void;
+  /** «Мои задания» под карточками игр. */
+  extra?: ReactNode;
 }) {
   const t = useT();
   return (
@@ -76,6 +80,7 @@ export function GamePicker({
           );
         })}
       </div>
+      {extra}
       <AntiCheatCard value={antiCheat} onChange={onAntiCheat} />
     </div>
   );

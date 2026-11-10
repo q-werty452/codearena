@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { AlertTriangle, ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Library, Play, Plus, Save, Search, Sparkles, Trash2, Wrench, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Library, Play, Plus, Save, Search, Sparkles, Trash2, Wrench, X, Wand2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { OPTION_SHAPES, type HostToUi, type HtmlRule, type Language, type Task, type TaskSet, type TestResult } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -68,6 +68,7 @@ export function BugEditor({
   onStart,
   onSample,
   onBank,
+  onAi,
   onLoad,
   onSave,
 }: {
@@ -79,6 +80,7 @@ export function BugEditor({
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
   onBank: () => void;
+  onAi?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -102,6 +104,11 @@ export function BugEditor({
             <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
               {t("bank.open")}
             </Button>
+            {onAi && (
+              <Button size="sm" icon={<Wand2 size={14} />} onClick={onAi}>
+                {t("ai.short")}
+              </Button>
+            )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
               {t("edit.sample")}
             </Button>

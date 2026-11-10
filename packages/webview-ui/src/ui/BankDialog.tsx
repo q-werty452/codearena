@@ -1,17 +1,22 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Library, Plus, X } from "lucide-react";
-import { useEffect } from "react";
+import { FileUp, Library, Plus, Sparkles, ClipboardPaste, Trash2, X } from "lucide-react";
+import { useContext, useEffect } from "react";
 import type { GameKind, Task } from "@codearena/shared";
 import { Button } from "./Button.tsx";
 import { bankFor } from "../lib/bank.ts";
-import { useT } from "../lib/i18n.ts";
+import { tasksFor, useMyTasks } from "../lib/myTasks.ts";
+import { host } from "../lib/session.ts";
+import { LocaleContext, useT } from "../lib/i18n.ts";
 
 const LANG_LABEL: Record<string, string> = { html: "HTML", css: "CSS", javascript: "JavaScript", python: "Python", dart: "Dart" };
 
 /** Окно «Банк задач»: наборы для выбранной игры, добавляются к списку учителя. */
 export function BankDialog({ game, open, onClose, onAdd }: { game: GameKind; open: boolean; onClose: () => void; onAdd: (tasks: Task[], title: string) => void }) {
   const t = useT();
+  const locale = useContext(LocaleContext);
   const sets = bankFor(game);
+  const mine = useMyTasks().sets.map((s) => ({ s, tasks: tasksFor(s, game) })).filter((x) => x.tasks.length);
+  const SRC = { file: FileUp, ai: Sparkles, paste: ClipboardPaste } as const;
   useEffect(() => {
     if (!open) return;
     const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -45,7 +50,49 @@ export function BankDialog({ game, open, onClose, onAdd }: { game: GameKind; ope
                 <X size={16} />
               </button>
             </div>
-            <div className="mt-4 flex flex-col gap-2.5">
+            {mine.length > 0 && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-muted">{t("my.title")}</h3>
+                <div className="flex flex-col gap-2">
+                  {mine.map(({ s, tasks }) => {
+                    const Icon = SRC[s.source];
+                    return (
+                      <div key={s.id} className="flex items-center gap-3 rounded-card border border-accent/30 bg-accent/[0.05] px-4 py-3">
+                        <Icon size={16} className="shrink-0 text-accent" />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-semibold">{s.title}</div>
+                          <div className="text-[11px] text-muted">
+                            {t(`my.source.${s.source}`)} · {new Date(s.createdAt).toLocaleDateString(locale === "ru" ? "ru-RU" : "en-GB")}
+                            {s.fileName ? ` · ${s.fileName}` : ""}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => host.post({ type: "my_tasks_delete", id: s.id })}
+                          className="flex size-8 items-center justify-center rounded-[8px] text-muted hover:bg-error/10 hover:text-error"
+                          aria-label={t("my.delete")}
+                          title={t("my.delete")}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          icon={<Plus size={14} />}
+                          onClick={() => {
+                            onAdd(structuredClone(tasks), s.title);
+                            onClose();
+                          }}
+                        >
+                          {t("bank.add", { n: tasks.length })}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <h3 className="mb-2 mt-5 text-[12px] font-semibold uppercase tracking-wide text-muted">{t("bank.title")}</h3>
+              </div>
+            )}
+            <div className={mine.length ? "flex flex-col gap-2.5" : "mt-4 flex flex-col gap-2.5"}>
               {sets.length === 0 && <p className="py-8 text-center text-muted">{t("bank.empty")}</p>}
               {sets.map(({ id, set }) => {
                 const langs = [...new Set(set.tasks.flatMap((x) => ("language" in x ? [x.language] : [x.topic])))].slice(0, 4);

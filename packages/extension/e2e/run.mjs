@@ -38,10 +38,51 @@ const GAMES = {
 // Эталон урока для сценариев livestudent / liveteacher.
 const REF = "<!doctype html>\n<html>\n<head>\n  <title>Урок</title>\n</head>\n<body>\n  <h1>Привет</h1>\n  <p>Абзац</p>\n  <ul>\n    <li>Один</li>\n    <li>Два</li>\n  </ul>\n</body>\n</html>\n";
 const LIVE = SCENARIO === "livestudent" || SCENARIO === "liveteacher";
-const { code, teacherToken } = await (await fetch(`http://${server}/rooms`, { method: "POST" })).json();
+const OFFLINE = SCENARIO === "mytasks"; // без игрового сервера
+const { code, teacherToken } = OFFLINE ? { code: "", teacherToken: "" } : await (await fetch(`http://${server}/rooms`, { method: "POST" })).json();
 console.log("scenario", SCENARIO, "room", code);
 const feed = [];
-const t = new WebSocket(`ws://${server}/rooms/${code}/ws?teacher=${teacherToken}`);
+const t = OFFLINE ? new (require("node:events"))() : new WebSocket(`ws://${server}/rooms/${code}/ws?teacher=${teacherToken}`);
+if (OFFLINE) t.close = () => {};
+
+// Поддельный Gemini для сценария mytasks: список моделей + generateContent по смыслу промпта.
+const gemini = { calls: [], keyInUrl: false };
+let geminiUrl = "";
+if (SCENARIO === "mytasks") {
+  const http = await import("node:http");
+  const reply = (res, status, obj) => { res.writeHead(status, { "content-type": "application/json" }); res.end(JSON.stringify(obj)); };
+  const js = (name, starter, solution) => ({ type: "code", topic: "Массивы", language: "javascript", prompt: name, starter, tests: [{ call: "evens([1, 2, 3, 4])", expected: "[2, 4]" }, { call: "evens([])", expected: "[]" }], solution });
+  const GOOD = "function evens(nums) { return nums.filter((n) => n % 2 === 0); }";
+  const srv = http.createServer((req, res) => {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      if (/key=/.test(req.url)) gemini.keyInUrl = true;
+      const key = req.headers["x-goog-api-key"];
+      gemini.calls.push({ path: req.url.split("?")[0], key: key ? "set" : "missing" });
+      if (key !== "test-key-1234567890abcdef") return reply(res, 400, { error: { code: 400, message: "API key not valid. Please pass a valid API key.", status: "INVALID_ARGUMENT" } });
+      if (req.method === "GET") return reply(res, 200, { models: ["gemini-3.6-flash", "gemini-3.10-flash-lite", "gemini-4-flash-preview", "gemini-2.5-flash"].map((n) => ({ name: "models/" + n, supportedGenerationMethods: ["generateContent"] })) });
+      const prompt = JSON.parse(body).contents[0].parts[0].text;
+      let out;
+      if (prompt.includes("failed automatic verification"))
+        out = { title: "", tasks: [js("Чётные (исправлено)", "function evens(nums) {\n}", GOOD), js("Заготовка решает", GOOD, GOOD)] };
+      else if (prompt.includes("Convert EVERY question"))
+        out = { title: "Конспект", tasks: [
+          { type: "choice", topic: "Flexbox", prompt: "Какое свойство включает flex?", options: ["display", "float"], correct: 0 },
+          { type: "choice", topic: "Flexbox", prompt: "Ось justify-content?", options: ["главная", "поперечная"], correct: 0 },
+          { type: "short_answer", topic: "Flexbox", prompt: "Свойство отступа между элементами", answers: ["gap"] } ] };
+      else
+        out = { title: "Массивы: filter", tasks: [
+          js("Чётные", "function evens(nums) {\n}", GOOD),
+          js("Чётные (эталон с ошибкой)", "function evens(nums) {\n}", "function evens(nums) { return nums; }"),
+          js("Заготовка решает", GOOD, GOOD) ] };
+      reply(res, 200, { candidates: [{ content: { parts: [{ text: JSON.stringify(out) }] }, finishReason: "STOP" }] });
+    });
+  });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  geminiUrl = `http://127.0.0.1:${srv.address().port}`;
+  srv.unref();
+}
 let started = false;
 let lastFlags = {};
 const teacherSaw = [];
@@ -122,7 +163,9 @@ if (SCENARIO === "liveteacher") {
 }
 // Тесты ходят на локальный сервер, а не на публичный.
 mkdirSync(join(tmp, "user", "User"), { recursive: true });
-writeFileSync(join(tmp, "user", "User", "settings.json"), JSON.stringify({ "codearena.serverUrl": `http://${server}` }));
+writeFileSync(join(tmp, "user", "User", "settings.json"), JSON.stringify({ "codearena.serverUrl": `http://${server}`, ...(geminiUrl ? { "codearena.ai.endpoint": geminiUrl } : {}) }));
+// Файлы учителя для сценария mytasks.
+writeFileSync(join(tmp, "notes.txt"), "Сегодня прошли flexbox. Свойство display: flex включает flex-раскладку, gap задаёт отступы.\nВопросы к уроку: какое свойство включает flex? чем задают отступ?");
 const out = join(tmp, "result.json");
 let failed = false;
 try {
@@ -131,7 +174,7 @@ try {
     extensionDevelopmentPath: resolve(here, ".."),
     extensionTestsPath: resolve(here, "suite.cjs"),
     launchArgs: [...(LIVE ? [wsDir] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
-    extensionTestsEnv: { CODEARENA_E2E_CODE: code, CODEARENA_E2E_OUT: out, CODEARENA_E2E_SCENARIO: SCENARIO, CODEARENA_E2E_HANDOFF: handoff },
+    extensionTestsEnv: { CODEARENA_E2E_TMP: tmp, CODEARENA_E2E_FIXTURES: resolve(here, "..", "src", "__fixtures__"), CODEARENA_E2E_CODE: code, CODEARENA_E2E_OUT: out, CODEARENA_E2E_SCENARIO: SCENARIO, CODEARENA_E2E_HANDOFF: handoff },
   });
 } catch {
   failed = true;
@@ -147,6 +190,9 @@ if (SCENARIO === "livestudent") {
   console.log(`bot student got ${live.shares} lesson_share message(s) for 10 keystrokes; last has all edits: ${last.includes("<!-- 0123456789 -->")}; checkpoint: ${JSON.stringify(live.checkpoint)}; share stopped: ${live.off}`);
   liveOk = live.shares >= 2 && live.shares <= 6 && last.includes("<!-- 0123456789 -->") && live.checkpoint?.n === 1 && live.checkpoint.sameAsShare && live.off;
   bot?.close();
+} else if (SCENARIO === "mytasks") {
+  console.log("gemini calls:", gemini.calls.map((c) => `${c.path} (key ${c.key})`).join(", "), "| key in URL:", gemini.keyInUrl);
+  liveOk = !gemini.keyInUrl && gemini.calls.some((c) => c.path.includes("gemini-3.6-flash:generateContent"));
 } else if (SCENARIO === "lesson") console.log("teacher saw:", teacherSaw.join(", "));
 else if (SCENARIO === "anticheat") console.log("teacher saw flags:", JSON.stringify(Object.values(lastFlags)[0] ?? {}));
 else console.log("teacher saw:", feed.map((f) => `${f.correct ? "✓" : "✗"} ${f.report?.passed}/${f.report?.total}`).join(", "));

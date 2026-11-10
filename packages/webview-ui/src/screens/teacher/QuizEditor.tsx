@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDown, ArrowLeft, ArrowUp, Check, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, Check, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library, Wand2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { OPTION_SHAPES, type Task, type TaskSet } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -48,6 +48,7 @@ export function QuizEditor({
   onStart,
   onSample,
   onBank,
+  onAi,
   onLoad,
   onSave,
 }: {
@@ -59,6 +60,7 @@ export function QuizEditor({
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
   onBank?: () => void;
+  onAi?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -99,6 +101,11 @@ export function QuizEditor({
                 {t("bank.open")}
               </Button>
             )}
+            {onAi && (
+              <Button size="sm" icon={<Wand2 size={14} />} onClick={onAi}>
+                {t("ai.short")}
+              </Button>
+            )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
               {t("edit.sample")}
             </Button>
@@ -131,6 +138,11 @@ export function QuizEditor({
               <Button variant="primary" icon={<Plus size={14} />} onClick={add}>
                 {t("edit.add")}
               </Button>
+              {onAi && (
+                <Button icon={<Wand2 size={14} />} onClick={onAi}>
+                  {t("my.ai")}
+                </Button>
+              )}
               <Button icon={<Sparkles size={14} />} onClick={onSample}>
                 {t("edit.sample")}
               </Button>

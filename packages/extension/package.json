@@ -162,6 +162,23 @@
         "command": "codearena.chooseLessonFile",
         "title": "Lesson: choose my lesson file",
         "category": "CodeArena"
+      },
+      {
+        "command": "codearena.importTasks",
+        "title": "Import my tasks (JSON, text, Word)",
+        "category": "CodeArena",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "codearena.setAiKey",
+        "title": "Set Gemini API key",
+        "category": "CodeArena",
+        "icon": "$(key)"
+      },
+      {
+        "command": "codearena.clearAiKey",
+        "title": "Remove Gemini API key",
+        "category": "CodeArena"
       }
     ],
     "configuration": {
@@ -171,6 +188,16 @@
           "type": "string",
           "default": "https://codearena.codearena-server.workers.dev",
           "markdownDescription": "Game server URL. The default is the free public CodeArena server. Change it only if your school runs its own server (see the [README](https://github.com/q-werty452/codearena#self-hosting))."
+        },
+        "codearena.ai.model": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Gemini model for task generation, e.g. `gemini-3.6-flash`. Empty — pick the newest stable *flash* model available to your key automatically."
+        },
+        "codearena.ai.endpoint": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Gemini API base URL. Empty — `https://generativelanguage.googleapis.com`. Change only for a proxy."
         }
       }
     },
@@ -306,7 +333,7 @@
     "typecheck": "tsc --noEmit",
     "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies",
     "test": "vitest run",
-    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher"
+    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher && node e2e/run.mjs mytasks"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

@@ -44,6 +44,49 @@ npm run build && npm run package -w codearena
 
 then in VS Code: *Extensions → … → Install from VSIX*.
 
+## Your own tasks
+
+Teachers can bring their own tasks — **Choose a game → My tasks**:
+
+- **Import a file** — `.json` (a CodeArena set or any similar list), `.txt` / `.md`, or **Word `.docx`**.
+- **Paste text** — copy questions from a doc or a test.
+- **Generate with AI** — see below.
+
+Every task is sorted into the game it fits: options → *Quiz*, short answer → *Tug of war*,
+code with tests/rules → *Codewars*, find the line / best variant / fix the bug → *Find the bug*
+(*Race* takes quiz, tug and code tasks). Imported sets are kept in this VS Code and appear in
+every game's task bank under *My tasks*.
+
+Text format (Word numbered lists work too — a **bold** option is the right one):
+
+```text
+# Topic: Links
+
+1. Which tag creates a link?
+- <div>
++ <a>
+- <span>
+
+2. Which tag makes a paragraph?
+a) <br>
+b) <p>
+Answer: b
+
+3. Which attribute holds the link address?
+= href
+```
+
+Questions that can't be read (no right answer marked, more than 4 options…) are listed with the reason.
+
+### AI tasks (Gemini)
+
+The teacher uses their own free key from [Google AI Studio](https://aistudio.google.com/apikey); it is stored
+in VS Code's SecretStorage and sent only to the Gemini API (in a header). Pick a game, language, topic and
+count — or paste lesson notes. A file that isn't in a known format can be **read with AI** too.
+Every code task is verified locally: the reference solution must pass all tests/rules and the starter
+(or buggy code) must fail; broken tasks get one repair round, the rest are dropped.
+The model is the newest stable `gemini-*-flash` available to the key (`codearena.ai.model` to override).
+
 ## Server
 
 The extension uses the free public server **https://codearena.codearena-server.workers.dev** (Cloudflare Workers free plan:

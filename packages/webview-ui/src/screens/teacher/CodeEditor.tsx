@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library } from "lucide-react";
+import { ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library, Wand2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { HostToUi, Language, Task, TaskSet, TestResult } from "@codearena/shared";
 import { RulesEditor } from "./BugEditor.tsx";
@@ -63,6 +63,7 @@ export function CodeEditor({
   onStart,
   onSample,
   onBank,
+  onAi,
   onLoad,
   onSave,
 }: {
@@ -72,6 +73,7 @@ export function CodeEditor({
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
   onBank?: () => void;
+  onAi?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -93,6 +95,11 @@ export function CodeEditor({
             {onBank && (
               <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
                 {t("bank.open")}
+              </Button>
+            )}
+            {onAi && (
+              <Button size="sm" icon={<Wand2 size={14} />} onClick={onAi}>
+                {t("ai.short")}
               </Button>
             )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
@@ -127,6 +134,11 @@ export function CodeEditor({
               <Button variant="primary" icon={<Plus size={14} />} onClick={() => update([blankCode()])}>
                 {t("cw.add")}
               </Button>
+              {onAi && (
+                <Button icon={<Wand2 size={14} />} onClick={onAi}>
+                  {t("my.ai")}
+                </Button>
+              )}
               <Button icon={<Sparkles size={14} />} onClick={onSample}>
                 {t("edit.sample")}
               </Button>

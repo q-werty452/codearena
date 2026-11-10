@@ -7,8 +7,7 @@
  */
 import {
   LIMITS,
-  RULE_LANGUAGES,
-  RUNNABLE_LANGUAGES,
+  hasChecks,
   checkShortAnswer,
   codewarsPoints,
   pullRope,
@@ -167,12 +166,6 @@ export function startGame(game: GameKind, tasks: Task[], settings: GameSettings,
 }
 
 /** Код можно проверить у ученика: язык с раннером и есть тесты/правила. */
-function hasChecks(t: Task): boolean {
-  if (t.type !== "code" && t.type !== "fix_bug") return false;
-  if (!RUNNABLE_LANGUAGES.has(t.language)) return false;
-  return RULE_LANGUAGES.has(t.language) ? t.rules.length > 0 : t.tests.length > 0;
-}
-
 export function startEffects(g: GameData, env: EngineEnv): Effect[] {
   return [{ to: "all", msg: { type: "game_started", game: g.game, settings: g.settings } }, stateEffect(g, env)];
 }

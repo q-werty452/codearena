@@ -68,6 +68,8 @@ interface UiState {
   questionSec?: number;
   roundSec?: number;
   wrongLockSec?: number;
+  /** Последние настройки окна «Задания с ИИ». */
+  aiForm?: { language: string; topic: string; count: number; difficulty: string };
 }
 
 const readState = (): UiState => vscode.getState<UiState>() ?? {};

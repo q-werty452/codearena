@@ -25,8 +25,8 @@ sees everyone's progress.
 | 9½ | **Server online**: https://codearena.codearena-server.workers.dev, per-IP rate limits | ✅ |
 | 10 | Anti-cheat (off in Lesson), live teacher table, CSV export | ✅ |
 | 11 | **Lesson, part 2**: teacher shares one file read-only (`codearena:` FileSystemProvider, follow cursor, batched every 400 ms), checkpoints with line-diff progress, «Done N of M», laggards on top, click → student's code | ✅ |
-| 12 | ⏳ next — AI task generation (Gemini, teacher's own key in SecretStorage) | |
-| 13 | Localization polish, publishing (Marketplace + Open VSX) | |
+| 12 | **My tasks + AI**: import JSON / text / Word or paste text → tasks sorted into games and kept in *My tasks*; Gemini generation (teacher's key in SecretStorage) with local verification of reference solutions and one repair round | ✅ |
+| 13 | ⏳ next — Localization polish, publishing (Marketplace + Open VSX) | |
 | 14 | Projector page, Docker server | |
 
 ## Lesson protocol

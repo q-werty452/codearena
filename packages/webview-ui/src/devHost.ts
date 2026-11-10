@@ -16,7 +16,12 @@ import {
   type SessionSnapshot,
   type TeamIndex,
   type UiToHost,
+  type AiState,
+  type MySet,
+  distribute,
+  parseTasksText,
 } from "@codearena/shared";
+import { bankFor } from "./lib/bank.ts";
 
 export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars" | "bug" | "race";
 
@@ -311,11 +316,83 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
     }
   };
 
+  // «Мои задания» и ИИ — имитация расширения.
+  let mySets: MySet[] = [];
+  let ai: AiState = { hasKey: true, busy: false };
+  let aiTimers: ReturnType<typeof setTimeout>[] = [];
+  const pushMy = () => {
+    emit({ type: "my_tasks", sets: mySets });
+    emit({ type: "ai_state", state: ai });
+  };
+  const setAi = (p: Partial<AiState>) => {
+    ai = { ...ai, ...p };
+    emit({ type: "ai_state", state: ai });
+  };
+  const addSet = (title: string, source: MySet["source"], tasks: Task[], fileName?: string) => {
+    const set: MySet = { id: String(Date.now()), title, source, fileName, createdAt: Date.now(), tasks };
+    mySets = [set, ...mySets];
+    emit({ type: "my_tasks", sets: mySets });
+    return set;
+  };
+  const DEMO_FILE = `# Тема: Теги HTML\n\n1. Какой тег создаёт ссылку?\n- <div>\n+ <a>\n- <span>\n\n2. Тег абзаца?\na) <br>\nb) <p>\nОтвет: b\n\n3. Атрибут адреса ссылки?\n= href\n\n4. Какой тег для списка?\n- <ol>\n- <ul>\n\n5. Свойство цвета текста?\n= color`;
+
   (window as { __caDevHost?: (m: UiToHost) => void }).__caDevHost = (m: UiToHost) => {
     switch (m.type) {
       case "ready":
         push();
+        pushMy();
         break;
+      case "import_tasks": {
+        if (new URLSearchParams(location.search).has("unrecognized")) {
+          emit({ type: "import_result", result: { source: "file", title: "", fileName: "конспект.docx", byGame: {}, skipped: [], unrecognized: true } });
+          break;
+        }
+        const r = parseTasksText(DEMO_FILE);
+        const code = bankFor("codewars").find((b) => b.id.startsWith("javascript"))!.set.tasks.slice(0, 2);
+        const tasks = [...r.tasks, ...code];
+        const set = addSet(r.title, "file", tasks, "контрольная.docx");
+        emit({ type: "import_result", result: { source: "file", title: r.title, fileName: "контрольная.docx", byGame: distribute(tasks), skipped: r.skipped, setId: set.id } });
+        break;
+      }
+      case "my_tasks_add":
+        addSet(m.title, "paste", m.tasks);
+        break;
+      case "my_tasks_delete":
+        mySets = mySets.filter((x) => x.id !== m.id);
+        emit({ type: "my_tasks", sets: mySets });
+        break;
+      case "ai_set_key":
+        setAi({ hasKey: true });
+        break;
+      case "ai_clear_key":
+        setAi({ hasKey: false });
+        break;
+      case "ai_cancel":
+        aiTimers.forEach(clearTimeout);
+        setAi({ busy: false, stage: undefined, error: "cancelled" });
+        break;
+      case "ai_generate": {
+        const req = m.req;
+        const game = req.mode === "extract" ? "quiz" : req.game;
+        const pool = (game === "race" ? [...bankFor("quiz"), ...bankFor("tug"), ...bankFor("codewars")] : bankFor(game)).flatMap((b) => b.set.tasks);
+        const tasks = pool.sort(() => Math.random() - 0.5).slice(0, req.count);
+        const codeN = tasks.filter((t) => t.type === "code" || t.type === "fix_bug").length;
+        setAi({ busy: true, stage: "model", error: undefined, model: "gemini-3.6-flash" });
+        const at = (ms: number, f: () => void) => aiTimers.push(setTimeout(f, ms));
+        at(400, () => setAi({ stage: "generate" }));
+        let t = 2200;
+        if (codeN) {
+          at(t, () => setAi({ stage: "verify", done: 0, total: codeN }));
+          for (let i = 1; i <= codeN; i++) at((t += 350), () => setAi({ done: i }));
+        }
+        at(t + 300, () => {
+          const title = req.topic || "Задания от ИИ";
+          const set = addSet(title, "ai", tasks);
+          emit({ type: "import_result", result: { source: "ai", title, byGame: req.mode === "extract" ? distribute(tasks) : distribute(tasks, game === "race" ? "race" : undefined), skipped: codeN ? [{ where: "Сумма чётных", reason: "solution_fails", detail: "sum([1, 2]) → got 3, expected 2" }] : [], setId: set.id } });
+          setAi({ busy: false, stage: undefined });
+        });
+        break;
+      }
       case "send":
         onSend(m.msg);
         break;

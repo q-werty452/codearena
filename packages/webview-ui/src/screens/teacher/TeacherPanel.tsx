@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { AntiCheatSettings, GameSettings, type GameKind, type HostToUi, type SessionSnapshot, type Task, type TaskSet } from "@codearena/shared";
+import { useContext, useEffect, useRef, useState } from "react";
+import { AntiCheatSettings, GameSettings, type AiRequest, type GameKind, type SessionSnapshot, type Task, type TaskSet } from "@codearena/shared";
 import { TeacherLobby } from "../TeacherLobby.tsx";
 import { GamePicker } from "./GamePicker.tsx";
 import { QuizEditor } from "./QuizEditor.tsx";
@@ -13,7 +13,8 @@ import { TeacherGame } from "./TeacherGame.tsx";
 import { readUiState, sampleCodewars, sampleQuiz, sampleTug, setSoundDefault, writeState } from "../../lib/game.ts";
 import { LocaleContext } from "../../lib/i18n.ts";
 import { host } from "../../lib/session.ts";
-import { onHostMessage } from "../../lib/vscode.ts";
+import { clearImportResult, mergeTasks, tasksFor, useMyTasks } from "../../lib/myTasks.ts";
+import { AiDialog, ImportResultDialog, MyTasksCard, PasteDialog } from "./MyTasksDialogs.tsx";
 
 type View = "lobby" | "pick" | "edit-quiz" | "edit-tug" | "edit-codewars" | "edit-bug" | "edit-race";
 const EMPTY: TaskSet = { version: 1, title: "", tasks: [] };
@@ -50,22 +51,35 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
   const settings = (game?: GameKind) =>
     GameSettings.parse({ questionSec, roundSec: game === "race" ? Math.max(roundSec, 180) : roundSec, wrongLockSec, raceLength, antiCheat });
 
-  // Набор заданий загружен из файла.
-  useEffect(
-    () =>
-      onHostMessage<HostToUi>((m) => {
-        // Загруженный файл попадает в редактор той игры, к которой подходят задания.
-        if (m.type === "tasks_loaded") {
-          const all = (...types: string[]) => m.set.tasks.every((x) => types.includes(x.type));
-          if (m.set.game === "race") setDraftRace(m.set);
-          else if (all("short_answer")) setDraftTug(m.set);
-          else if (all("code")) setDraftCode(m.set);
-          else if (all("find_line", "fix_bug", "best_variant")) setDraftBug(m.set);
-          else if (all("choice")) setDraft(m.set);
-          else if (all("short_answer", "choice", "code")) setDraftRace(m.set);
-        }
-      }),
-    [],
+  // Свои задания (файл, вставка, ИИ) — раскладываются по черновикам игр.
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [aiGame, setAiGame] = useState<AiRequest["game"] | null>(null);
+  const { result, sets: mySets } = useMyTasks();
+  const applied = useRef(0);
+  const setters: Record<GameKind, (f: (s: TaskSet) => TaskSet) => void> = { quiz: setDraft, tug: setDraftTug, codewars: setDraftCode, bug: setDraftBug, race: setDraftRace };
+  useEffect(() => {
+    if (!result || result.id === applied.current) return;
+    applied.current = result.id;
+    for (const [g, tasks] of Object.entries(result.result.byGame) as [GameKind, Task[]][]) {
+      setters[g]((s) => ({ ...s, title: s.title || result.result.title, tasks: mergeTasks(s.tasks, tasks) }));
+    }
+    if (result.result.source === "ai" && !result.result.unrecognized) setAiGame(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+  const importTasks = () => host.post({ type: "import_tasks" });
+  const myDialogs = (
+    <>
+      <ImportResultDialog
+        result={result?.result ?? null}
+        onClose={clearImportResult}
+        onOpenGame={(g) => {
+          clearImportResult();
+          setView(`edit-${g}`);
+        }}
+      />
+      <PasteDialog open={pasteOpen} onClose={() => setPasteOpen(false)} />
+      <AiDialog open={aiGame !== null} game={aiGame ?? "quiz"} onClose={() => setAiGame(null)} />
+    </>
   );
 
   // После «Новой игры» (game = null) показывается лобби: start() уже переключил вид на него.
@@ -87,13 +101,17 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
 
   if (view === "pick") {
     return (
+      <>
+      {myDialogs}
       <GamePicker
         mode={session.lobby?.mode ?? "solo"}
         onBack={() => setView("lobby")}
         onPick={(g) => setView(`edit-${g}`)}
         antiCheat={antiCheat}
         onAntiCheat={setAntiCheat}
+        extra={<MyTasksCard onPaste={() => setPasteOpen(true)} onAi={() => setAiGame("quiz")} />}
       />
+      </>
     );
   }
 
@@ -114,7 +132,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
       onAdd={(tasks, title) => ed.set({ ...ed.draft, title: ed.draft.title || title, tasks: [...ed.draft.tasks, ...tasks] })}
     />
   );
-  const onBank = ed && bankFor(ed.game).length > 0 ? () => setBankOpen(true) : undefined;
+  const onBank = ed && (bankFor(ed.game).length > 0 || mySets.some((m) => tasksFor(m, ed.game).length)) ? () => setBankOpen(true) : undefined;
 
   if (view === "edit-race") {
     // Пример гонки: короткие ответы, вопросы и пара задач с кодом из банка.
@@ -125,6 +143,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
     return (
       <>
         <RaceEditor
+          onAi={() => setAiGame("race")}
           set={draftRace}
           onChange={setDraftRace}
           raceLength={raceLength}
@@ -137,10 +156,11 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
           onStart={(tasks) => start("race", tasks)}
           onSample={sample}
           onBank={onBank}
-          onLoad={() => host.post({ type: "load_tasks" })}
+          onLoad={importTasks}
           onSave={() => host.post({ type: "save_tasks", set: { ...draftRace, game: "race" } })}
         />
         {bank}
+        {myDialogs}
       </>
     );
   }
@@ -149,6 +169,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
     return (
       <>
         <BugEditor
+          onAi={() => setAiGame("bug")}
           set={draftBug}
           onChange={setDraftBug}
           questionSec={questionSec}
@@ -157,10 +178,11 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
           onStart={(tasks) => start("bug", tasks)}
           onSample={() => setDraftBug({ ...bankFor("bug")[0]!.set, tasks: bankFor("bug")[0]!.set.tasks.slice(0, 6) })}
           onBank={() => setBankOpen(true)}
-          onLoad={() => host.post({ type: "load_tasks" })}
+          onLoad={importTasks}
           onSave={() => host.post({ type: "save_tasks", set: { ...draftBug, game: "bug" } })}
         />
         {bank}
+        {myDialogs}
       </>
     );
   }
@@ -169,16 +191,18 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
     return (
       <>
       <CodeEditor
+        onAi={() => setAiGame("codewars")}
         onBank={onBank}
         set={draftCode}
         onChange={setDraftCode}
         onBack={() => setView("pick")}
         onStart={(tasks) => start("codewars", tasks)}
         onSample={() => setDraftCode(sampleCodewars(locale))}
-        onLoad={() => host.post({ type: "load_tasks" })}
+        onLoad={importTasks}
         onSave={() => host.post({ type: "save_tasks", set: { ...draftCode, game: "codewars" } })}
       />
       {bank}
+      {myDialogs}
       </>
     );
   }
@@ -187,6 +211,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
     return (
       <>
       <TugEditor
+        onAi={() => setAiGame("tug")}
         onBank={onBank}
         set={draftTug}
         onChange={setDraftTug}
@@ -198,10 +223,11 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
         onBack={() => setView("pick")}
         onStart={(tasks) => start("tug", tasks)}
         onSample={() => setDraftTug(sampleTug(locale))}
-        onLoad={() => host.post({ type: "load_tasks" })}
+        onLoad={importTasks}
         onSave={() => host.post({ type: "save_tasks", set: { ...draftTug, game: "tug" } })}
       />
       {bank}
+      {myDialogs}
       </>
     );
   }
@@ -210,6 +236,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
     return (
       <>
       <QuizEditor
+        onAi={() => setAiGame("quiz")}
         onBank={onBank}
         set={draft}
         onChange={setDraft}
@@ -218,10 +245,11 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
         onBack={() => setView("pick")}
         onStart={(tasks) => start("quiz", tasks)}
         onSample={() => setDraft(sampleQuiz(locale))}
-        onLoad={() => host.post({ type: "load_tasks" })}
+        onLoad={importTasks}
         onSave={() => host.post({ type: "save_tasks", set: { ...draft, game: "quiz" } })}
       />
       {bank}
+      {myDialogs}
       </>
     );
   }

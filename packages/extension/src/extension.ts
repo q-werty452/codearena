@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { homedir } from "node:os";
-import { TaskSet, type HostToUi, type UiToHost } from "@codearena/shared";
+import type { HostToUi, TaskSet, UiToHost } from "@codearena/shared";
 import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
 import { CodeTasks } from "./codeTask.ts";
@@ -8,6 +8,7 @@ import { LessonBar } from "./lessonBar.ts";
 import { AntiCheat } from "./antiCheat.ts";
 import { LessonLive } from "./lessonLive.ts";
 import { runChecks } from "./runner.ts";
+import { MyTasks } from "./myTasks.ts";
 
 /**
  * CodeArena — точка входа расширения.
@@ -17,18 +18,26 @@ import { runChecks } from "./runner.ts";
 
 let session: Session;
 let sidebar: WebviewHost;
+let myTasks: MyTasks;
 
 /** API для сквозных тестов (e2e/), пользователям не нужно. */
 export interface CodeArenaApi {
   session: Session;
+  myTasks: MyTasks;
 }
 
 export function activate(context: vscode.ExtensionContext): CodeArenaApi {
   session = new Session(context);
   sidebar = new WebviewHost(context, "sidebar");
+  // Свои задания и ИИ: результат — в панель учителя (и в боковую, ей не мешает).
+  myTasks = new MyTasks(context, (m) => {
+    sidebar.post(m);
+    GamePanel.current?.post(m);
+  });
 
   context.subscriptions.push(
     session,
+    myTasks,
     session.onMessage((m) => {
       sidebar.post(m);
       GamePanel.current?.post(m);
@@ -70,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
   context.subscriptions.push(codeTasks, new AntiCheat(session, (uri) => codeTasks.isTaskFile(uri)));
 
   void session.restore();
-  return { session };
+  return { session, myTasks };
 }
 
 /** Набор заданий → файл .codearena.json */
@@ -83,19 +92,6 @@ async function saveTasks(set: TaskSet): Promise<void> {
   if (!uri) return;
   await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(JSON.stringify(set, null, 2) + "\n"));
   void vscode.window.showInformationMessage(vscode.l10n.t("Saved: {0}", uri.fsPath));
-}
-
-/** Файл → набор заданий (проверяется схемой, мусор отклоняется). */
-async function loadTasks(): Promise<TaskSet | null> {
-  const [uri] = (await vscode.window.showOpenDialog({ canSelectMany: false, filters: { "CodeArena": ["json"] } })) ?? [];
-  if (!uri) return null;
-  try {
-    const raw = JSON.parse(new TextDecoder().decode(await vscode.workspace.fs.readFile(uri)));
-    return TaskSet.parse(raw);
-  } catch {
-    void vscode.window.showErrorMessage(vscode.l10n.t("This file is not a CodeArena task set."));
-    return null;
-  }
 }
 
 export function deactivate(): void {}
@@ -137,6 +133,7 @@ class WebviewHost implements vscode.WebviewViewProvider {
         this.ready = true;
         void this.webview?.postMessage({ type: "session", session: session.snapshot } satisfies HostToUi);
         for (const m of this.pending.splice(0)) void this.webview?.postMessage(m);
+        myTasks.pushState();
         break;
       case "join":
         if (/^\d{6}$/.test(msg.code)) await session.join(msg.code, msg.name);
@@ -212,11 +209,27 @@ class WebviewHost implements vscode.WebviewViewProvider {
         this.post({ type: "check_result", requestId: msg.requestId, results: o.results, error: o.error, message: o.message });
         break;
       }
-      case "load_tasks": {
-        const set = await loadTasks();
-        if (set) this.post({ type: "tasks_loaded", set });
+      case "import_tasks":
+        await myTasks.importFile();
         break;
-      }
+      case "my_tasks_add":
+        await myTasks.add(msg.title, "paste", msg.tasks);
+        break;
+      case "my_tasks_delete":
+        await myTasks.remove(msg.id);
+        break;
+      case "ai_generate":
+        await myTasks.generate(msg.req);
+        break;
+      case "ai_cancel":
+        myTasks.cancel();
+        break;
+      case "ai_set_key":
+        await myTasks.askKey();
+        break;
+      case "ai_clear_key":
+        await myTasks.clearKey();
+        break;
     }
   }
 }

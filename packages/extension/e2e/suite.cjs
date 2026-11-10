@@ -141,6 +141,43 @@ async function liveTeacherScenario(session, step) {
   await sleep(800);
 }
 
+async function myTasksScenario(api, step) {
+  const my = api.myTasks;
+  const path = require("node:path");
+  // 1) Word: нумерованный список, правильный вариант жирным.
+  await vscode.commands.executeCommand("codearena.importTasks", vscode.Uri.file(path.join(process.env.CODEARENA_E2E_FIXTURES, "questions.docx")));
+  let r = my.lastResult;
+  const counts = (r) => Object.entries(r.byGame).map(([g, t]) => g + " " + t.length).join(", ");
+  step("Word file → " + counts(r) + "; library sets: " + my.sets().length);
+  if (r.byGame.quiz?.length !== 2 || r.byGame.tug?.length !== 1) throw new Error("docx import wrong: " + JSON.stringify(r));
+
+  // 2) Конспект без заданий в знакомом формате → предложение разобрать с ИИ.
+  await vscode.commands.executeCommand("codearena.importTasks", vscode.Uri.file(path.join(process.env.CODEARENA_E2E_TMP, "notes.txt")));
+  if (!my.lastResult.unrecognized) throw new Error("notes.txt should be unrecognized");
+  step("plain notes → unrecognized, AI offered");
+
+  // 3) Неверный ключ — понятная ошибка.
+  await my.storeKey("bad-key-000000000000000000");
+  await my.generate({ mode: "generate", game: "quiz", language: "html", topic: "Ссылки", count: 5, difficulty: "easy", locale: "ru" });
+  step("bad key → error: " + my.aiState.error);
+  if (my.aiState.error !== "bad_key") throw new Error("expected bad_key");
+
+  // 4) Разбор конспекта с ИИ: задания раскладываются по играм.
+  await my.storeKey("test-key-1234567890abcdef");
+  await my.generate({ mode: "extract", game: "quiz", language: "css", topic: "", count: 20, difficulty: "easy", locale: "ru" });
+  r = my.lastResult;
+  step("AI read the notes → " + counts(r) + " (model " + my.aiState.model + ")");
+  if (r.source !== "ai" || r.byGame.quiz?.length !== 2 || r.byGame.tug?.length !== 1) throw new Error("extract wrong: " + JSON.stringify(r));
+
+  // 5) Генерация Codewars: эталоны запускаются; сломанное чинится одним кругом, остальное отбрасывается.
+  await my.generate({ mode: "generate", game: "codewars", language: "javascript", topic: "Массивы: filter", count: 3, difficulty: "easy", locale: "ru" });
+  r = my.lastResult;
+  const prompts = (r.byGame.codewars || []).map((t) => t.prompt);
+  step("AI codewars → kept: " + prompts.join(" | ") + "; skipped: " + r.skipped.map((x) => x.reason).join(", "));
+  if (prompts.length !== 2 || !prompts.includes("Чётные (исправлено)") || r.skipped.filter((x) => x.reason === "starter_passes").length !== 1) throw new Error("verification wrong: " + JSON.stringify({ prompts, skipped: r.skipped }));
+  step("library now has " + my.sets().length + " sets");
+}
+
 exports.run = async function run() {
   const log = [];
   const step = (s) => { log.push(s); console.log("[e2e] " + s); };
@@ -150,6 +187,11 @@ exports.run = async function run() {
     const api = await ext.activate();
     const session = api.session;
 
+    if (SCENARIO === "mytasks") {
+      await myTasksScenario(api, step);
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
     if (SCENARIO === "liveteacher") {
       await liveTeacherScenario(session, step);
       fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, Library } from "lucide-react";
+import { ArrowLeft, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, Library, Wand2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Task, TaskSet } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -40,6 +40,7 @@ export function TugEditor({
   onStart,
   onSample,
   onBank,
+  onAi,
   onLoad,
   onSave,
 }: {
@@ -54,6 +55,7 @@ export function TugEditor({
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
   onBank?: () => void;
+  onAi?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -84,6 +86,11 @@ export function TugEditor({
             {onBank && (
               <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
                 {t("bank.open")}
+              </Button>
+            )}
+            {onAi && (
+              <Button size="sm" icon={<Wand2 size={14} />} onClick={onAi}>
+                {t("ai.short")}
               </Button>
             )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
@@ -119,6 +126,11 @@ export function TugEditor({
               <Button variant="primary" icon={<Plus size={14} />} onClick={add}>
                 {t("tug.add")}
               </Button>
+              {onAi && (
+                <Button icon={<Wand2 size={14} />} onClick={onAi}>
+                  {t("my.ai")}
+                </Button>
+              )}
               <Button icon={<Sparkles size={14} />} onClick={onSample}>
                 {t("edit.sample")}
               </Button>
