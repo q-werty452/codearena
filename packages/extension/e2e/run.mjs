@@ -1,7 +1,7 @@
 // Сквозной тест Codewars: бот-учитель + настоящий VS Code с расширением.
 // Нужен запущенный сервер: npm run dev:server. Запуск: node e2e/run.mjs
 import { runTests } from "@vscode/test-electron";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createRequire } from "node:module";
@@ -58,6 +58,9 @@ t.on("message", (d) => {
 });
 
 const tmp = mkdtempSync(join(tmpdir(), "codearena-e2e-"));
+// Тесты ходят на локальный сервер, а не на публичный.
+mkdirSync(join(tmp, "user", "User"), { recursive: true });
+writeFileSync(join(tmp, "user", "User", "settings.json"), JSON.stringify({ "codearena.serverUrl": `http://${server}` }));
 const out = join(tmp, "result.json");
 let failed = false;
 try {

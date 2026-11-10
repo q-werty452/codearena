@@ -2,8 +2,10 @@ import { SELF } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import type { CreateRoomResponse, ServerMessage } from "@codearena/shared";
 
+let ipCounter = 0;
 async function createRoom(): Promise<CreateRoomResponse> {
-  const r = await SELF.fetch("http://x/rooms", { method: "POST" });
+  // Каждой комнате — свой IP, чтобы не упираться в лимит 10 комнат в минуту.
+  const r = await SELF.fetch("http://x/rooms", { method: "POST", headers: { "cf-connecting-ip": `10.0.0.${++ipCounter}` } });
   expect(r.status).toBe(201);
   return r.json();
 }
@@ -35,6 +37,18 @@ async function connect(code: string, teacher?: string) {
     },
   };
 }
+
+describe("защита бесплатного лимита", () => {
+  it("с одного IP не больше 10 комнат в минуту", async () => {
+    const statuses: number[] = [];
+    for (let i = 0; i < 11; i++) {
+      const r = await SELF.fetch("http://x/rooms", { method: "POST", headers: { "cf-connecting-ip": "203.0.113.7" } });
+      statuses.push(r.status);
+    }
+    expect(statuses.slice(0, 10).every((s) => s === 201)).toBe(true);
+    expect(statuses[10]).toBe(429);
+  });
+});
 
 describe("комнаты и лобби", () => {
   it("создаёт комнату с 6-значным кодом", async () => {

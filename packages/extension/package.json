@@ -132,8 +132,8 @@
       "properties": {
         "codearena.serverUrl": {
           "type": "string",
-          "default": "http://127.0.0.1:8787",
-          "markdownDescription": "Game server URL. Change it only if your school runs its own server."
+          "default": "https://codearena.codearena-server.workers.dev",
+          "markdownDescription": "Game server URL. The default is the free public CodeArena server. Change it only if your school runs its own server (see the [README](https://github.com/q-werty452/codearena#self-hosting))."
         }
       }
     },

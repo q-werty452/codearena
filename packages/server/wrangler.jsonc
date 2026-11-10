@@ -8,5 +8,11 @@
     "bindings": [{ "name": "ROOMS", "class_name": "Room" }]
   },
   // SQLite-хранилище Durable Objects доступно на бесплатном плане.
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }]
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
+  // Защита бесплатного лимита: не больше 10 новых комнат в минуту с одного IP,
+  // не больше 300 проверок кода и подключений в минуту (класс за одним NAT укладывается).
+  "ratelimits": [
+    { "name": "CREATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+    { "name": "JOIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 300, "period": 60 } }
+  ]
 }

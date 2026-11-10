@@ -4,6 +4,17 @@ export { Room } from "./room.ts";
 
 export interface Env {
   ROOMS: DurableObjectNamespace<import("./room.ts").Room>;
+  /** Лимиты по IP (в тестах и локально могут отсутствовать). */
+  CREATE_LIMITER?: RateLimit;
+  JOIN_LIMITER?: RateLimit;
+}
+
+/** true — лимит превышен. Ключ — IP клиента. */
+async function limited(limiter: RateLimit | undefined, request: Request): Promise<boolean> {
+  if (!limiter) return false;
+  const ip = request.headers.get("cf-connecting-ip") ?? "local";
+  const { success } = await limiter.limit({ key: ip });
+  return !success;
 }
 
 const CORS = {
@@ -39,6 +50,7 @@ export default {
 
     // Создать комнату: вернуть 6-значный код и токен учителя.
     if (url.pathname === "/rooms" && request.method === "POST") {
+      if (await limited(env.CREATE_LIMITER, request)) return json({ error: "too_many_rooms" }, 429);
       for (let attempt = 0; attempt < 12; attempt++) {
         const code = randomCode();
         const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
@@ -52,6 +64,7 @@ export default {
     // Апгрейд до WebSocket: /rooms/123456/ws[?teacher=<token>]
     const m = url.pathname.match(/^\/rooms\/(\d{6})\/ws$/);
     if (m) {
+      if (await limited(env.JOIN_LIMITER, request)) return json({ error: "too_many_requests" }, 429);
       if (request.headers.get("upgrade")?.toLowerCase() !== "websocket") {
         return json({ error: "expected_websocket" }, 426);
       }
@@ -62,6 +75,7 @@ export default {
     // Проверить, существует ли комната (для поля ввода кода).
     const exists = url.pathname.match(/^\/rooms\/(\d{6})$/);
     if (exists && request.method === "GET") {
+      if (await limited(env.JOIN_LIMITER, request)) return json({ error: "too_many_requests" }, 429);
       const stub = env.ROOMS.get(env.ROOMS.idFromName(exists[1]!));
       return json({ exists: await stub.exists() });
     }

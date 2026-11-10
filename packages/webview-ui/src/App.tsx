@@ -53,7 +53,7 @@ export function Screen({ view, session, prefill }: { view: "sidebar" | "panel"; 
       busy={session.busy || (session.role === "student" && session.status === "connecting")}
       codeError={err?.field === "code" ? t("join.badCode") : null}
       nameError={err?.field === "name" ? t("join.nameTaken") : null}
-      generalError={err?.field === "general" ? t("join.offline") : null}
+      generalError={err?.field === "general" ? (err.message === "too_many" ? t("join.tooMany") : t("join.offline")) : null}
       onJoin={(code, name) => host.post({ type: "join", code, name })}
       onTeacher={() => host.post({ type: "create_room" })}
     />

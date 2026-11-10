@@ -6,7 +6,7 @@ Open source (MIT), zero cost: students' code runs on their own machines, the gam
 
 Made by [**q-werty452**](https://github.com/q-werty452).
 
-> 🚧 Work in progress. Ready: **Lesson mode** (the default: students mark Done / Still writing / Lost / Explain again from the status bar), **Quiz**, **Find the bug**, **Tug of war**, **Codewars**, **Race**, task bank. Next: server online, anti-cheat, live teacher code. See the [roadmap](docs/ROADMAP.md) and the [spec](docs/TZ.pdf).
+> 🚧 Work in progress. Ready: **Lesson mode** (the default: students mark Done / Still writing / Lost / Explain again from the status bar), **Quiz**, **Find the bug**, **Tug of war**, **Codewars**, **Race**, task bank. The server is online. Next: anti-cheat, live teacher code, AI task generation. See the [roadmap](docs/ROADMAP.md) and the [spec](docs/TZ.pdf).
 
 Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CSS are checked with selector rules (“there is a `<footer>`”, “every `img` has `alt`”, “`.card` has `display: flex`”), JavaScript and Python with test calls — all on the student's computer. Django/DRF and Flutter snippets are supported in Quiz and Find the bug (no code execution).
 
@@ -43,6 +43,23 @@ npm run build && npm run package -w codearena
 ```
 
 then in VS Code: *Extensions → … → Install from VSIX*.
+
+## Server
+
+The extension uses the free public server **https://codearena.codearena-server.workers.dev** (Cloudflare Workers free plan:
+students' code never runs there, it only keeps rooms, scores and timers). Per-IP rate limits protect the free quota.
+
+### Self-hosting
+
+A school can run its own copy on its own free Cloudflare account:
+
+```sh
+cd packages/server
+npx wrangler login
+npx wrangler deploy
+```
+
+Then set **CodeArena: Server Url** (`codearena.serverUrl`) in VS Code to your worker's URL.
 
 ## Design principles
 

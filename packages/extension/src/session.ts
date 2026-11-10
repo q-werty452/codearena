@@ -93,8 +93,9 @@ export class Session implements vscode.Disposable {
     let exists: boolean;
     try {
       exists = await this.roomExists(code);
-    } catch {
-      return this.set({ busy: false, error: { field: "general", message: "server_unreachable" } });
+    } catch (e) {
+      const message = (e as Error).message === "too_many" ? "too_many" : "server_unreachable";
+      return this.set({ busy: false, error: { field: "general", message } });
     }
     if (!exists) return this.set({ busy: false, error: { field: "code", message: "bad_code" } });
 
@@ -113,6 +114,7 @@ export class Session implements vscode.Disposable {
     this.set({ ...EMPTY_SESSION, savedName: this.state.savedName, busy: true });
     try {
       const r = await fetch(`${this.serverUrl}/rooms`, { method: "POST" });
+      if (r.status === 429) return this.set({ busy: false, error: { field: "general", message: "too_many" } });
       if (!r.ok) throw new Error(String(r.status));
       const { code, teacherToken } = CreateRoomResponse.parse(await r.json());
       this.token = teacherToken;
@@ -314,6 +316,7 @@ export class Session implements vscode.Disposable {
 
   private async roomExists(code: string): Promise<boolean> {
     const r = await fetch(`${this.serverUrl}/rooms/${code}`, { signal: AbortSignal.timeout(8000) });
+    if (r.status === 429) throw new Error("too_many");
     if (!r.ok) throw new Error(String(r.status));
     const body = (await r.json()) as { exists?: boolean };
     return body.exists === true;
