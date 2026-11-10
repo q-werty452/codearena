@@ -68,7 +68,11 @@ jobs:
       - name: Create the namespace (first release only)
         if: env.OVSX_PAT != ''
         run: npx --yes ovsx@1.4.0 create-namespace q-werty452 || echo "namespace already exists"
-      - run: npx --yes ovsx@1.4.0 publish *.vsix
+      # Без токена — Trusted Publishing; пока Open VSX не настроен (PUBLISH_OPENVSX не true и нет токена) — пропуск.
+      - if: env.OVSX_PAT != '' || vars.PUBLISH_OPENVSX == 'true'
+        run: npx --yes ovsx@1.4.0 publish *.vsix
+      - if: env.OVSX_PAT == '' && vars.PUBLISH_OPENVSX != 'true'
+        run: echo "::notice::Open VSX skipped — add the OVSX_PAT secret to publish there"
 
   github-release:
     needs: build
