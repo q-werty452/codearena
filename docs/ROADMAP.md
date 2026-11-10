@@ -26,7 +26,7 @@ sees everyone's progress.
 | 10 | Anti-cheat (off in Lesson), live teacher table, CSV export | ✅ |
 | 11 | **Lesson, part 2**: teacher shares one file read-only (`codearena:` FileSystemProvider, follow cursor, batched every 400 ms), checkpoints with line-diff progress, «Done N of M», laggards on top, click → student's code | ✅ |
 | 12 | **My tasks + AI**: import JSON / text / Word or paste text → tasks sorted into games and kept in *My tasks*; Gemini generation (teacher's key in SecretStorage) with local verification of reference solutions and one repair round | ✅ |
-| 13 | ⏳ next — Localization polish, publishing (Marketplace + Open VSX) | |
+| 13 | **Published** 0.1.0 (preview): [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=q-werty452.codearena), GitHub Release; Open VSX — after the `OVSX_PAT` secret | ✅ |
 | 14 | Projector page, Docker server | |
 
 ## Lesson protocol
