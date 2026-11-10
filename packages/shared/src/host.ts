@@ -47,6 +47,12 @@ export interface GameSnapshot {
   teamScores: number[];
   answered: number;
   total: number;
+  /** Канат: позиция −5…+5, кто последним дёрнул, победитель. */
+  rope: number;
+  lastPull: GameState["lastPull"];
+  winner: TeamIndex | null;
+  /** До какого момента мой ввод заблокирован после ошибки (локальные часы). */
+  lockedUntil: number | null;
 }
 
 export interface SessionSnapshot {
@@ -127,6 +133,10 @@ export function emptyGame(kind: GameKind, settings: GameSettings): GameSnapshot 
     teamScores: [],
     answered: 0,
     total: 0,
+    rope: 0,
+    lastPull: null,
+    winner: null,
+    lockedUntil: null,
   };
 }
 
@@ -155,14 +165,15 @@ export function applyGameMessage(
         limitMs: msg.limitMs,
         myAnswer: null,
         reveal: null,
-        result: null,
+        // В канате блокировка после ошибки переживает смену задания.
+        result: game?.kind === "tug" ? game.result : null,
       });
     case "answered":
       return game?.task?.id === msg.taskId ? patch({ myAnswer: msg.answer }) : game;
     case "reveal":
       return patch({ reveal: { answer: msg.answer, explanation: msg.explanation, stats: msg.stats } });
     case "result":
-      return patch({ result: { correct: msg.correct, points: msg.points } });
+      return patch({ result: { correct: msg.correct, points: msg.points }, lockedUntil: local(msg.lockedUntil) });
     case "state": {
       const st = msg.state;
       clock.offset = st.serverNow - Date.now();
@@ -176,6 +187,9 @@ export function applyGameMessage(
         teamScores: st.teamScores,
         answered: st.answered,
         total: st.total,
+        rope: st.rope,
+        lastPull: st.lastPull ? { ...st.lastPull, at: st.lastPull.at - clock.offset } : null,
+        winner: st.winner,
       });
     }
     case "game_over":

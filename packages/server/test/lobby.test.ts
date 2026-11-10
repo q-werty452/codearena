@@ -186,3 +186,51 @@ describe("викторина через комнату", () => {
     expect((await t.next("error")).code).toBe("invalid_tasks");
   });
 });
+
+describe("канат через комнату", () => {
+  const tasks = [
+    { type: "short_answer", topic: "t", prompt: "5 + 8", answers: ["13"] },
+    { type: "short_answer", topic: "t", prompt: "2 * 3", answers: ["6"] },
+  ];
+
+  it("без двух команд не стартует; первый правильный тянет, ошибка блокирует", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    const a = await connect(code);
+    a.send({ type: "join", name: "Айбек К." });
+    const ja = await a.next("joined");
+    const b = await connect(code);
+    b.send({ type: "join", name: "Нурай А." });
+    const jb = await b.next("joined");
+
+    t.send({ type: "start_game", game: "tug", settings: { roundSec: 60, wrongLockSec: 3 }, tasks });
+    expect((await t.next("error")).code).toBe("need_two_teams");
+
+    t.send({ type: "set_teams", mode: "teams2", assignment: { [ja.playerId]: 0, [jb.playerId]: 1 } });
+    await t.next("lobby", (m) => m.mode === "teams2");
+    t.send({ type: "start_game", game: "tug", settings: { roundSec: 60, wrongLockSec: 3 }, tasks });
+    await a.next("game_started");
+    t.send({ type: "next" }); // пропустить отсчёт
+    const task = await a.next("task");
+    expect(task.task).not.toHaveProperty("answers"); // ответ не утекает
+    await b.next("task");
+
+    b.send({ type: "submit", taskId: task.taskId, answer: "12" });
+    const wrong = await b.next("result");
+    expect(wrong.correct).toBe(false);
+    expect(wrong.lockedUntil).toBeGreaterThan(Date.now());
+    b.send({ type: "submit", taskId: task.taskId, answer: "13" });
+    expect((await b.next("error")).code).toBe("locked");
+
+    a.send({ type: "submit", taskId: task.taskId, answer: " 13 " });
+    expect((await a.next("result")).correct).toBe(true);
+    const st = await b.next("state", (m) => m.state.rope === -1);
+    expect(st.state.lastPull?.name).toBe("Айбек К.");
+    const next = await b.next("task", (m) => m.taskId !== task.taskId);
+    expect(next.task.prompt).toBe("2 * 3");
+
+    t.send({ type: "end_game" });
+    const over = await a.next("state", (m) => m.state.phase === "over");
+    expect(over.state.winner).toBe(0);
+  });
+});

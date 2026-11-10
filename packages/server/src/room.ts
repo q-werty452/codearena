@@ -192,9 +192,9 @@ export class Room extends DurableObject<Env> {
       case "start_game": {
         if (d.game && d.game.phase !== "over") return this.error(ws, "game_running", "Игра уже идёт");
         try {
-          d.game = engine.startGame(msg.game, msg.tasks, msg.settings, Date.now());
+          d.game = engine.startGame(msg.game, msg.tasks, msg.settings, Date.now(), d.mode);
         } catch (e) {
-          if (e instanceof GameError) return this.error(ws, e.code === "invalid_tasks" ? "invalid_tasks" : "no_game", e.message);
+          if (e instanceof GameError) return this.error(ws, e.code, e.message);
           throw e;
         }
         this.dispatch(engine.startEffects(d.game, this.gameEnv()));
@@ -279,7 +279,7 @@ export class Room extends DurableObject<Env> {
       try {
         this.dispatch(engine.submit(d.game, this.gameEnv(), att.playerId, msg.taskId, msg.answer ?? msg.code));
       } catch (e) {
-        if (e instanceof GameError) return this.error(ws, e.code === "no_game" ? "no_game" : e.code, e.message);
+        if (e instanceof GameError) return this.error(ws, e.code, e.message);
         throw e;
       }
       await this.save();

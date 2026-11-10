@@ -17,7 +17,7 @@ import {
   type UiToHost,
 } from "@codearena/shared";
 
-export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz";
+export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug";
 
 const NAMES = [
   "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
@@ -55,6 +55,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
       };
     case "student":
     case "quiz":
+    case "tug":
       return { ...EMPTY_SESSION, role: "student", status: "online", code: "482913", me: { playerId: "p0", name: "Айбек Касымов", team: 0 }, lobby };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
@@ -65,7 +66,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
 
 let stopGame: (() => void) | null = null;
 
-export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList } = {}): void {
+export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList } = {}): void {
   stopGame?.();
   let s = initial;
   const emit = (m: HostToUi) => setTimeout(() => window.postMessage(m, "*"), 0);
@@ -106,17 +107,21 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
   const scheduleBots = (taskId: string) => {
     for (const p of s.lobby!.players) {
       if (p.id === me || !p.connected) continue;
+      const tug = game?.game === "tug";
       timers.push(
         setTimeout(() => {
-          const task = game?.tasks.find((x) => x.id === taskId);
-          if (!game || !task || task.type !== "choice") return;
-          const pick = Math.random() < 0.7 ? task.correct : Math.floor(Math.random() * task.options.length);
+          const task = game?.tasks[game.index];
+          if (!game || !task || game.taskKey !== taskId) return;
+          let answer: string | number;
+          if (task.type === "choice") answer = Math.random() < 0.7 ? task.correct : Math.floor(Math.random() * task.options.length);
+          else if (task.type === "short_answer") answer = Math.random() < 0.6 ? task.answers[0]! : "0";
+          else return;
           try {
-            deliver(engine.submit(game, env(), p.id, taskId, pick));
+            deliver(engine.submit(game, env(), p.id, taskId, answer));
           } catch {
-            /* опоздал или уже показали ответ */
+            /* опоздал, заблокирован или уже показали ответ */
           }
-        }, 1500 + Math.random() * 11000),
+        }, tug ? 2500 + Math.random() * 9000 : 1500 + Math.random() * 11000),
       );
     }
   };
@@ -127,11 +132,17 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
     clearInterval(tick);
     timers.forEach(clearTimeout);
   };
-  const startQuiz = (tasks: TaskList, sec = 20) => {
-    game = engine.startGame("quiz", tasks, GameSettings.parse({ questionSec: sec }), Date.now());
+  const startGame = (kind: "quiz" | "tug", tasks: TaskList, settings = GameSettings.parse({})) => {
+    try {
+      game = engine.startGame(kind, tasks, settings, Date.now(), s.lobby!.mode);
+    } catch (e) {
+      emit({ type: "toast", text: (e as Error).message });
+      return;
+    }
     deliver(engine.startEffects(game, env()));
   };
-  if (opts.autoQuiz) setTimeout(() => startQuiz(opts.autoQuiz!), 300);
+  if (opts.autoQuiz) setTimeout(() => startGame("quiz", opts.autoQuiz!), 300);
+  if (opts.autoTug) setTimeout(() => startGame("tug", opts.autoTug!), 300);
 
   const onSend = (m: ClientMessage) => {
     const lobby = s.lobby;
@@ -148,7 +159,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         return push();
       }
     }
-    if (m.type === "start_game") return startQuiz(m.tasks, m.settings.questionSec);
+    if (m.type === "start_game") return startGame(m.game === "tug" ? "tug" : "quiz", m.tasks, m.settings);
     switch (m.type) {
       case "set_teams": {
         const n = m.mode === "teams2" ? 2 : m.mode === "teams3" ? 3 : 0;

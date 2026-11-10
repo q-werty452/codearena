@@ -59,7 +59,10 @@ export function play(sound: Sound): void {
 interface UiState {
   sound?: boolean;
   draft?: TaskSet;
+  draftTug?: TaskSet;
   questionSec?: number;
+  roundSec?: number;
+  wrongLockSec?: number;
 }
 
 const readState = (): UiState => vscode.getState<UiState>() ?? {};
@@ -117,5 +120,42 @@ export function sampleQuiz(locale: Locale): TaskSet {
           q("What does print(2 ** 3) output?", ["6", "8", "9", "23"], 1, "** is exponentiation: 2 × 2 × 2 = 8."),
           q("What is the index of the first list element?", ["0", "1", "-1"], 0, "Python indexes start at zero."),
         ],
+  };
+}
+
+/* ───────────────────────── Пример для каната ───────────────────────── */
+
+export function sampleTug(locale: Locale): TaskSet {
+  const ru = locale === "ru";
+  const s = (prompt: string, ...answers: string[]) => ({
+    type: "short_answer" as const,
+    topic: ru ? "Разминка" : "Warm-up",
+    difficulty: "easy" as const,
+    timeLimitSec: 60,
+    prompt,
+    answers,
+    caseSensitive: false,
+  });
+  return {
+    version: 1,
+    title: ru ? "Разминка: числа и Python" : "Warm-up: numbers and Python",
+    tasks: [
+      s("5 + 8", "13"),
+      s("print(len('hello'))", "5"),
+      s("7 × 6", "42"),
+      s("print(10 // 3)", "3"),
+      s("print(2 ** 4)", "16"),
+      s("print('ab' * 3)", "ababab"),
+      s("100 − 37", "63"),
+      s("print(10 % 4)", "2"),
+      s("print(type(3.0).__name__)", "float"),
+      s("print(len([1, 2, 3, 4]))", "4"),
+      s("9 × 9", "81"),
+      s("print('Python'[0])", "P"),
+      s("print(max(3, 8, 5))", "8"),
+      s("print(sum([1, 2, 3]))", "6"),
+      s("144 ÷ 12", "12"),
+      s("print(bool(0))", "False"),
+    ],
   };
 }

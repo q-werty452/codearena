@@ -133,6 +133,38 @@ const en = {
   "game.open": "Open game",
   "game.waitingNext": "Waiting for the next question…",
   "game.teams": "Teams",
+  "tug.editTitle": "Tug of war tasks",
+  "tug.prompt": "Task",
+  "tug.promptPlaceholder": "5 + 8",
+  "tug.answers": "Correct answers",
+  "tug.answersPlaceholder": "13",
+  "tug.answersHint": "Several accepted answers — separate with commas",
+  "tug.caseSensitive": "Case matters",
+  "tug.add": "Add task",
+  "tug.errAnswer": "Add a correct answer",
+  "tug.roundTime": "Round",
+  "tug.min": "{n} min",
+  "tug.penalty": "Pause after a mistake",
+  "tug.loops": "Tasks repeat if the round is longer than the list",
+  "tug.yourAnswer": "Your answer",
+  "tug.send": "Pull!",
+  "tug.locked": "Wait {n} s",
+  "tug.pulled": "{name} pulls for {team}!",
+  "tug.youPulled": "You pulled!",
+  "tug.noTeam": "The teacher hasn't put you in a team yet",
+  "tug.wins": "{team} win!",
+  "tug.draw": "Draw!",
+  "tug.skip": "Skip task",
+  "tug.answer": "Answer: {a}",
+  "tug.pulls.one": "pull",
+  "tug.pulls.few": "pulls",
+  "tug.pulls.many": "pulls",
+  "tug.pullsTitle": "Pulls",
+  "tug.ready": "{n} tasks ready",
+  "tug.notReady": "Fix {n} tasks to start",
+  "tug.task": "Task {n}",
+  "tug.timeLeft": "Time left",
+  "tug.needTeams": "Switch the lobby to 2 teams first",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -267,6 +299,38 @@ const ru: Dict = {
   "game.open": "Открыть игру",
   "game.waitingNext": "Ждём следующий вопрос…",
   "game.teams": "Команды",
+  "tug.editTitle": "Задания для каната",
+  "tug.prompt": "Задание",
+  "tug.promptPlaceholder": "5 + 8",
+  "tug.answers": "Правильные ответы",
+  "tug.answersPlaceholder": "13",
+  "tug.answersHint": "Несколько допустимых ответов — через запятую",
+  "tug.caseSensitive": "Учитывать регистр",
+  "tug.add": "Добавить задание",
+  "tug.errAnswer": "Добавьте правильный ответ",
+  "tug.roundTime": "Раунд",
+  "tug.min": "{n} мин",
+  "tug.penalty": "Пауза после ошибки",
+  "tug.loops": "Если раунд длиннее списка, задания повторяются",
+  "tug.yourAnswer": "Твой ответ",
+  "tug.send": "Тянуть!",
+  "tug.locked": "Подожди {n} с",
+  "tug.pulled": "{name} тянет за {team}!",
+  "tug.youPulled": "Ты дёрнул канат!",
+  "tug.noTeam": "Учитель ещё не добавил тебя в команду",
+  "tug.wins": "Победили {team}!",
+  "tug.draw": "Ничья!",
+  "tug.skip": "Пропустить задание",
+  "tug.answer": "Ответ: {a}",
+  "tug.pulls.one": "рывок",
+  "tug.pulls.few": "рывка",
+  "tug.pulls.many": "рывков",
+  "tug.pullsTitle": "Рывки",
+  "tug.ready": "Заданий готово: {n}",
+  "tug.notReady": "Исправьте заданий: {n}",
+  "tug.task": "Задание {n}",
+  "tug.timeLeft": "Осталось",
+  "tug.needTeams": "Сначала включите в лобби 2 команды",
 };
 
 export const DICTS = { en, ru } as const;
@@ -284,11 +348,25 @@ export function translate(locale: Locale, key: MessageKey, vars?: Record<string,
   return s;
 }
 
+/** Форма слова для числа: 1 рывок, 2 рывка, 5 рывков (en: 1 pull, 2 pulls). */
+export function pluralForm(locale: Locale, n: number): "one" | "few" | "many" {
+  const a = Math.abs(n);
+  if (locale !== "ru") return a === 1 ? "one" : "many";
+  const d = a % 10;
+  const dd = a % 100;
+  if (d === 1 && dd !== 11) return "one";
+  if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return "few";
+  return "many";
+}
+
 export const LocaleContext = createContext<Locale>("en");
 
 export function useT() {
   const locale = useContext(LocaleContext);
-  return (key: MessageKey, vars?: Record<string, string | number>) => translate(locale, key, vars);
+  const t = (key: MessageKey, vars?: Record<string, string | number>) => translate(locale, key, vars);
+  /** «3 рывка»: число + слово в нужной форме. Ключи base.one / base.few / base.many. */
+  t.count = (base: string, n: number) => `${n} ${translate(locale, `${base}.${pluralForm(locale, n)}` as MessageKey)}`;
+  return t;
 }
 
 /** Код комнаты для показа: «482 913». */

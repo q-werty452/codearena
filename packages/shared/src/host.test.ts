@@ -5,7 +5,7 @@ import { applyGameMessage, type GameSnapshot } from "./host.ts";
 const settings = GameSettings.parse({});
 const state = (over: Record<string, unknown> = {}) => ({
   type: "state" as const,
-  state: { game: "quiz" as const, phase: "playing" as const, taskIndex: 0, taskCount: 3, deadline: 50_000, rope: 0, teamScores: [], leaders: [], answered: 1, total: 5, pausedLeftMs: null, serverNow: 40_000, ...over },
+  state: { game: "quiz" as const, phase: "playing" as const, taskIndex: 0, taskCount: 3, deadline: 50_000, rope: 0, teamScores: [], leaders: [], answered: 1, total: 5, pausedLeftMs: null, serverNow: 40_000, lastPull: null, winner: null, ...over },
 });
 
 describe("applyGameMessage", () => {

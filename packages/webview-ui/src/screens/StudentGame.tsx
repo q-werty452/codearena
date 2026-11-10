@@ -8,7 +8,9 @@ import { TimerRing } from "../ui/Controls.tsx";
 import { Countdown, Leaderboard, Podium, QuestionView, SoundToggle, type TileState } from "../ui/Game.tsx";
 import { StatusDot } from "../ui/Status.tsx";
 import { celebrate, play, secondsLeft, useNow } from "../lib/game.ts";
-import { useT } from "../lib/i18n.ts";
+import { useT, type MessageKey } from "../lib/i18n.ts";
+import { StudentTugBody } from "./StudentTug.tsx";
+import { WinnerBanner } from "./teacher/TeacherGame.tsx";
 import { host } from "../lib/session.ts";
 
 /** Панель игры ученика (вкладка в области редактора). */
@@ -21,8 +23,8 @@ export function StudentGame({ session }: { session: SessionSnapshot }) {
     <div className="flex min-h-full flex-col">
       <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-2.5">
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[12px] font-semibold text-accent">{t("game.quiz")}</span>
-          {g.index >= 0 && g.phase !== "over" && <span className="text-[13px] text-muted tabular">{t("game.question", { n: g.index + 1, total: g.count })}</span>}
+          <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[12px] font-semibold text-accent">{t(`game.${g.kind}` as MessageKey)}</span>
+          {g.kind === "quiz" && g.index >= 0 && g.phase !== "over" && <span className="text-[13px] text-muted tabular">{t("game.question", { n: g.index + 1, total: g.count })}</span>}
         </div>
         <div className="flex items-center gap-2">
           <StatusDot status={session.status} withText={false} />
@@ -30,22 +32,25 @@ export function StudentGame({ session }: { session: SessionSnapshot }) {
         </div>
       </header>
       <div className="mx-auto flex w-full max-w-[820px] flex-1 flex-col px-5 py-6">
-        <Body g={g} meId={meId} />
+        <Body g={g} meId={meId} session={session} />
       </div>
     </div>
   );
 }
 
-function Body({ g, meId }: { g: GameSnapshot; meId?: string }) {
+function Body({ g, meId, session }: { g: GameSnapshot; meId?: string; session: SessionSnapshot }) {
   const t = useT();
   const now = useNow();
   const left = secondsLeft(g, now);
+  const title = t(`game.${g.kind}` as MessageKey);
+  const teamNames = session.lobby?.teams.map((x) => x.name) ?? [];
 
-  if (g.phase === "over") return <StudentResults g={g} meId={meId} />;
+  if (g.phase === "over") return <StudentResults g={g} meId={meId} teamNames={teamNames} />;
   if (g.phase === "countdown" || (g.phase === "paused" && g.index < 0)) {
-    return g.phase === "paused" ? <PausedCard /> : <Countdown left={left} title={t("game.quiz")} />;
+    return g.phase === "paused" ? <PausedCard /> : <Countdown left={left} title={title} />;
   }
   if (g.phase === "paused") return <PausedCard />;
+  if (g.kind === "tug") return <StudentTugBody session={session} g={g} />;
   if (!g.task || g.task.type !== "choice") return <Waiting />;
   if (g.phase === "reveal") return <Reveal g={g} meId={meId} />;
   return <Question g={g} left={left} />;
@@ -171,7 +176,7 @@ function Reveal({ g, meId }: { g: GameSnapshot; meId?: string }) {
   );
 }
 
-function StudentResults({ g, meId }: { g: GameSnapshot; meId?: string }) {
+function StudentResults({ g, meId, teamNames }: { g: GameSnapshot; meId?: string; teamNames: string[] }) {
   const t = useT();
   const idx = meId ? g.leaders.findIndex((l) => l.id === meId) : -1;
   const me = idx >= 0 ? g.leaders[idx] : undefined;
@@ -182,6 +187,7 @@ function StudentResults({ g, meId }: { g: GameSnapshot; meId?: string }) {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-center text-[26px] font-bold">{t("game.results")}</h1>
+      {g.kind === "tug" && <WinnerBanner winner={g.winner} names={teamNames} />}
       <Podium rows={g.leaders} />
       {me && (
         <Card className="flex items-center gap-4 p-4">
@@ -240,7 +246,7 @@ export function StudentGameSidebar({ session }: { session: SessionSnapshot }) {
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("game.inProgress")}</span>
         <StatusDot status={session.status} withText={false} />
       </div>
-      <div className="text-[18px] font-bold">{t("game.quiz")}</div>
+      <div className="text-[18px] font-bold">{t(`game.${g.kind}` as MessageKey)}</div>
       {me && (
         <Card className="grid grid-cols-2 gap-2 p-3 text-center">
           <div>

@@ -7,7 +7,7 @@ import { useT, type MessageKey } from "../../lib/i18n.ts";
 
 const GAMES: { kind: GameKind; icon: LucideIcon; color: string; ready: boolean }[] = [
   { kind: "quiz", icon: MessageCircleQuestion, color: "#8B5CF6", ready: true },
-  { kind: "tug", icon: MoveHorizontal, color: "#F43F5E", ready: false },
+  { kind: "tug", icon: MoveHorizontal, color: "#F43F5E", ready: true },
   { kind: "codewars", icon: SquareCode, color: "#3B82F6", ready: false },
   { kind: "race", icon: Flag, color: "#10B981", ready: false },
   { kind: "bug", icon: Bug, color: "#F59E0B", ready: false },

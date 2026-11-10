@@ -141,6 +141,10 @@ export const GameState = z.object({
   pausedLeftMs: z.number().nullable().default(null),
   /** Время сервера (ms) — клиент по нему поправляет свои часы. */
   serverNow: z.number(),
+  /** Канат: кто последним дёрнул (для анимации и подписи «Айбек тянет!»). */
+  lastPull: z.object({ team: TeamIndex, playerId: z.string(), name: z.string(), at: z.number() }).nullable().default(null),
+  /** Победившая команда после окончания (null — ничья или не командная игра). */
+  winner: TeamIndex.nullable().default(null),
 });
 export type GameState = z.infer<typeof GameState>;
 
@@ -239,6 +243,8 @@ function ErrorCodeSchema() {
     "invalid_settings",
     "invalid_tasks",
     "already_answered",
+    "need_two_teams",
+    "no_team",
   ]);
 }
 export type ErrorCode = z.infer<ReturnType<typeof ErrorCodeSchema>>;
