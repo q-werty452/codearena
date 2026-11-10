@@ -1,0 +1,24 @@
+{
+  "name": "@codearena/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev --port 8787 --ip 0.0.0.0",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.6.1",
+    "@cloudflare/workers-types": "^5.20261110.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.124.0"
+  },
+  "dependencies": {
+    "@codearena/shared": "*",
+    "zod": "^4.6.7"
+  }
+}

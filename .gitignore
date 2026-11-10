@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+*.vsix
+.wrangler/
+.dev.vars
+.DS_Store
+coverage/
+packages/extension/media/webview/
+packages/extension/LICENSE

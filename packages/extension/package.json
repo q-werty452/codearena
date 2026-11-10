@@ -1,0 +1,101 @@
+{
+  "name": "codearena",
+  "displayName": "CodeArena — coding games for class",
+  "description": "Kahoot + Codewars inside VS Code: tug of war, quiz, Codewars, race and find-the-bug games for programming lessons.",
+  "version": "0.1.0",
+  "publisher": "q-werty452",
+  "author": {
+    "name": "q-werty452",
+    "url": "https://github.com/q-werty452"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/q-werty452/codearena#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/q-werty452/codearena.git"
+  },
+  "bugs": {
+    "url": "https://github.com/q-werty452/codearena/issues"
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1E1B2E",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "keywords": [
+    "classroom",
+    "education",
+    "kahoot",
+    "codewars",
+    "quiz",
+    "game",
+    "teacher",
+    "school"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onUri"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codearena",
+          "title": "CodeArena",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "codearena": [
+        {
+          "type": "webview",
+          "id": "codearena.sidebar",
+          "name": "CodeArena"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "codearena.openPanel",
+        "title": "Open game panel",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.join",
+        "title": "Join a room",
+        "category": "CodeArena"
+      }
+    ],
+    "configuration": {
+      "title": "CodeArena",
+      "properties": {
+        "codearena.serverUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:8787",
+          "markdownDescription": "Game server URL. Change it only if your school runs its own server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/vscode": "~1.100.0",
+    "@vscode/vsce": "^4.1.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

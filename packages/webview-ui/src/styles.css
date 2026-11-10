@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/*
+ * Дизайн-система CodeArena.
+ * База (фон, текст, рамки, шрифты) берётся из темы VS Code — поэтому
+ * интерфейс одинаково аккуратен в светлой и тёмной теме.
+ * Яркие цвета — только для игровых элементов, они не зависят от темы.
+ * Токены объявлены и на body: VS Code вешает переменные темы на него.
+ */
+:root,
+body {
+  --ca-bg: var(--vscode-sideBar-background, var(--vscode-editor-background, #181818));
+  --ca-fg: var(--vscode-foreground, #cccccc);
+  --ca-muted: var(--vscode-descriptionForeground, #9d9d9d);
+  --ca-border: var(--vscode-widget-border, var(--vscode-panel-border, rgb(128 128 128 / 0.22)));
+  --ca-input: var(--vscode-input-background, rgb(128 128 128 / 0.08));
+  --ca-input-fg: var(--vscode-input-foreground, var(--ca-fg));
+  --ca-focus: var(--vscode-focusBorder, #8b5cf6);
+  --ca-font: var(--vscode-font-family, ui-sans-serif, system-ui, sans-serif);
+  --ca-mono: var(--vscode-editor-font-family, ui-monospace, "SFMono-Regular", Menlo, monospace);
+
+  /* Поверхности: чуть светлее/темнее фона, вычисляются из темы. */
+  --ca-surface: color-mix(in srgb, var(--ca-fg) 4%, var(--ca-bg));
+  --ca-surface-2: color-mix(in srgb, var(--ca-fg) 8%, var(--ca-bg));
+  --ca-hover: color-mix(in srgb, var(--ca-fg) 6%, transparent);
+
+  /* Игровые цвета из ТЗ. */
+  --ca-accent: #8b5cf6;
+  --ca-accent-hover: #7c4ff0;
+  --ca-success: #22c55e;
+  --ca-error: #ef4444;
+  --ca-warning: #f59e0b;
+  --ca-team-0: #f43f5e;
+  --ca-team-1: #3b82f6;
+  --ca-team-2: #10b981;
+  --ca-opt-0: #f43f5e;
+  --ca-opt-1: #3b82f6;
+  --ca-opt-2: #f59e0b;
+  --ca-opt-3: #10b981;
+
+  /* На тёмной теме под яркими цветами фон чуть темнее. */
+  --ca-game-shade: 0%;
+}
+body.vscode-dark,
+body.vscode-high-contrast {
+  --ca-game-shade: 12%;
+}
+
+@theme inline {
+  --color-bg: var(--ca-bg);
+  --color-fg: var(--ca-fg);
+  --color-muted: var(--ca-muted);
+  --color-border: var(--ca-border);
+  --color-surface: var(--ca-surface);
+  --color-surface-2: var(--ca-surface-2);
+  --color-hover: var(--ca-hover);
+  --color-input: var(--ca-input);
+  --color-accent: var(--ca-accent);
+  --color-accent-hover: var(--ca-accent-hover);
+  --color-success: var(--ca-success);
+  --color-error: var(--ca-error);
+  --color-warning: var(--ca-warning);
+  --color-team-0: var(--ca-team-0);
+  --color-team-1: var(--ca-team-1);
+  --color-team-2: var(--ca-team-2);
+
+  --font-sans: var(--ca-font);
+  --font-mono: var(--ca-mono);
+
+  /* Типографика из ТЗ: 13 / 16 / 20–24 / 48–64. */
+  --text-body: 13px;
+  --text-btn: 16px;
+  --text-title: 22px;
+  --text-hero: 56px;
+
+  --radius-card: 12px;
+  --radius-btn: 10px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--ca-bg);
+    color: var(--ca-fg);
+    font-family: var(--ca-font);
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ca-focus);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--ca-accent) 35%, transparent);
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Тонкий скроллбар как в VS Code. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vscode-scrollbarSlider-background, rgb(128 128 128 / 0.35)) transparent;
+}
+
+@keyframes ca-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.ca-skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--ca-surface) 0%, var(--ca-surface-2) 50%, var(--ca-surface) 100%);
+  background-size: 200% 100%;
+  animation: ca-shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ca-skeleton { animation: none; }
+}

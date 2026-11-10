@@ -1,0 +1,25 @@
+{
+  "name": "codearena-monorepo",
+  "private": true,
+  "description": "Kahoot + Codewars inside VS Code: classroom coding games",
+  "author": "q-werty452 (https://github.com/q-werty452)",
+  "license": "MIT",
+  "workspaces": [
+    "packages/shared",
+    "packages/server",
+    "packages/webview-ui",
+    "packages/extension"
+  ],
+  "scripts": {
+    "build": "npm run build -w @codearena/webview-ui && npm run build -w codearena",
+    "dev:server": "npm run dev -w @codearena/server",
+    "dev:ui": "npm run dev -w @codearena/webview-ui",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "workerd": true,
+    "@vscode/vsce-sign": true
+  }
+}
