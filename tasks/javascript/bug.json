@@ -1,7 +1,7 @@
 {
   "version": 1,
   "game": "bug",
-  "title": "Найди баг: JavaScript",
+  "title": "Найди баг: JavaScript — базовый уровень",
   "author": "q-werty452",
   "description": "return, = и ===, выход за массив, строки вместо чисел, querySelector, forEach и map, безопасность. 20 заданий.",
   "tasks": [

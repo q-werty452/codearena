@@ -12,7 +12,7 @@ import { cn } from "../lib/cn.ts";
 import { play, secondsLeft, useNow } from "../lib/game.ts";
 import { useT, type MessageKey } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
-import { NoPython, TestRow } from "./StudentCodewars.tsx";
+import { NoPython, TestRow, noRuntime } from "./StudentCodewars.tsx";
 import { formatClock } from "./StudentTug.tsx";
 
 type AnyTask = NonNullable<GameSnapshot["task"]>;
@@ -235,8 +235,8 @@ function FixBody({ g, task, meId }: { g: GameSnapshot; task: FixTask; meId?: str
                 <div className="text-[13px] opacity-90">{t("bug.fixedHint")}</div>
               </div>
             </motion.div>
-          ) : run?.error === "no_python" ? (
-            <NoPython key="nopy" />
+          ) : noRuntime(run?.error) ? (
+            <NoPython key="nopy" dart={run?.error === "no_dart"} />
           ) : run?.error === "timeout" || run?.error === "compile" ? (
             <Card key="err" className="flex items-start gap-3 border-error/40 p-4">
               <AlertTriangle size={18} className="mt-0.5 shrink-0 text-error" />

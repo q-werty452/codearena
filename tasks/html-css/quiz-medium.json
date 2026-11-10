@@ -1,0 +1,369 @@
+{
+  "version": 1,
+  "game": "quiz",
+  "title": "Викторина: HTML и CSS — средний уровень",
+  "author": "q-werty452",
+  "description": "Специфичность и @layer, наследование, box model, em и rem, селекторы-соседи, формы (disabled и readonly, step), таблицы, относительные пути. По урокам колледжа. 24 вопросов.",
+  "tasks": [
+    {
+      "type": "choice",
+      "topic": "Специфичность",
+      "difficulty": "medium",
+      "timeLimitSec": 45,
+      "prompt": "Какого цвета будет текст `<p class=\"card__text\">` внутри `<article id=\"promo\" class=\"card\">`?\n```css\n#promo p { color: purple; }\narticle.card p { color: blue; }\n.card__text { color: green; }\np { color: red; }\n```",
+      "options": [
+        "зелёный",
+        "синий",
+        "фиолетовый",
+        "красный"
+      ],
+      "correct": 2,
+      "explanation": "Побеждает самый специфичный селектор: #promo p — один id (1,0,1). article.card p — (0,1,2), .card__text — (0,1,0)."
+    },
+    {
+      "type": "choice",
+      "topic": "Каскад",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Какой фон будет у `.btn`?\n```css\n.btn {\n  background-color: #0066cc;\n  color: #fff;\n}\n.btn {\n  background-color: #e53935;\n}\n```",
+      "options": [
+        "красный #e53935",
+        "синий #0066cc",
+        "белый",
+        "оба смешаются"
+      ],
+      "correct": 0,
+      "explanation": "Одинаковая специфичность — побеждает правило, которое ниже в файле."
+    },
+    {
+      "type": "choice",
+      "topic": "Наследование",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Какое свойство НАСЛЕДУЕТСЯ от родителя?",
+      "options": [
+        "padding",
+        "color",
+        "border",
+        "background-color"
+      ],
+      "correct": 1,
+      "explanation": "Наследуется то, что связано с текстом: color, font-*, line-height, text-align. Рамки, отступы и фон — нет."
+    },
+    {
+      "type": "choice",
+      "topic": "@layer",
+      "difficulty": "medium",
+      "timeLimitSec": 45,
+      "prompt": "Какого цвета будет `.card__text`?\n```css\n@layer base, components;\n@layer components {\n  .card__text { color: green; }\n}\n@layer base {\n  #promo p { color: purple; }\n}\n```",
+      "options": [
+        "зелёный",
+        "фиолетовый",
+        "зависит от браузера",
+        "чёрный по умолчанию"
+      ],
+      "correct": 0,
+      "explanation": "Между слоями решает порядок слоёв, а не специфичность: components объявлен позже base и побеждает даже селектор с id."
+    },
+    {
+      "type": "choice",
+      "topic": "Box model",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Какая будет итоговая ширина блока на экране?\n```css\n.box {\n  width: 200px;\n  padding: 20px;\n  border: 5px solid;\n}\n```",
+      "options": [
+        "240px",
+        "225px",
+        "250px",
+        "200px"
+      ],
+      "correct": 2,
+      "explanation": "По умолчанию box-sizing: content-box: 200 + 20·2 + 5·2 = 250px."
+    },
+    {
+      "type": "choice",
+      "topic": "Box model",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "А если добавить `box-sizing: border-box`?\n```css\n.box {\n  box-sizing: border-box;\n  width: 200px;\n  padding: 20px;\n  border: 5px solid;\n}\n```",
+      "options": [
+        "250px",
+        "200px",
+        "160px",
+        "150px"
+      ],
+      "correct": 1,
+      "explanation": "border-box включает padding и border в width: блок занимает ровно 200px, а под содержимое остаётся 150px."
+    },
+    {
+      "type": "choice",
+      "topic": "Box model",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Блок A: `margin-bottom: 30px`, под ним блок B: `margin-top: 20px`. Какое расстояние между ними по вертикали?",
+      "options": [
+        "10px",
+        "50px",
+        "20px",
+        "30px"
+      ],
+      "correct": 3,
+      "explanation": "Вертикальные отступы соседних блоков схлопываются: берётся больший, а не сумма."
+    },
+    {
+      "type": "choice",
+      "topic": "Единицы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "`html { font-size: 16px }`, `.parent { font-size: 20px }`, у вложенного `.child { font-size: 2em }`. Какой размер у .child?",
+      "options": [
+        "20px",
+        "36px",
+        "32px",
+        "40px"
+      ],
+      "correct": 3,
+      "explanation": "em считается от шрифта родителя (20px), rem — от корня (16px). 2rem было бы 32px."
+    },
+    {
+      "type": "choice",
+      "topic": "Единицы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "`padding-top: 10%` — от чего считаются эти 10%?",
+      "options": [
+        "от высоты самого блока",
+        "от высоты родителя",
+        "от размера шрифта",
+        "от ширины родителя"
+      ],
+      "correct": 3,
+      "explanation": "Процентные padding и margin — даже верхние и нижние — считаются от ШИРИНЫ родителя."
+    },
+    {
+      "type": "choice",
+      "topic": "Display",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Почему у `<span>` не работает `width: 200px`?",
+      "options": [
+        "span — строчный элемент, width к нему не применяется",
+        "width работает только с id",
+        "span нельзя стилизовать",
+        "нужно писать width: 200"
+      ],
+      "correct": 0,
+      "explanation": "У display: inline ширину и высоту задаёт содержимое. Нужен display: inline-block или block."
+    },
+    {
+      "type": "choice",
+      "topic": "Селекторы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Чем `ul > li` отличается от `ul li`?",
+      "options": [
+        "> выбирает только прямых детей",
+        "> выбирает только первый li",
+        "ul li выбирает только прямых детей",
+        "ничем"
+      ],
+      "correct": 0,
+      "explanation": "Пробел — любой уровень вложенности, > — только непосредственные дети."
+    },
+    {
+      "type": "choice",
+      "topic": "Селекторы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выберет `h2 + p`?",
+      "options": [
+        "абзац, который стоит сразу после h2",
+        "все абзацы после h2",
+        "абзацы внутри h2",
+        "h2 и p вместе"
+      ],
+      "correct": 0,
+      "explanation": "+ — соседний следующий элемент. Все следующие соседи — h2 ~ p."
+    },
+    {
+      "type": "choice",
+      "topic": "Селекторы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выберет `a[href^=\"https\"]`?",
+      "options": [
+        "ссылки, которые заканчиваются на https",
+        "все ссылки",
+        "ссылки, где есть https в любом месте",
+        "ссылки, адрес которых начинается с https"
+      ],
+      "correct": 3,
+      "explanation": "^= — начинается с, $= — заканчивается на, *= — содержит."
+    },
+    {
+      "type": "choice",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Чем поле `disabled` отличается от `readonly`?",
+      "options": [
+        "ничем",
+        "disabled можно редактировать",
+        "disabled не отправляется с формой, readonly — отправляется",
+        "readonly нельзя выделить"
+      ],
+      "correct": 2,
+      "explanation": "Оба нельзя редактировать, но значение disabled-поля не уходит на сервер."
+    },
+    {
+      "type": "choice",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Как сделать, чтобы из трёх radio можно было выбрать только один?",
+      "options": [
+        "обернуть в <select>",
+        "дать им одинаковый id",
+        "дать им одинаковый name",
+        "добавить required"
+      ],
+      "correct": 2,
+      "explanation": "Радиокнопки группируются по name."
+    },
+    {
+      "type": "choice",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Какое значение пропустит поле?\n```html\n<input type=\"number\" min=\"100\" max=\"50000\" step=\"100\">\n```",
+      "options": [
+        "1500",
+        "99",
+        "150",
+        "50100"
+      ],
+      "correct": 0,
+      "explanation": "Значение должно быть в пределах min–max и делиться на шаг от min: 100, 200, … 1500 подходит."
+    },
+    {
+      "type": "choice",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Какой тип у `<button>` внутри формы, если type не указан?",
+      "options": [
+        "submit — отправит форму",
+        "reset",
+        "button — ничего не делает",
+        "зависит от браузера"
+      ],
+      "correct": 0,
+      "explanation": "По умолчанию кнопка в форме отправляет её. Обычной кнопке пишут type=\"button\"."
+    },
+    {
+      "type": "choice",
+      "topic": "Ссылки",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Ссылка из файла `pages/about.html` на `index.html` в корне проекта:",
+      "options": [
+        "href=\"./index.html\"",
+        "href=\"index.html\"",
+        "href=\"/pages/index.html\"",
+        "href=\"../index.html\""
+      ],
+      "correct": 3,
+      "explanation": "../ поднимается на папку выше. Ровно так было в уроке «Ссылки и навигация»."
+    },
+    {
+      "type": "choice",
+      "topic": "Ссылки",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Как сделать ссылку на блок `<section id=\"contacts\">` на той же странице?",
+      "options": [
+        "href=\".contacts\"",
+        "href=\"contacts\"",
+        "href=\"id:contacts\"",
+        "href=\"#contacts\""
+      ],
+      "correct": 3,
+      "explanation": "Решётка и id — якорная ссылка."
+    },
+    {
+      "type": "choice",
+      "topic": "Текст",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Чем `<strong>` отличается от `<b>`?",
+      "options": [
+        "strong — важный текст по смыслу, b — просто жирный вид",
+        "b новее",
+        "strong нельзя стилизовать",
+        "ничем"
+      ],
+      "correct": 0,
+      "explanation": "Экранные дикторы выделяют strong голосом. b — только внешний вид."
+    },
+    {
+      "type": "choice",
+      "topic": "Фон",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "`background-size: cover` против `contain`:",
+      "options": [
+        "это одно и то же",
+        "cover повторяет картинку",
+        "contain растягивает с искажением",
+        "cover заполняет блок целиком (края могут обрезаться), contain показывает картинку целиком"
+      ],
+      "correct": 3,
+      "explanation": "cover — без пустых мест, contain — без обрезки."
+    },
+    {
+      "type": "choice",
+      "topic": "Цвета",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Чем `opacity: 0.5` отличается от `background: rgba(0, 0, 0, 0.5)`?",
+      "options": [
+        "opacity влияет только на фон",
+        "opacity делает прозрачным весь блок вместе с текстом",
+        "ничем",
+        "rgba не работает с фоном"
+      ],
+      "correct": 1,
+      "explanation": "Для полупрозрачного фона под читаемым текстом — rgba (или hsl с альфой)."
+    },
+    {
+      "type": "choice",
+      "topic": "Типографика",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Чем `line-height: 1.5` лучше, чем `line-height: 24px`?",
+      "options": [
+        "1.5 — это 1.5px",
+        "подстраивается под размер шрифта каждого элемента",
+        "24px не работает",
+        "ничем"
+      ],
+      "correct": 1,
+      "explanation": "Число без единиц — множитель от своего шрифта, и вложенные элементы наследуют именно множитель."
+    },
+    {
+      "type": "choice",
+      "topic": "Типографика",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Зачем `@font-face`?",
+      "options": [
+        "выбрать шрифт из Windows",
+        "сделать текст жирным",
+        "задать размер шрифта всей странице",
+        "подключить свой файл шрифта и дать ему имя"
+      ],
+      "correct": 3,
+      "explanation": "@font-face { font-family: \"Oswald\"; src: url(fonts/…) } — дальше имя используется в font-family."
+    }
+  ]
+}

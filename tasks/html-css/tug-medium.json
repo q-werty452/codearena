@@ -1,0 +1,271 @@
+{
+  "version": 1,
+  "game": "tug",
+  "title": "Канат: HTML и CSS — средний уровень",
+  "author": "q-werty452",
+  "description": "Быстрые ответы: теги таблиц, форм и медиа, свойства CSS, единицы и специфичность. 20 заданий.",
+  "tasks": [
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Тег подписи к картинке внутри <figure>",
+      "answers": [
+        "figcaption",
+        "<figcaption>"
+      ],
+      "caseSensitive": false,
+      "explanation": "figure + figcaption — картинка с подписью."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут ячейки, чтобы занять две колонки",
+      "answers": [
+        "colspan",
+        "colspan=\"2\"",
+        "colspan=2"
+      ],
+      "caseSensitive": false,
+      "explanation": "colspan — по горизонтали, rowspan — по вертикали."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут, который делает поле обязательным",
+      "answers": [
+        "required"
+      ],
+      "caseSensitive": false,
+      "explanation": "Форма не отправится, пока поле пустое."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Значение position, которое «прилипает» при прокрутке",
+      "answers": [
+        "sticky"
+      ],
+      "caseSensitive": false,
+      "explanation": "position: sticky; top: 0 — шапка остаётся наверху."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Свойство расстояния между flex- и grid-элементами",
+      "answers": [
+        "gap"
+      ],
+      "caseSensitive": false,
+      "explanation": "gap вместо margin у каждого ребёнка."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Единица: 1% высоты окна браузера",
+      "answers": [
+        "vh"
+      ],
+      "caseSensitive": false,
+      "explanation": "100vh — вся высота экрана."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Сколько px в 1.5rem при шрифте корня 16px?",
+      "answers": [
+        "24",
+        "24px"
+      ],
+      "caseSensitive": false,
+      "explanation": "1.5 × 16 = 24."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Специфичность `#nav .item a` — (id, классы, теги)?",
+      "answers": [
+        "1,1,1",
+        "1, 1, 1",
+        "(1,1,1)",
+        "(1, 1, 1)",
+        "111",
+        "1-1-1"
+      ],
+      "caseSensitive": false,
+      "explanation": "Один id, один класс, один тег."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Специфичность `ul li.active a:hover` — (id, классы, теги)?",
+      "answers": [
+        "0,2,3",
+        "0, 2, 3",
+        "(0,2,3)",
+        "(0, 2, 3)",
+        "023",
+        "0-2-3"
+      ],
+      "caseSensitive": false,
+      "explanation": ".active и :hover — два «класса», ul, li, a — три тега."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Тег, который группирует поля формы",
+      "answers": [
+        "fieldset",
+        "<fieldset>"
+      ],
+      "caseSensitive": false,
+      "explanation": "fieldset рисует рамку, а legend — заголовок группы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Тег заголовка группы полей внутри fieldset",
+      "answers": [
+        "legend",
+        "<legend>"
+      ],
+      "caseSensitive": false,
+      "explanation": "legend — подпись группы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут input type=\"file\", чтобы выбрать несколько файлов",
+      "answers": [
+        "multiple"
+      ],
+      "caseSensitive": false,
+      "explanation": "<input type=\"file\" multiple>"
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Свойство, которое решает, кто сверху при наложении",
+      "answers": [
+        "z-index"
+      ],
+      "caseSensitive": false,
+      "explanation": "Работает у позиционированных элементов."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Значение box-sizing, где padding и border внутри width",
+      "answers": [
+        "border-box"
+      ],
+      "caseSensitive": false,
+      "explanation": "box-sizing: border-box — размеры предсказуемы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут ссылки, чтобы файл скачивался, а не открывался",
+      "answers": [
+        "download"
+      ],
+      "caseSensitive": false,
+      "explanation": "<a href=\"price.pdf\" download>"
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Тег для длинной цитаты отдельным блоком",
+      "answers": [
+        "blockquote",
+        "<blockquote>"
+      ],
+      "caseSensitive": false,
+      "explanation": "Короткая цитата в строке — <q>."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Свойство, которое прячет то, что вылезло за край блока",
+      "answers": [
+        "overflow"
+      ],
+      "caseSensitive": false,
+      "explanation": "overflow: hidden / auto / scroll."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут <video>, который показывает кнопки управления",
+      "answers": [
+        "controls"
+      ],
+      "caseSensitive": false,
+      "explanation": "Без controls видео нельзя запустить мышкой."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Псевдокласс для каждого второго элемента: :nth-child(?)",
+      "answers": [
+        "2n",
+        "even",
+        ":nth-child(2n)",
+        ":nth-child(even)"
+      ],
+      "caseSensitive": false,
+      "explanation": "2n или even — чётные, 2n+1 или odd — нечётные."
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML и CSS",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут <th>, который говорит, что это заголовок столбца",
+      "answers": [
+        "scope",
+        "scope=\"col\"",
+        "scope=col"
+      ],
+      "caseSensitive": false,
+      "explanation": "scope=\"col\" — для столбца, scope=\"row\" — для строки."
+    }
+  ]
+}

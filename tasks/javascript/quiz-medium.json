@@ -1,0 +1,369 @@
+{
+  "version": 1,
+  "game": "quiz",
+  "title": "Викторина: JavaScript — средний уровень",
+  "author": "q-werty452",
+  "description": "Приведение типов, ссылки на объекты, hoisting, замыкания в циклах, sort, порядок Promise и setTimeout, деструктуризация. С подвохом. 24 вопросов.",
+  "tasks": [
+    {
+      "type": "choice",
+      "topic": "Типы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(\"5\" - 2, \"5\" + 2);\n```",
+      "options": [
+        "3 52",
+        "3 7",
+        "52 52",
+        "NaN 52"
+      ],
+      "correct": 0,
+      "explanation": "Минус работает только с числами — строка превращается в число. Плюс со строкой склеивает."
+    },
+    {
+      "type": "choice",
+      "topic": "Типы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(typeof NaN);\n```",
+      "options": [
+        "NaN",
+        "number",
+        "undefined",
+        "object"
+      ],
+      "correct": 1,
+      "explanation": "NaN — «не число», но по типу это number."
+    },
+    {
+      "type": "choice",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log([10, 1, 2].sort());\n```",
+      "options": [
+        "[1, 2, 10]",
+        "[2, 1, 10]",
+        "[1, 10, 2]",
+        "[10, 2, 1]"
+      ],
+      "correct": 2,
+      "explanation": "sort() без функции сравнивает элементы как СТРОКИ: «10» < «2». Для чисел: sort((a, b) => a - b)."
+    },
+    {
+      "type": "choice",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst a = { n: 1 };\nconst b = a;\nb.n = 2;\nconsole.log(a.n);\n```",
+      "options": [
+        "undefined",
+        "ошибка: a — const",
+        "2",
+        "1"
+      ],
+      "correct": 2,
+      "explanation": "b = a копирует ссылку, а не объект. const запрещает переприсвоить a, но не менять его свойства."
+    },
+    {
+      "type": "choice",
+      "topic": "Переменные",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(x);\nvar x = 5;\n```",
+      "options": [
+        "5",
+        "null",
+        "undefined",
+        "ReferenceError"
+      ],
+      "correct": 2,
+      "explanation": "Объявление var поднимается наверх (hoisting), а присваивание остаётся на месте. С let была бы ошибка."
+    },
+    {
+      "type": "choice",
+      "topic": "Замыкания",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i));\n}\n```",
+      "options": [
+        "3 3 3",
+        "0 1 2",
+        "ошибка",
+        "0 0 0"
+      ],
+      "correct": 0,
+      "explanation": "var — одна переменная на весь цикл, к моменту срабатывания таймеров i уже 3. С let у каждого шага своя i: 0 1 2."
+    },
+    {
+      "type": "choice",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log([1, 2, 3].map(parseInt));\n```",
+      "options": [
+        "[NaN, NaN, NaN]",
+        "[1, 2, 3]",
+        "[1, NaN, NaN]",
+        "ошибка"
+      ],
+      "correct": 2,
+      "explanation": "map передаёт (элемент, индекс): parseInt('2', 1) и parseInt('3', 2) — недопустимые основания, получается NaN. Правильно: map(Number)."
+    },
+    {
+      "type": "choice",
+      "topic": "Сравнение",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(null == undefined, null === undefined);\n```",
+      "options": [
+        "true true",
+        "false false",
+        "false true",
+        "true false"
+      ],
+      "correct": 3,
+      "explanation": "== считает null и undefined равными друг другу, === сравнивает и тип."
+    },
+    {
+      "type": "choice",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst arr = [1, 2, 3];\narr.length = 0;\nconsole.log(arr[0]);\n```",
+      "options": [
+        "ошибка",
+        "undefined",
+        "1",
+        "0"
+      ],
+      "correct": 1,
+      "explanation": "Запись length = 0 очищает массив."
+    },
+    {
+      "type": "choice",
+      "topic": "Типы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(\"b\" + \"a\" + +\"a\" + \"a\");\n```",
+      "options": [
+        "baaa",
+        "ошибка",
+        "baNaNa",
+        "ba+aa"
+      ],
+      "correct": 2,
+      "explanation": "Унарный плюс +\"a\" пытается сделать число и даёт NaN, дальше всё склеивается в строку."
+    },
+    {
+      "type": "choice",
+      "topic": "Функции",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nfunction f() {\n  return\n  { ok: true };\n}\nconsole.log(f());\n```",
+      "options": [
+        "{ ok: true }",
+        "ошибка",
+        "undefined",
+        "true"
+      ],
+      "correct": 2,
+      "explanation": "После return сразу перевод строки — JS ставит точку с запятой сам. Объект открывают на той же строке, что и return."
+    },
+    {
+      "type": "choice",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log([...\"привет\"].length);\n```",
+      "options": [
+        "7",
+        "1",
+        "6",
+        "12"
+      ],
+      "correct": 2,
+      "explanation": "Spread строки раскладывает её на символы."
+    },
+    {
+      "type": "choice",
+      "topic": "Деструктуризация",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst { a, ...rest } = { a: 1, b: 2, c: 3 };\nconsole.log(Object.keys(rest).length);\n```",
+      "options": [
+        "1",
+        "3",
+        "0",
+        "2"
+      ],
+      "correct": 3,
+      "explanation": "rest собирает все свойства, кроме a: { b, c }."
+    },
+    {
+      "type": "choice",
+      "topic": "Типы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(Boolean(\"0\"), Boolean(0));\n```",
+      "options": [
+        "false true",
+        "true false",
+        "false false",
+        "true true"
+      ],
+      "correct": 1,
+      "explanation": "Строка «0» непустая — истина. Число 0 — ложь."
+    },
+    {
+      "type": "choice",
+      "topic": "Асинхронность",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(1);\nsetTimeout(() => console.log(2));\nPromise.resolve().then(() => console.log(3));\nconsole.log(4);\n```",
+      "options": [
+        "1 2 3 4",
+        "1 3 4 2",
+        "1 4 2 3",
+        "1 4 3 2"
+      ],
+      "correct": 3,
+      "explanation": "Сначала весь синхронный код (1, 4), потом микрозадачи Promise (3), потом таймеры (2)."
+    },
+    {
+      "type": "choice",
+      "topic": "Set",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst s = new Set([1, 1, \"1\"]);\nconsole.log(s.size);\n```",
+      "options": [
+        "0",
+        "2",
+        "1",
+        "3"
+      ],
+      "correct": 1,
+      "explanation": "Set сравнивает строго: 1 и \"1\" — разные значения."
+    },
+    {
+      "type": "choice",
+      "topic": "Math",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(Math.max());\n```",
+      "options": [
+        "0",
+        "-Infinity",
+        "NaN",
+        "undefined"
+      ],
+      "correct": 1,
+      "explanation": "Без аргументов max возвращает -Infinity — с него удобно начинать поиск максимума."
+    },
+    {
+      "type": "choice",
+      "topic": "Переменные",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nlet x = 10;\n{\n  let x = 20;\n}\nconsole.log(x);\n```",
+      "options": [
+        "10",
+        "20",
+        "undefined",
+        "ошибка"
+      ],
+      "correct": 0,
+      "explanation": "let внутри блока — своя переменная, внешняя x не меняется."
+    },
+    {
+      "type": "choice",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log([1, 2, 3].includes(\"2\"));\n```",
+      "options": [
+        "true",
+        "false",
+        "undefined",
+        "ошибка"
+      ],
+      "correct": 1,
+      "explanation": "includes сравнивает строго: строка «2» не равна числу 2."
+    },
+    {
+      "type": "choice",
+      "topic": "Сравнение",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(1 < 2 < 3, 3 > 2 > 1);\n```",
+      "options": [
+        "true false",
+        "false false",
+        "false true",
+        "true true"
+      ],
+      "correct": 0,
+      "explanation": "Слева направо: 3 > 2 → true, потом true > 1 → 1 > 1 → false."
+    },
+    {
+      "type": "choice",
+      "topic": "this",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst user = { name: \"Аня\", hi() { return this.name; } };\nconst hi = user.hi;\nconsole.log(hi());\n```",
+      "options": [
+        "ошибка",
+        "hi",
+        "undefined",
+        "Аня"
+      ],
+      "correct": 2,
+      "explanation": "Метод, оторванный от объекта, теряет this. Нужно user.hi() или hi.bind(user)."
+    },
+    {
+      "type": "choice",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst nums = [1, 2, 3, 4];\nconsole.log(nums.filter((n) => n % 2).map((n) => n * 10));\n```",
+      "options": [
+        "[20, 40]",
+        "[10, 20, 30, 40]",
+        "[1, 3]",
+        "[10, 30]"
+      ],
+      "correct": 3,
+      "explanation": "n % 2 истинно (1) для нечётных. Их умножаем на 10."
+    },
+    {
+      "type": "choice",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconst obj = { a: 1 };\nconst copy = { ...obj, a: 2, b: 3 };\nconsole.log(obj.a + copy.a);\n```",
+      "options": [
+        "1",
+        "2",
+        "4",
+        "3"
+      ],
+      "correct": 3,
+      "explanation": "Spread создаёт новый объект, obj не меняется: 1 + 2."
+    },
+    {
+      "type": "choice",
+      "topic": "Типы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```js\nconsole.log(typeof typeof 1);\n```",
+      "options": [
+        "string",
+        "number",
+        "undefined",
+        "typeof"
+      ],
+      "correct": 0,
+      "explanation": "typeof всегда возвращает строку: typeof 1 → «number», а typeof «number» → «string»."
+    }
+  ]
+}

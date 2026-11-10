@@ -12,7 +12,7 @@ import { play, secondsLeft, useNow } from "../lib/game.ts";
 import { useT } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
 import { formatClock, TugTaskView } from "./StudentTug.tsx";
-import { NoPython, TestRow } from "./StudentCodewars.tsx";
+import { NoPython, TestRow, noRuntime } from "./StudentCodewars.tsx";
 
 /** Дорожки: в командах — по команде, иначе — я и ближайшие соперники. */
 export function raceLanes(g: GameSnapshot, session: SessionSnapshot, max = 6): Lane[] {
@@ -143,7 +143,7 @@ function RaceTask({ g, lockedLeft }: { g: GameSnapshot; lockedLeft: number }) {
             <CodeAwareText text={task.prompt} />
           </p>
         </Card>
-        {run?.error === "no_python" && <NoPython />}
+        {noRuntime(run?.error) && <NoPython dart={run?.error === "no_dart"} />}
         <div>
           <SectionTitle>{t("bug.rules")}</SectionTitle>
           <ol className="flex flex-col gap-1.5">

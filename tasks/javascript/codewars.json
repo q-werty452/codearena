@@ -1,7 +1,7 @@
 {
   "version": 1,
   "game": "codewars",
-  "title": "Codewars: JavaScript",
+  "title": "Codewars: JavaScript — базовый уровень",
   "author": "q-werty452",
   "description": "Функции на массивы и строки: filter, map, reduce, Set, рекурсия. Короче правильное решение — выше место. 16 задач.",
   "tasks": [

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0
+
+- **Task bank: 469 tasks** (was 146). New medium-level sets for HTML/CSS and JavaScript,
+  and new **Python** and **Dart** sets for every game — quiz, tug of war, find the bug, Codewars.
+  Medium questions have a catch: «what will this print?», references vs copies, edge cases.
+- **Dart code tasks run**: Codewars and «fix the bug» in Dart are checked on the student's computer
+  (needs the Dart SDK or Flutter), like Python.
+- Multi-line code in questions is shown as a code block.
+- Fixed: the Codewars screen showed «JavaScript» for HTML, CSS and Dart tasks.
+
 ## 0.1.2
 
 - Fixed: the «AI» dialog went blank after picking a game, language or difficulty.

@@ -5,13 +5,14 @@
 import type { CodeTest, Language, TestReport } from "@codearena/shared";
 import { javascriptRunner } from "./javascript.ts";
 import { pythonRunner } from "./python.ts";
+import { dartRunner } from "./dart.ts";
 import { cssRunner, htmlRunner } from "./web.ts";
 import type { Checks, RunOutcome, Runner } from "./types.ts";
 
 export type { Checks, RunOutcome, Runner } from "./types.ts";
 export { RUN_TIMEOUT_MS } from "./types.ts";
 
-const RUNNERS: Runner[] = [htmlRunner, cssRunner, javascriptRunner, pythonRunner];
+const RUNNERS: Runner[] = [htmlRunner, cssRunner, javascriptRunner, pythonRunner, dartRunner];
 
 export function getRunner(language: Language): Runner | null {
   return RUNNERS.find((r) => r.languages.includes(language)) ?? null;

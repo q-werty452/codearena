@@ -1,0 +1,369 @@
+{
+  "version": 1,
+  "game": "quiz",
+  "title": "Викторина: Dart — средний уровень",
+  "author": "q-werty452",
+  "description": "Операторы / и ~/, интерполяция строк, List, Set, Map, null safety, функции с именованными параметрами, классы и наследование. Средний уровень, с подвохом. 24 вопросов.",
+  "tasks": [
+    {
+      "type": "choice",
+      "topic": "Операторы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint(10 ~/ 3 + 10 % 3);\n```",
+      "options": [
+        "1",
+        "3",
+        "4.333",
+        "4"
+      ],
+      "correct": 3,
+      "explanation": "~/ — деление нацело (3), % — остаток (1)."
+    },
+    {
+      "type": "choice",
+      "topic": "Операторы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint(8 / 4);\n```",
+      "options": [
+        "ошибка",
+        "2",
+        "2.0",
+        "0.5"
+      ],
+      "correct": 2,
+      "explanation": "Оператор / в Dart всегда возвращает double, даже если делится нацело."
+    },
+    {
+      "type": "choice",
+      "topic": "List",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nvar list = [1, 2, 3];\nfinal copy = list;\ncopy.add(4);\nprint(list.length);\n```",
+      "options": [
+        "4",
+        "3",
+        "1",
+        "ошибка: copy — final"
+      ],
+      "correct": 0,
+      "explanation": "final запрещает переприсвоить переменную, но список внутри менять можно. copy и list — один и тот же список."
+    },
+    {
+      "type": "choice",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nString s = 'Dart';\nprint(s.substring(1, 3));\n```",
+      "options": [
+        "ar",
+        "ArT",
+        "art",
+        "Da"
+      ],
+      "correct": 0,
+      "explanation": "substring(начало, конец): конец не включается — символы с индексами 1 и 2."
+    },
+    {
+      "type": "choice",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nvar name = 'Айбек';\nprint('Привет, $name.length');\n```",
+      "options": [
+        "ошибка",
+        "Привет, 5",
+        "Привет, Айбек.length",
+        "Привет, $name.length"
+      ],
+      "correct": 2,
+      "explanation": "Без фигурных скобок подставляется только переменная, «.length» остаётся текстом. Нужно ${name.length} — поэтому в уроке советовали всегда писать скобки."
+    },
+    {
+      "type": "choice",
+      "topic": "Set",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nSet<int> s = {1, 2, 2, 3};\ns.add(3);\nprint(s.length);\n```",
+      "options": [
+        "5",
+        "ошибка",
+        "4",
+        "3"
+      ],
+      "correct": 3,
+      "explanation": "Set хранит только уникальные значения: повторные 2 и 3 не добавляются."
+    },
+    {
+      "type": "choice",
+      "topic": "Map",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nMap<String, int> m = {'a': 1};\nprint(m['b']);\n```",
+      "options": [
+        "{}",
+        "null",
+        "ошибка",
+        "0"
+      ],
+      "correct": 1,
+      "explanation": "Обращение к отсутствующему ключу Map возвращает null, а не ошибку."
+    },
+    {
+      "type": "choice",
+      "topic": "Null safety",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nint? x;\nprint(x ?? 5);\n```",
+      "options": [
+        "0",
+        "ошибка",
+        "null",
+        "5"
+      ],
+      "correct": 3,
+      "explanation": "?? берёт правую часть, если слева null."
+    },
+    {
+      "type": "choice",
+      "topic": "List",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nfinal list = const [1, 2];\ntry {\n  list.add(3);\n  print(list);\n} catch (e) {\n  print(e.runtimeType);\n}\n```",
+      "options": [
+        "ошибка при выполнении",
+        "ошибка компиляции",
+        "[1, 2]",
+        "[1, 2, 3]"
+      ],
+      "correct": 0,
+      "explanation": "const-список неизменяемый: add компилируется, но падает при запуске (Unsupported operation)."
+    },
+    {
+      "type": "choice",
+      "topic": "List",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nvar a = [1, 2, 3];\nprint(a.map((x) => x * 2));\n```",
+      "options": [
+        "(2, 4, 6)",
+        "ошибка",
+        "Instance of 'Iterable'",
+        "[2, 4, 6]"
+      ],
+      "correct": 0,
+      "explanation": "map возвращает ленивый Iterable, он печатается в круглых скобках. Список — после .toList()."
+    },
+    {
+      "type": "choice",
+      "topic": "List",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint([3, 1, 2]..sort());\n```",
+      "options": [
+        "null",
+        "ошибка",
+        "[3, 1, 2]",
+        "[1, 2, 3]"
+      ],
+      "correct": 3,
+      "explanation": "Каскад .. возвращает сам объект, а не результат sort() (он void). Поэтому печатается отсортированный список."
+    },
+    {
+      "type": "choice",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint('ab' * 3);\n```",
+      "options": [
+        "ababab",
+        "ошибка",
+        "ab3",
+        "ab ab ab"
+      ],
+      "correct": 0,
+      "explanation": "Строку в Dart можно умножить на целое число — она повторится."
+    },
+    {
+      "type": "choice",
+      "topic": "Типы данных",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint(5 == 5.0);\n```",
+      "options": [
+        "ошибка",
+        "false",
+        "true",
+        "null"
+      ],
+      "correct": 2,
+      "explanation": "int и double сравниваются по значению: 5 и 5.0 равны."
+    },
+    {
+      "type": "choice",
+      "topic": "Функции",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nvoid greet({String name = 'гость', int age = 0}) {\n  print('$name $age');\n}\n\nvoid main() {\n  greet(age: 18);\n}\n```",
+      "options": [
+        "гость 18",
+        "18 0",
+        "null 18",
+        "ошибка"
+      ],
+      "correct": 0,
+      "explanation": "Именованные параметры передаются по имени, остальные берут значения по умолчанию."
+    },
+    {
+      "type": "choice",
+      "topic": "ООП",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nclass Rect {\n  final int w, h;\n  Rect(this.w, this.h);\n  int get area => w * h;\n}\n\nvoid main() {\n  print(Rect(3, 4).area);\n}\n```",
+      "options": [
+        "ошибка: нет скобок у area",
+        "null",
+        "12",
+        "7"
+      ],
+      "correct": 2,
+      "explanation": "area — геттер: вызывается без скобок, как поле."
+    },
+    {
+      "type": "choice",
+      "topic": "Наследование",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nclass Animal {\n  String sound() => '...';\n}\n\nclass Cat extends Animal {\n  @override\n  String sound() => 'Мяу' + super.sound();\n}\n\nvoid main() {\n  print(Cat().sound());\n}\n```",
+      "options": [
+        "...Мяу",
+        "Мяу...",
+        "Мяу",
+        "..."
+      ],
+      "correct": 1,
+      "explanation": "Cat переопределяет sound и через super добавляет результат родителя."
+    },
+    {
+      "type": "choice",
+      "topic": "Операторы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nvar i = 5;\nprint(i++ + ++i);\n```",
+      "options": [
+        "10",
+        "12",
+        "11",
+        "13"
+      ],
+      "correct": 1,
+      "explanation": "i++ отдаёт 5 и делает i = 6; ++i делает 7 и отдаёт 7. 5 + 7 = 12."
+    },
+    {
+      "type": "choice",
+      "topic": "List",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nList<int> nums = [1, 2, 3, 4];\nprint(nums.where((n) => n.isEven).toList());\n```",
+      "options": [
+        "[false, true, false, true]",
+        "[2, 4]",
+        "(2, 4)",
+        "[1, 3]"
+      ],
+      "correct": 1,
+      "explanation": "where оставляет подходящие элементы, toList превращает результат в список."
+    },
+    {
+      "type": "choice",
+      "topic": "List",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint([1, 2, 3].fold<int>(10, (sum, x) => sum + x));\n```",
+      "options": [
+        "ошибка",
+        "16",
+        "10",
+        "6"
+      ],
+      "correct": 1,
+      "explanation": "fold<int> начинает с 10 и прибавляет каждый элемент. Без <int> Dart 3 не знает тип sum и не скомпилирует код."
+    },
+    {
+      "type": "choice",
+      "topic": "Null safety",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nString? s;\nprint(s?.length);\n```",
+      "options": [
+        "null",
+        "0",
+        "ничего",
+        "ошибка"
+      ],
+      "correct": 0,
+      "explanation": "?. не вызывает length у null, а сразу возвращает null."
+    },
+    {
+      "type": "choice",
+      "topic": "Циклы",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nint q = 100;\ndo {\n  q++;\n} while (q < 10);\nprint(q);\n```",
+      "options": [
+        "ничего не выведет",
+        "100",
+        "10",
+        "101"
+      ],
+      "correct": 3,
+      "explanation": "do-while сначала выполняет тело, потом проверяет условие — хотя бы один раз."
+    },
+    {
+      "type": "choice",
+      "topic": "Типы данных",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nprint(int.parse('12') + double.parse('0.5'));\n```",
+      "options": [
+        "12",
+        "120.5",
+        "12.5",
+        "ошибка"
+      ],
+      "correct": 2,
+      "explanation": "int + double даёт double."
+    },
+    {
+      "type": "choice",
+      "topic": "Map",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что выведет код?\n```dart\nvar m = {'b': 2, 'a': 1};\nprint(m.keys.first);\n```",
+      "options": [
+        "1",
+        "a",
+        "2",
+        "b"
+      ],
+      "correct": 3,
+      "explanation": "Map в Dart (LinkedHashMap) помнит порядок добавления ключей."
+    },
+    {
+      "type": "choice",
+      "topic": "Переменные",
+      "difficulty": "medium",
+      "timeLimitSec": 30,
+      "prompt": "Что верно про `final` и `const`?",
+      "options": [
+        "final задаётся при запуске, const — при компиляции",
+        "это одно и то же",
+        "const можно переприсвоить",
+        "final нельзя использовать в классах"
+      ],
+      "correct": 0,
+      "explanation": "final — значение один раз во время выполнения (например, DateTime.now()); const — известно уже при компиляции."
+    }
+  ]
+}

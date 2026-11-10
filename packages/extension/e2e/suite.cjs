@@ -14,7 +14,7 @@ async function waitFor(what, fn, ms = 20000) {
 }
 
 const SCENARIO = process.env.CODEARENA_E2E_SCENARIO || "codewars";
-const FILE_RE = SCENARIO === "fixbug" ? /task-1\.html$/ : /task-1\.py$/;
+const FILE_RE = SCENARIO === "fixbug" ? /task-1\.html$/ : SCENARIO === "dartcw" ? /task-1\.dart$/ : /task-1\.py$/;
 
 async function antiCheatScenario(session, editor, step) {
   const doc = editor.document;
@@ -237,6 +237,7 @@ exports.run = async function run() {
     step("task file opened: " + doc.fileName.split("/").slice(-3).join("/"));
     if (!doc.getText().includes("─── CodeArena ───")) throw new Error("no marker in task file");
     if (SCENARIO === "codewars" && !doc.getText().includes("# Верни")) throw new Error("no prompt in header");
+    if (SCENARIO === "dartcw" && (!doc.fileName.endsWith(".dart") || !doc.getText().includes("// Верни"))) throw new Error("no .dart file with // header");
     if (SCENARIO === "fixbug" && !doc.getText().startsWith("<!-- CodeArena")) throw new Error("no HTML comment header");
 
     // Панель игры открыта рядом.
@@ -264,8 +265,8 @@ exports.run = async function run() {
 
     // Сначала неправильное решение — проверки должны упасть.
     const header = doc.getText().split("\n").filter((l, i, a) => i <= a.findIndex((x) => x.includes(MARK))).join("\n");
-    const WRONG = SCENARIO === "fixbug" ? '<div class="footer">© 2026</div>' : "def evens(nums):\n    return nums";
-    const RIGHT = SCENARIO === "fixbug" ? "<footer>© 2026</footer>" : "def evens(nums):\n    return [n for n in nums if n % 2 == 0]";
+    const WRONG = SCENARIO === "fixbug" ? '<div class="footer">© 2026</div>' : SCENARIO === "dartcw" ? "List<int> evens(List<int> nums) {\n  return nums;\n}" : "def evens(nums):\n    return nums";
+    const RIGHT = SCENARIO === "fixbug" ? "<footer>© 2026</footer>" : SCENARIO === "dartcw" ? "List<int> evens(List<int> nums) => nums.where((n) => n.isEven).toList();" : "def evens(nums):\n    return [n for n in nums if n % 2 == 0]";
     if (SCENARIO === "fixbug") {
       // Без правок: в файле лежит сломанный код — проверки не проходят.
       step("broken code in file: " + JSON.stringify(doc.getText().split(MARK)[1].split("\n").slice(2, 3).join("")));

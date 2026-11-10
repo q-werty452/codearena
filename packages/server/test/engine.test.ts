@@ -297,11 +297,13 @@ describe("Найди баг", () => {
     return g;
   }
 
-  it("принимает три вида заданий (в т.ч. Dart для показа), отвергает остальное", () => {
+  it("принимает три вида заданий (в т.ч. Dart), отвергает остальное", () => {
     expect(() => startGame("bug", [findLine, best, fix, flutter], settings, 0)).not.toThrow();
     expect(() => startGame("bug", [q(1)], settings, 0)).toThrow(GameError);
     const dartFix = Task.parse({ type: "fix_bug", topic: "t", language: "dart", code: "x", tests: [{ call: "f()", expected: "1" }] });
-    expect(() => startGame("bug", [dartFix], settings, 0)).toThrow(/проверкой/);
+    expect(() => startGame("bug", [dartFix], settings, 0)).not.toThrow();
+    const dartNoTests = Task.parse({ type: "fix_bug", topic: "t", language: "dart", code: "x" });
+    expect(() => startGame("bug", [dartNoTests], settings, 0)).toThrow(/проверкой/);
     const noRules = Task.parse({ type: "fix_bug", topic: "t", language: "html", code: "<div></div>" });
     expect(() => startGame("bug", [noRules], settings, 0)).toThrow(GameError);
   });

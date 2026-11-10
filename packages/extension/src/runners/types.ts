@@ -19,7 +19,7 @@ export interface RunOutcome {
    * no_python / no_runtime — у ученика не установлен нужный интерпретатор;
    * timeout — дольше 5 с; compile — ошибка в коде до запуска тестов.
    */
-  error: null | "no_python" | "no_runtime" | "timeout" | "compile";
+  error: null | "no_python" | "no_dart" | "no_runtime" | "timeout" | "compile";
   message?: string;
 }
 

@@ -26,7 +26,7 @@ export async function verifyTask(t: Task): Promise<Verdict> {
   const checks = { tests: t.tests, rules: t.rules };
   if (!t.solution?.trim()) return { problem: "no reference solution", reason: "no_solution" };
   const sol = await runChecks(t.language, t.solution, checks);
-  if (sol.error === "no_python" || sol.error === "no_runtime") return "unverified";
+  if (sol.error === "no_python" || sol.error === "no_dart" || sol.error === "no_runtime") return "unverified";
   const passed = (o: typeof sol) => !o.error && o.results.length > 0 && o.results.every((r) => r.ok);
   if (!passed(sol)) {
     const fails = sol.error ? `${sol.error}: ${sol.message ?? ""}` : sol.results.filter((r) => !r.ok).map((r) => `${r.call} → got ${r.got}, expected ${r.expected}`).join("; ");

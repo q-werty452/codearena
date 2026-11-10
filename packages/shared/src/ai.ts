@@ -23,7 +23,7 @@ export type AiRequest = z.infer<typeof AiRequest>;
 
 export const AI_KEY_URL = "https://aistudio.google.com/apikey";
 
-const LANG_NAME: Record<Language, string> = { html: "HTML", css: "CSS", javascript: "JavaScript", python: "Python", dart: "Dart (Flutter)" };
+const LANG_NAME: Record<Language, string> = { html: "HTML", css: "CSS", javascript: "JavaScript", python: "Python", dart: "Dart" };
 
 /** Какие типы заданий просить у модели для игры и языка. */
 export function aiTaskTypes(game: AiRequest["game"], language: Language, mode: AiRequest["mode"] = "generate"): Task["type"][] {
@@ -79,12 +79,12 @@ const EXAMPLES: Record<Task["type"], (lang: Language) => object> = {
           topic: "…",
           language: lang,
           prompt: "Return only the even numbers from nums",
-          starter: lang === "python" ? "def evens(nums):\n    pass" : "function evens(nums) {\n}",
+          starter: lang === "python" ? "def evens(nums):\n    pass" : lang === "dart" ? "List<int> evens(List<int> nums) {\n  return [];\n}" : "function evens(nums) {\n}",
           tests: [
             { call: "evens([1, 2, 3, 4])", expected: "[2, 4]" },
             { call: "evens([])", expected: "[]" },
           ],
-          solution: lang === "python" ? "def evens(nums):\n    return [n for n in nums if n % 2 == 0]" : "function evens(nums) {\n  return nums.filter((n) => n % 2 === 0);\n}",
+          solution: lang === "python" ? "def evens(nums):\n    return [n for n in nums if n % 2 == 0]" : lang === "dart" ? "List<int> evens(List<int> nums) {\n  return nums.where((n) => n % 2 == 0).toList();\n}" : "function evens(nums) {\n  return nums.filter((n) => n % 2 === 0);\n}",
         },
   find_line: (lang) => ({ type: "find_line", topic: "…", language: lang, prompt: "Find the line with the bug", code: "line 1\nline 2 (bug)\nline 3", line: 2, explanation: "Why line 2 is wrong" }),
   best_variant: (lang) => ({ type: "best_variant", topic: "…", language: lang, prompt: "Which variant is better?", variants: ["variant 1 code", "variant 2 code"], correct: 1, explanation: "Why" }),

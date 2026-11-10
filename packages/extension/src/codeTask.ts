@@ -47,7 +47,7 @@ export class CodeTasks implements vscode.Disposable {
       vscode.commands.registerCommand("codearena.runTests", () => this.run(false)),
       vscode.commands.registerCommand("codearena.submitCode", () => this.run(true)),
       vscode.commands.registerCommand("codearena.openTaskFile", () => this.openCurrent()),
-      vscode.languages.registerCodeLensProvider([{ language: "html" }, { language: "css" }, { language: "javascript" }, { language: "python" }], {
+      vscode.languages.registerCodeLensProvider([{ language: "html" }, { language: "css" }, { language: "javascript" }, { language: "python" }, { language: "dart" }, { pattern: "**/task-*.dart" }], {
         onDidChangeCodeLenses: this.lensEmitter.event,
         provideCodeLenses: (doc) => this.lenses(doc),
       }),
@@ -133,7 +133,7 @@ export class CodeTasks implements vscode.Disposable {
     try {
       const outcome = await runChecks(task.language, code, checks);
       this.setRun({ taskId: task.id, running: false, results: outcome.results, error: outcome.error, message: outcome.message, submitted: submit });
-      if (outcome.error === "no_python" || outcome.error === "no_runtime") return;
+      if (outcome.error === "no_python" || outcome.error === "no_dart" || outcome.error === "no_runtime") return;
       if (submit) this.session.send({ type: "submit", taskId: task.id, code, report: toReport(outcome, checks) });
     } finally {
       this.running = false;

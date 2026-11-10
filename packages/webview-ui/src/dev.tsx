@@ -19,7 +19,7 @@ import { JoinScreen } from "./screens/Join.tsx";
 import { App } from "./App.tsx";
 import { installDevHost, scenario, type DevScenario } from "./devHost.ts";
 import { sampleCodewars, sampleQuiz, sampleTug } from "./lib/game.ts";
-import { bankFor } from "./lib/bank.ts";
+import { BANK, bankFor } from "./lib/bank.ts";
 
 function Gallery() {
   const [dark, setDark] = useState(() => new URLSearchParams(location.search).get("theme") !== "light");
@@ -37,16 +37,18 @@ function Gallery() {
   const [mount, setMount] = useState(0);
   useEffect(() => {
     if (tab !== "ds") {
+      // ?bank=python/quiz.json&start=3 — показать набор из банка (с задания start).
+      const fromBank = BANK.find((b) => b.id === params.get("bank"))?.set.tasks.slice(Number(params.get("start") ?? 0));
       installDevHost(
         scenario(tab),
         tab === "quiz"
-          ? { autoQuiz: sampleQuiz(locale).tasks }
+          ? { autoQuiz: fromBank ?? sampleQuiz(locale).tasks }
           : tab === "tug"
-            ? { autoTug: sampleTug(locale).tasks }
+            ? { autoTug: fromBank ?? sampleTug(locale).tasks }
             : tab === "codewars"
-              ? { autoCode: sampleCodewars(locale).tasks }
+              ? { autoCode: fromBank ?? sampleCodewars(locale).tasks }
               : tab === "bug"
-                ? { autoBug: [0, 7, 14, 1, 8].map((i) => bankFor("bug")[0]!.set.tasks[i]!) }
+                ? { autoBug: fromBank ?? [0, 7, 14, 1, 8].map((i) => bankFor("bug")[0]!.set.tasks[i]!) }
                 : tab === "race"
                   ? { autoRace: [...bankFor("tug")[0]!.set.tasks.slice(0, 4), ...bankFor("quiz")[0]!.set.tasks.slice(0, 4)] }
                   : {},

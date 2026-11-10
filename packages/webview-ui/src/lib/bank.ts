@@ -16,7 +16,8 @@ export const BANK: BankSet[] = Object.entries(modules)
     const r = TaskSet.safeParse(raw);
     return r.success ? [{ id: path.replace(/^.*tasks\//, ""), set: r.data }] : [];
   })
-  .sort((a, b) => a.id.localeCompare(b.id));
+  // Базовый уровень раньше среднего: «quiz.json» перед «quiz-medium.json».
+  .sort((a, b) => a.id.replace("-medium", "~").localeCompare(b.id.replace("-medium", "~")));
 
 /** Наборы для игры. Гонка берёт задания из викторины, каната и Codewars. */
 export const bankFor = (game: GameKind) => {

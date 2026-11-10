@@ -1,7 +1,7 @@
 {
   "version": 1,
   "game": "quiz",
-  "title": "Викторина: HTML и CSS",
+  "title": "Викторина: HTML и CSS — базовый уровень",
   "author": "q-werty452",
   "description": "Теги, атрибуты, подключение стилей, селекторы, flex, box-model, единицы. 19 вопросов.",
   "tasks": [

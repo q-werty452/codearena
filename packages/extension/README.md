@@ -36,8 +36,8 @@ Start a game on top of the lesson — everyone returns to the lesson when it end
 
 ![Tug of war](https://raw.githubusercontent.com/q-werty452/codearena/main/docs/images/tug.png)
 
-Tasks in **HTML/CSS**, **JavaScript** and **Python** (HTML/CSS is checked with selector and CSS rules).
-A built-in task bank has about 150 tasks.
+Tasks in **HTML/CSS**, **JavaScript**, **Python** and **Dart** (HTML/CSS is checked with selector and CSS rules).
+A built-in task bank has about 470 tasks in two levels — basic and medium, with tricky «what will this print?» questions.
 
 ## Your own tasks and AI
 
@@ -68,7 +68,8 @@ plus a live table and CSV export for the teacher. Everything is off in Lesson mo
 2. Send the link or the 6-digit code to the class chat.
 3. **Students**: CodeArena view → enter the code and their name → *Join*.
 
-Python tasks need Python 3 on the student's computer; JavaScript and HTML/CSS need nothing.
+Python tasks need Python 3 on the student's computer, Dart tasks need the Dart SDK (or Flutter);
+JavaScript and HTML/CSS need nothing.
 
 ## Privacy
 
@@ -79,8 +80,8 @@ and sent only to Google's API. Schools can [host their own server](https://githu
 ## По-русски
 
 CodeArena — уроки и игры по программированию прямо в VS Code: режим урока (статусы учеников, показ кода,
-чекпоинты с процентом), викторина, перетягивание каната, Codewars, гонка и «Найди баг». Свои задания из
-файла или Word, генерация заданий с ИИ. Интерфейс на русском включается сам при русском VS Code.
+чекпоинты с процентом), викторина, перетягивание каната, Codewars, гонка и «Найди баг». Банк из ~470 заданий по HTML/CSS,
+JavaScript, Python и Dart (базовый и средний уровень). Свои задания из файла или Word, генерация заданий с ИИ. Интерфейс на русском включается сам при русском VS Code.
 
 ## Author
 

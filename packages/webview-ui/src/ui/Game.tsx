@@ -59,6 +59,25 @@ export function QuestionView({
 
 /** Текст, в котором `код в обратных кавычках` и вызовы вида f(x) рисуются моноширинным. */
 export function CodeAwareText({ text }: { text: string }) {
+  // Блок кода ```…``` (вопросы «что выведет») — отдельным моноширинным блоком, слева.
+  if (text.includes("```")) {
+    return (
+      <>
+        {text.split(/(```[^\n`]*\n[\s\S]*?```)/g).map((p, i) =>
+          p.startsWith("```") ? (
+            <pre
+              key={i}
+              className="mx-auto my-3 block w-fit max-w-full overflow-x-auto whitespace-pre rounded-[8px] border border-border bg-black/15 px-4 py-3 text-left font-mono text-[15px] font-normal leading-relaxed"
+            >
+              {p.replace(/^```[^\n`]*\n/, "").replace(/\n?```$/, "")}
+            </pre>
+          ) : p.trim() ? (
+            <CodeAwareText key={i} text={p.trim()} />
+          ) : null,
+        )}
+      </>
+    );
+  }
   const parts = text.split(/(`[^`]+`)/g);
   return (
     <>

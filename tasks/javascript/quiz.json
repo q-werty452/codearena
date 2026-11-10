@@ -1,7 +1,7 @@
 {
   "version": 1,
   "game": "quiz",
-  "title": "Викторина: JavaScript",
+  "title": "Викторина: JavaScript — базовый уровень",
   "author": "q-werty452",
   "description": "Типы и приведение, let/const, массивы (map, filter, push), DOM и события. 19 вопросов.",
   "tasks": [

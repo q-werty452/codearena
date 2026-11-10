@@ -1,0 +1,409 @@
+{
+  "version": 1,
+  "game": "codewars",
+  "title": "Codewars: JavaScript — средний уровень",
+  "author": "q-werty452",
+  "description": "Объекты и массивы: группировка, чанки, camelCase, zip, частоты, римские числа. Короче правильное решение — выше место. 16 задач.",
+  "tasks": [
+    {
+      "type": "code",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Сгруппируй объекты по значению поля key: groupBy(list, 'type') → { тип: [объекты] }.",
+      "starter": "function groupBy(list, key) {\n\n}",
+      "tests": [
+        {
+          "call": "groupBy([{ n: \"Плов\", type: \"горячее\" }, { n: \"Торт\", type: \"десерт\" }, { n: \"Манты\", type: \"горячее\" }], \"type\")",
+          "expected": "{ \"горячее\": [{ n: \"Плов\", type: \"горячее\" }, { n: \"Манты\", type: \"горячее\" }], \"десерт\": [{ n: \"Торт\", type: \"десерт\" }] }"
+        },
+        {
+          "call": "groupBy([], \"type\")",
+          "expected": "{}"
+        }
+      ],
+      "rules": [],
+      "solution": "function groupBy(list, key) {\n  const out = {};\n  for (const item of list) (out[item[key]] ??= []).push(item);\n  return out;\n}",
+      "explanation": "??= создаёт пустой массив для нового ключа."
+    },
+    {
+      "type": "code",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Разбей массив на кусочки по size элементов: chunk([1, 2, 3, 4, 5], 2) → [[1, 2], [3, 4], [5]].",
+      "starter": "function chunk(arr, size) {\n\n}",
+      "tests": [
+        {
+          "call": "chunk([1, 2, 3, 4, 5], 2)",
+          "expected": "[[1, 2], [3, 4], [5]]"
+        },
+        {
+          "call": "chunk([], 3)",
+          "expected": "[]"
+        },
+        {
+          "call": "chunk([1, 2], 5)",
+          "expected": "[[1, 2]]"
+        }
+      ],
+      "rules": [],
+      "solution": "function chunk(arr, size) {\n  const out = [];\n  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));\n  return out;\n}",
+      "explanation": "Шаг цикла — size, slice берёт кусочек."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Переведи CSS-свойство в camelCase: 'background-color' → 'backgroundColor'.",
+      "starter": "function camelCase(s) {\n\n}",
+      "tests": [
+        {
+          "call": "camelCase(\"background-color\")",
+          "expected": "\"backgroundColor\""
+        },
+        {
+          "call": "camelCase(\"border-top-left-radius\")",
+          "expected": "\"borderTopLeftRadius\""
+        },
+        {
+          "call": "camelCase(\"color\")",
+          "expected": "\"color\""
+        }
+      ],
+      "rules": [],
+      "solution": "function camelCase(s) {\n  return s.replace(/-(\\w)/g, (_, c) => c.toUpperCase());\n}",
+      "explanation": "Регулярка ловит дефис и следующую букву, заменяем на заглавную. Так JS называет стили: el.style.backgroundColor."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Обрежь строку до n символов и добавь «…», если она длиннее.",
+      "starter": "function truncate(s, n) {\n\n}",
+      "tests": [
+        {
+          "call": "truncate(\"Привет, мир\", 6)",
+          "expected": "\"Привет…\""
+        },
+        {
+          "call": "truncate(\"кот\", 3)",
+          "expected": "\"кот\""
+        },
+        {
+          "call": "truncate(\"\", 2)",
+          "expected": "\"\""
+        }
+      ],
+      "rules": [],
+      "solution": "function truncate(s, n) {\n  return s.length > n ? s.slice(0, n) + \"…\" : s;\n}",
+      "explanation": "Строки не длиннее n возвращаем как есть."
+    },
+    {
+      "type": "code",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Посчитай, сколько раз встречается каждое слово: { слово: число }.",
+      "starter": "function wordFreq(text) {\n\n}",
+      "tests": [
+        {
+          "call": "wordFreq(\"Кот кот  пёс\")",
+          "expected": "{ \"кот\": 2, \"пёс\": 1 }"
+        },
+        {
+          "call": "wordFreq(\"\")",
+          "expected": "{}"
+        }
+      ],
+      "rules": [],
+      "solution": "function wordFreq(text) {\n  const out = {};\n  for (const w of text.toLowerCase().split(/\\s+/).filter(Boolean)) out[w] = (out[w] ?? 0) + 1;\n  return out;\n}",
+      "explanation": "filter(Boolean) убирает пустые строки от лишних пробелов, ?? 0 — старт для нового слова."
+    },
+    {
+      "type": "code",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Вытащи значения одного поля из массива объектов: pluck(users, 'name').",
+      "starter": "function pluck(list, key) {\n\n}",
+      "tests": [
+        {
+          "call": "pluck([{ name: \"Аня\", age: 17 }, { name: \"Бек\", age: 18 }], \"name\")",
+          "expected": "[\"Аня\", \"Бек\"]"
+        },
+        {
+          "call": "pluck([], \"x\")",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "function pluck(list, key) {\n  return list.map((x) => x[key]);\n}",
+      "explanation": "map и доступ к полю через квадратные скобки — имя поля в переменной."
+    },
+    {
+      "type": "code",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Корзина — массив { price, qty }. Верни общую сумму.",
+      "starter": "function cartTotal(cart) {\n\n}",
+      "tests": [
+        {
+          "call": "cartTotal([{ price: 100, qty: 2 }, { price: 50, qty: 1 }])",
+          "expected": "250"
+        },
+        {
+          "call": "cartTotal([])",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "function cartTotal(cart) {\n  return cart.reduce((sum, item) => sum + item.price * item.qty, 0);\n}",
+      "explanation": "reduce с начальным 0 — иначе пустая корзина упадёт."
+    },
+    {
+      "type": "code",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Сделай массив чисел от start до end (не включая) с шагом step: range(0, 10, 3) → [0, 3, 6, 9].",
+      "starter": "function range(start, end, step = 1) {\n\n}",
+      "tests": [
+        {
+          "call": "range(0, 10, 3)",
+          "expected": "[0, 3, 6, 9]"
+        },
+        {
+          "call": "range(2, 5)",
+          "expected": "[2, 3, 4]"
+        },
+        {
+          "call": "range(5, 5)",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "function range(start, end, step = 1) {\n  const out = [];\n  for (let i = start; i < end; i += step) out.push(i);\n  return out;\n}",
+      "explanation": "Обычный for с нужным шагом."
+    },
+    {
+      "type": "code",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Склей два массива в пары: zip([1, 2], ['a', 'b']) → [[1, 'a'], [2, 'b']]. Длина — по короткому.",
+      "starter": "function zip(a, b) {\n\n}",
+      "tests": [
+        {
+          "call": "zip([1, 2], [\"a\", \"b\"])",
+          "expected": "[[1, \"a\"], [2, \"b\"]]"
+        },
+        {
+          "call": "zip([1, 2, 3], [\"a\"])",
+          "expected": "[[1, \"a\"]]"
+        },
+        {
+          "call": "zip([], [1])",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "function zip(a, b) {\n  return a.slice(0, b.length).map((x, i) => [x, b[i]]);\n}",
+      "explanation": "Обрезаем по короткому, map с индексом."
+    },
+    {
+      "type": "code",
+      "topic": "Map",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Верни самый частый элемент массива (при равенстве — тот, что встретился раньше).",
+      "starter": "function mostFrequent(arr) {\n\n}",
+      "tests": [
+        {
+          "call": "mostFrequent([\"a\", \"b\", \"b\", \"a\", \"c\", \"b\"])",
+          "expected": "\"b\""
+        },
+        {
+          "call": "mostFrequent([1, 2, 2, 1])",
+          "expected": "1"
+        },
+        {
+          "call": "mostFrequent([7])",
+          "expected": "7"
+        }
+      ],
+      "rules": [],
+      "solution": "function mostFrequent(arr) {\n  const count = new Map();\n  for (const x of arr) count.set(x, (count.get(x) ?? 0) + 1);\n  let best = arr[0];\n  for (const [x, n] of count) if (n > count.get(best)) best = x;\n  return best;\n}",
+      "explanation": "Сначала считаем всё в Map, потом ищем максимум. Map помнит порядок первого появления, а строгое > при равенстве оставляет более ранний элемент."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Переведи римское число в обычное: 'XIV' → 14.",
+      "starter": "function romanToInt(s) {\n\n}",
+      "tests": [
+        {
+          "call": "romanToInt(\"XIV\")",
+          "expected": "14"
+        },
+        {
+          "call": "romanToInt(\"MCMXCIV\")",
+          "expected": "1994"
+        },
+        {
+          "call": "romanToInt(\"III\")",
+          "expected": "3"
+        }
+      ],
+      "rules": [],
+      "solution": "function romanToInt(s) {\n  const v = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };\n  let total = 0;\n  for (let i = 0; i < s.length; i++) {\n    const cur = v[s[i]];\n    total += cur < (v[s[i + 1]] ?? 0) ? -cur : cur;\n  }\n  return total;\n}",
+      "explanation": "Если меньшая цифра стоит перед большей (IV, IX), её вычитаем."
+    },
+    {
+      "type": "code",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Поменяй местами ключи и значения объекта: { a: 'x' } → { x: 'a' }.",
+      "starter": "function invert(obj) {\n\n}",
+      "tests": [
+        {
+          "call": "invert({ a: \"x\", b: \"y\" })",
+          "expected": "{ x: \"a\", y: \"b\" }"
+        },
+        {
+          "call": "invert({})",
+          "expected": "{}"
+        }
+      ],
+      "rules": [],
+      "solution": "function invert(obj) {\n  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]));\n}",
+      "explanation": "entries → поменять пары → fromEntries."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Раздели число пробелами по три цифры: 1234567 → '1 234 567'.",
+      "starter": "function formatThousands(n) {\n\n}",
+      "tests": [
+        {
+          "call": "formatThousands(1234567)",
+          "expected": "\"1 234 567\""
+        },
+        {
+          "call": "formatThousands(999)",
+          "expected": "\"999\""
+        },
+        {
+          "call": "formatThousands(1000)",
+          "expected": "\"1 000\""
+        }
+      ],
+      "rules": [],
+      "solution": "function formatThousands(n) {\n  return String(n).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \" \");\n}",
+      "explanation": "Регулярка ставит пробел перед каждой группой из трёх цифр до конца числа. Можно и циклом с конца строки."
+    },
+    {
+      "type": "code",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Отсортируй студентов по баллу (по убыванию), при равенстве — по имени (по алфавиту). Верни имена.",
+      "starter": "function ranking(students) {\n\n}",
+      "tests": [
+        {
+          "call": "ranking([{ name: \"Бек\", score: 90 }, { name: \"Аня\", score: 90 }, { name: \"Вика\", score: 95 }])",
+          "expected": "[\"Вика\", \"Аня\", \"Бек\"]"
+        },
+        {
+          "call": "ranking([])",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "function ranking(students) {\n  return [...students]\n    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))\n    .map((s) => s.name);\n}",
+      "explanation": "|| срабатывает, когда разница баллов 0. localeCompare правильно сравнивает русские буквы."
+    },
+    {
+      "type": "code",
+      "topic": "Стек",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Проверь, что все скобки ()[]{} расставлены правильно.",
+      "starter": "function isBalanced(s) {\n\n}",
+      "tests": [
+        {
+          "call": "isBalanced(\"([]{})\")",
+          "expected": "true"
+        },
+        {
+          "call": "isBalanced(\"([)]\")",
+          "expected": "false"
+        },
+        {
+          "call": "isBalanced(\"((\")",
+          "expected": "false"
+        },
+        {
+          "call": "isBalanced(\"\")",
+          "expected": "true"
+        }
+      ],
+      "rules": [],
+      "solution": "function isBalanced(s) {\n  const pairs = { \")\": \"(\", \"]\": \"[\", \"}\": \"{\" };\n  const stack = [];\n  for (const c of s) {\n    if (\"([{\".includes(c)) stack.push(c);\n    else if (c in pairs && stack.pop() !== pairs[c]) return false;\n  }\n  return stack.length === 0;\n}",
+      "explanation": "Стек: закрывающая должна совпасть с последней открытой."
+    },
+    {
+      "type": "code",
+      "topic": "Рекурсия",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "javascript",
+      "prompt": "Глубокое сравнение двух значений (числа, строки, массивы, простые объекты).",
+      "starter": "function deepEqual(a, b) {\n\n}",
+      "tests": [
+        {
+          "call": "deepEqual({ a: [1, 2] }, { a: [1, 2] })",
+          "expected": "true"
+        },
+        {
+          "call": "deepEqual([1, 2], [1, 3])",
+          "expected": "false"
+        },
+        {
+          "call": "deepEqual({ a: 1 }, { a: 1, b: 2 })",
+          "expected": "false"
+        },
+        {
+          "call": "deepEqual(null, {})",
+          "expected": "false"
+        }
+      ],
+      "rules": [],
+      "solution": "function deepEqual(a, b) {\n  if (a === b) return true;\n  if (typeof a !== \"object\" || typeof b !== \"object\" || !a || !b) return false;\n  const ka = Object.keys(a), kb = Object.keys(b);\n  return ka.length === kb.length && ka.every((k) => deepEqual(a[k], b[k]));\n}",
+      "explanation": "Рекурсия по ключам. === для массивов и объектов сравнивает ссылки — поэтому и нужна эта функция."
+    }
+  ]
+}

@@ -1,0 +1,484 @@
+{
+  "version": 1,
+  "game": "codewars",
+  "title": "Codewars: HTML и CSS — средний уровень",
+  "author": "q-werty452",
+  "description": "Формы с проверкой, таблицы с шапкой и colspan, медиа, навигация с якорями; CSS: box model, sticky, hover, nth-child, flex. Проверка правилами. 16 задач: 10 HTML, 6 CSS.",
+  "tasks": [
+    {
+      "type": "code",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Форма регистрации: <fieldset> с заголовком <legend> «Регистрация», обязательное поле email, пароль минимум из 8 символов (minlength) и кнопка отправки.",
+      "starter": "<form>\n\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "fieldset legend",
+          "label": "legend «Регистрация»",
+          "text": "Регистрация"
+        },
+        {
+          "selector": "input[type=\"email\"][required]",
+          "label": "обязательный email"
+        },
+        {
+          "selector": "input[type=\"password\"][minlength=\"8\"]",
+          "label": "пароль с minlength=8"
+        },
+        {
+          "selector": "button[type=\"submit\"]",
+          "label": "кнопка submit"
+        }
+      ],
+      "solution": "<form>\n  <fieldset>\n    <legend>Регистрация</legend>\n    <input type=\"email\" name=\"email\" required>\n    <input type=\"password\" name=\"password\" minlength=\"8\" required>\n    <button type=\"submit\">Создать</button>\n  </fieldset>\n</form>",
+      "explanation": "fieldset и legend группируют поля, required и minlength проверяет сам браузер."
+    },
+    {
+      "type": "code",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Выбор размера пиццы: три radio с name=\"size\" и значениями s, m, l, у каждого — <label>.",
+      "starter": "<p>Размер:</p>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "input[type=\"radio\"][name=\"size\"]",
+          "label": "три radio size",
+          "minCount": 3
+        },
+        {
+          "selector": "input[value=\"l\"]",
+          "label": "есть значение l"
+        },
+        {
+          "selector": "label",
+          "label": "три подписи",
+          "minCount": 3
+        }
+      ],
+      "solution": "<p>Размер:</p>\n<label><input type=\"radio\" name=\"size\" value=\"s\"> S</label>\n<label><input type=\"radio\" name=\"size\" value=\"m\"> M</label>\n<label><input type=\"radio\" name=\"size\" value=\"l\"> L</label>",
+      "explanation": "Одинаковый name делает группу, label — большая зона клика."
+    },
+    {
+      "type": "code",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Список городов: <select name=\"city\"> с тремя вариантами, где «Бишкек» выбран по умолчанию.",
+      "starter": "<select>\n</select>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "select[name=\"city\"] option",
+          "label": "три варианта",
+          "minCount": 3
+        },
+        {
+          "selector": "option[selected]",
+          "label": "выбран «Бишкек»",
+          "text": "Бишкек"
+        }
+      ],
+      "solution": "<select name=\"city\">\n  <option>Ош</option>\n  <option selected>Бишкек</option>\n  <option>Каракол</option>\n</select>",
+      "explanation": "selected у option — выбор по умолчанию."
+    },
+    {
+      "type": "code",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Поле возраста: число от 16 до 25, обязательное (как в уроке про формы).",
+      "starter": "<input>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "input[type=\"number\"]",
+          "label": "тип number"
+        },
+        {
+          "selector": "input[min=\"16\"][max=\"25\"]",
+          "label": "min 16, max 25"
+        },
+        {
+          "selector": "input[required]",
+          "label": "обязательное"
+        }
+      ],
+      "solution": "<input type=\"number\" name=\"age\" min=\"16\" max=\"25\" required>",
+      "explanation": "type=\"number\" + min/max, required — без возраста форма не уйдёт."
+    },
+    {
+      "type": "code",
+      "topic": "Таблицы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Таблица оценок: подпись <caption> «Оценки», шапка с тремя <th scope=\"col\">, в теле две строки.",
+      "starter": "<table>\n</table>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "table caption",
+          "label": "caption «Оценки»",
+          "text": "Оценки"
+        },
+        {
+          "selector": "thead th[scope=\"col\"]",
+          "label": "три заголовка столбцов",
+          "minCount": 3
+        },
+        {
+          "selector": "tbody tr",
+          "label": "две строки данных",
+          "minCount": 2
+        }
+      ],
+      "solution": "<table>\n  <caption>Оценки</caption>\n  <thead>\n    <tr><th scope=\"col\">Имя</th><th scope=\"col\">HTML</th><th scope=\"col\">CSS</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>Айбек</td><td>5</td><td>4</td></tr>\n    <tr><td>Нурай</td><td>5</td><td>5</td></tr>\n  </tbody>\n</table>",
+      "explanation": "caption — название таблицы, scope=\"col\" помогает экранным дикторам."
+    },
+    {
+      "type": "code",
+      "topic": "Таблицы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Последняя строка таблицы: ячейка «Итого» на две колонки и ячейка с суммой 300.",
+      "starter": "<table>\n  <tr><td>Чай</td><td>1</td><td>100</td></tr>\n  <tr><td>Торт</td><td>1</td><td>200</td></tr>\n</table>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "td[colspan=\"2\"]",
+          "label": "«Итого» на две колонки",
+          "text": "Итого"
+        },
+        {
+          "selector": "td",
+          "label": "сумма 300",
+          "text": "300"
+        }
+      ],
+      "solution": "<table>\n  <tr><td>Чай</td><td>1</td><td>100</td></tr>\n  <tr><td>Торт</td><td>1</td><td>200</td></tr>\n  <tr><td colspan=\"2\">Итого</td><td>300</td></tr>\n</table>",
+      "explanation": "colspan=\"2\" растягивает ячейку на две колонки."
+    },
+    {
+      "type": "code",
+      "topic": "Медиа",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Картинка с подписью: <figure>, внутри img (с alt) и <figcaption>.",
+      "starter": "<!-- figure здесь -->",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "figure img",
+          "label": "img внутри figure",
+          "everyHasAttr": "alt"
+        },
+        {
+          "selector": "figure figcaption",
+          "label": "есть figcaption"
+        }
+      ],
+      "solution": "<figure>\n  <img src=\"cat.avif\" alt=\"Кот на окне\">\n  <figcaption>Кот греется на солнце</figcaption>\n</figure>",
+      "explanation": "figure объединяет медиа и подпись."
+    },
+    {
+      "type": "code",
+      "topic": "Медиа",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Видео lesson.mp4 с кнопками управления и обложкой poster.jpg; файл подключи через <source> с type=\"video/mp4\".",
+      "starter": "<video>\n</video>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "video[controls]",
+          "label": "есть controls"
+        },
+        {
+          "selector": "video[poster=\"poster.jpg\"]",
+          "label": "обложка poster.jpg"
+        },
+        {
+          "selector": "video source[type=\"video/mp4\"]",
+          "label": "source с type video/mp4"
+        }
+      ],
+      "solution": "<video controls poster=\"poster.jpg\">\n  <source src=\"lesson.mp4\" type=\"video/mp4\">\n</video>",
+      "explanation": "controls — кнопки, poster — картинка до запуска, source с type — браузер сразу знает формат."
+    },
+    {
+      "type": "code",
+      "topic": "Ссылки",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Меню-якоря: <nav> со списком из трёх ссылок, одна ведёт на #contacts; ниже — <section id=\"contacts\">.",
+      "starter": "<nav>\n</nav>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "nav ul li a",
+          "label": "три ссылки в списке",
+          "minCount": 3
+        },
+        {
+          "selector": "a[href=\"#contacts\"]",
+          "label": "ссылка на #contacts"
+        },
+        {
+          "selector": "section#contacts",
+          "label": "секция с id contacts"
+        }
+      ],
+      "solution": "<nav>\n  <ul>\n    <li><a href=\"#about\">О нас</a></li>\n    <li><a href=\"#prices\">Цены</a></li>\n    <li><a href=\"#contacts\">Контакты</a></li>\n  </ul>\n</nav>\n<section id=\"contacts\">\n  <h2>Контакты</h2>\n</section>",
+      "explanation": "Ссылка #id прокручивает к элементу с этим id."
+    },
+    {
+      "type": "code",
+      "topic": "Семантика",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Новость: <article> с заголовком <h2>, датой <time datetime=\"2026-11-11\"> и абзацем текста.",
+      "starter": "<div>\n</div>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "article h2",
+          "label": "заголовок h2 внутри article"
+        },
+        {
+          "selector": "article time[datetime=\"2026-11-11\"]",
+          "label": "time с datetime"
+        },
+        {
+          "selector": "article p",
+          "label": "абзац текста"
+        }
+      ],
+      "solution": "<article>\n  <h2>Открылся набор в IT-колледж</h2>\n  <time datetime=\"2026-11-11\">11 ноября</time>\n  <p>Подробности на сайте.</p>\n</article>",
+      "explanation": "article — самостоятельный материал, time с datetime понятен поисковикам."
+    },
+    {
+      "type": "code",
+      "topic": "Box model",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Карточка .card: box-sizing: border-box, padding 16px, border 1px solid #ddd, border-radius 12px.",
+      "starter": ".card {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".card",
+          "css": {
+            "property": "box-sizing",
+            "value": "border-box"
+          },
+          "label": ".card { box-sizing: border-box }"
+        },
+        {
+          "selector": ".card",
+          "css": {
+            "property": "padding",
+            "value": "16px"
+          },
+          "label": ".card { padding: 16px }"
+        },
+        {
+          "selector": ".card",
+          "css": {
+            "property": "border",
+            "value": "1px solid #ddd"
+          },
+          "label": ".card { border: 1px solid #ddd }"
+        },
+        {
+          "selector": ".card",
+          "css": {
+            "property": "border-radius",
+            "value": "12px"
+          },
+          "label": ".card { border-radius: 12px }"
+        }
+      ],
+      "solution": ".card {\n  box-sizing: border-box;\n  padding: 16px;\n  border: 1px solid #ddd;\n  border-radius: 12px;\n}",
+      "explanation": "Классический набор для карточки."
+    },
+    {
+      "type": "code",
+      "topic": "Позиционирование",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Шапка .header прилипает к верху при прокрутке и лежит поверх контента: position sticky, top 0, z-index 10.",
+      "starter": ".header {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".header",
+          "css": {
+            "property": "position",
+            "value": "sticky"
+          },
+          "label": ".header { position: sticky }"
+        },
+        {
+          "selector": ".header",
+          "css": {
+            "property": "top",
+            "value": "0"
+          },
+          "label": ".header { top: 0 }"
+        },
+        {
+          "selector": ".header",
+          "css": {
+            "property": "z-index",
+            "value": "10"
+          },
+          "label": ".header { z-index: 10 }"
+        }
+      ],
+      "solution": ".header {\n  position: sticky;\n  top: 0;\n  z-index: 10;\n}",
+      "explanation": "sticky без top не сработает, z-index — чтобы контент не наезжал сверху."
+    },
+    {
+      "type": "code",
+      "topic": "Псевдоклассы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Кнопка .btn плавно меняет фон при наведении: у .btn есть transition, у .btn:hover — background-color #2563eb.",
+      "starter": ".btn {\n  background-color: #3b82f6;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".btn",
+          "css": {
+            "property": "transition"
+          },
+          "label": "у .btn есть transition"
+        },
+        {
+          "selector": ".btn:hover",
+          "css": {
+            "property": "background-color",
+            "value": "#2563eb"
+          },
+          "label": ".btn:hover { background-color: #2563eb }"
+        }
+      ],
+      "solution": ".btn {\n  background-color: #3b82f6;\n  transition: background-color 0.2s;\n}\n.btn:hover {\n  background-color: #2563eb;\n}",
+      "explanation": "transition пишут у обычного состояния — тогда анимация работает и при наведении, и при уходе мыши."
+    },
+    {
+      "type": "code",
+      "topic": "Селекторы",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Зебра в таблице: каждая чётная строка tr:nth-child(even) с фоном #f5f5f5.",
+      "starter": "tr {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "tr:nth-child(even)",
+          "css": {
+            "property": "background-color",
+            "value": "#f5f5f5"
+          },
+          "label": "tr:nth-child(even) { background-color: #f5f5f5 }"
+        }
+      ],
+      "solution": "tr:nth-child(even) {\n  background-color: #f5f5f5;\n}",
+      "explanation": "even — чётные строки (2, 4, 6…), то же, что 2n."
+    },
+    {
+      "type": "code",
+      "topic": "Flex",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Шапка сайта .nav: логотип слева, меню справа, по центру по вертикали — flex, justify-content: space-between, align-items: center.",
+      "starter": ".nav {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".nav",
+          "css": {
+            "property": "display",
+            "value": "flex"
+          },
+          "label": ".nav { display: flex }"
+        },
+        {
+          "selector": ".nav",
+          "css": {
+            "property": "justify-content",
+            "value": "space-between"
+          },
+          "label": ".nav { justify-content: space-between }"
+        },
+        {
+          "selector": ".nav",
+          "css": {
+            "property": "align-items",
+            "value": "center"
+          },
+          "label": ".nav { align-items: center }"
+        }
+      ],
+      "solution": ".nav {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}",
+      "explanation": "space-between раздвигает крайние элементы к краям."
+    },
+    {
+      "type": "code",
+      "topic": "Фон",
+      "difficulty": "medium",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Обложка .hero: фон заполняет блок целиком (background-size: cover), картинка по центру, высота минимум 60vh.",
+      "starter": ".hero {\n  background-image: url(\"images/hero.jpg\");\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".hero",
+          "css": {
+            "property": "background-size",
+            "value": "cover"
+          },
+          "label": ".hero { background-size: cover }"
+        },
+        {
+          "selector": ".hero",
+          "css": {
+            "property": "background-position",
+            "value": "center"
+          },
+          "label": ".hero { background-position: center }"
+        },
+        {
+          "selector": ".hero",
+          "css": {
+            "property": "min-height",
+            "value": "60vh"
+          },
+          "label": ".hero { min-height: 60vh }"
+        }
+      ],
+      "solution": ".hero {\n  background-image: url(\"images/hero.jpg\");\n  background-size: cover;\n  background-position: center;\n  min-height: 60vh;\n}",
+      "explanation": "cover — без пустых мест, center — обрезается равномерно со всех сторон."
+    }
+  ]
+}

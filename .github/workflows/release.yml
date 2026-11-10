@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: 26
           cache: npm
+      # Банк задач проверяет Dart-задачи настоящим dart (Python 3 на раннере уже есть).
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
       - run: npm ci
       - run: npm run typecheck
       - run: npm test

@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "game": "tug",
+  "title": "Канат: JavaScript — средний уровень",
+  "author": "q-werty452",
+  "description": "Быстрые ответы с подвохом: приведение типов, методы строк и массивов, Math. 21 заданий.",
+  "tasks": [
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `\"10\" / \"2\"`?",
+      "answers": [
+        "5"
+      ],
+      "caseSensitive": false,
+      "explanation": "Деление приводит строки к числам."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `typeof []`?",
+      "answers": [
+        "object"
+      ],
+      "caseSensitive": false,
+      "explanation": "Массив — это объект. Проверка на массив: Array.isArray."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `[1, 2, 3].indexOf(4)`?",
+      "answers": [
+        "-1"
+      ],
+      "caseSensitive": false,
+      "explanation": "Не найдено — -1."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `\"abc\".at(-1)`?",
+      "answers": [
+        "c"
+      ],
+      "caseSensitive": false,
+      "explanation": "at(-1) — последний символ."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `Math.round(-2.5)`?",
+      "answers": [
+        "-2"
+      ],
+      "caseSensitive": false,
+      "explanation": "Math.round округляет .5 вверх, к большему: -2.5 → -2."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `[1, [2, [3]]].flat(Infinity).length`?",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false,
+      "explanation": "flat(Infinity) раскрывает любую глубину."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `\"a-b-c\".split(\"-\").join(\"+\")`?",
+      "answers": [
+        "a+b+c"
+      ],
+      "caseSensitive": false,
+      "explanation": "Замена разделителя через split и join."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `parseInt(\"12px\")`?",
+      "answers": [
+        "12"
+      ],
+      "caseSensitive": false,
+      "explanation": "parseInt читает число, пока может, и останавливается на «px»."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `Number(\"12px\")`?",
+      "answers": [
+        "NaN"
+      ],
+      "caseSensitive": false,
+      "explanation": "Number требует, чтобы вся строка была числом."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `[3, 1, 2].sort((a, b) => b - a)[0]`?",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false,
+      "explanation": "b - a сортирует по убыванию."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `\"Hello\".replace(\"l\", \"L\")`?",
+      "answers": [
+        "HeLlo"
+      ],
+      "caseSensitive": false,
+      "explanation": "replace со строкой меняет только первое вхождение. Все — replaceAll."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `[1, 2, 3].reduce((s, x) => s + x, 10)`?",
+      "answers": [
+        "16"
+      ],
+      "caseSensitive": false,
+      "explanation": "Начальное значение 10 + 1 + 2 + 3."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `!!\"\"`?",
+      "answers": [
+        "false"
+      ],
+      "caseSensitive": false,
+      "explanation": "Пустая строка ложна, двойное отрицание даёт boolean."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `5 + \"5\" - 5`?",
+      "answers": [
+        "50"
+      ],
+      "caseSensitive": false,
+      "explanation": "5 + «5» = «55», потом «55» - 5 = 50."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `\"5\" * \"2\"`?",
+      "answers": [
+        "10"
+      ],
+      "caseSensitive": false,
+      "explanation": "Умножение приводит строки к числам."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `[...\"hello\"].reverse().join(\"\")`?",
+      "answers": [
+        "olleh"
+      ],
+      "caseSensitive": false,
+      "explanation": "Строку разворачивают через массив."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `typeof undefined`?",
+      "answers": [
+        "undefined"
+      ],
+      "caseSensitive": false,
+      "explanation": "У undefined свой тип."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `Object.keys({ a: 1, b: 2 }).length`?",
+      "answers": [
+        "2"
+      ],
+      "caseSensitive": false,
+      "explanation": "Два ключа."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `\"JavaScript\".slice(-6)`?",
+      "answers": [
+        "Script"
+      ],
+      "caseSensitive": false,
+      "explanation": "Отрицательный индекс считает с конца."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Что вернёт `[0, 1, 2].findIndex((x) => x > 0)`?",
+      "answers": [
+        "1"
+      ],
+      "caseSensitive": false,
+      "explanation": "Индекс первого подходящего элемента."
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "prompt": "Какой метод превращает JSON-строку в объект?",
+      "answers": [
+        "JSON.parse",
+        "parse",
+        "JSON.parse()"
+      ],
+      "caseSensitive": false,
+      "explanation": "JSON.parse — из строки в объект, JSON.stringify — обратно."
+    }
+  ]
+}

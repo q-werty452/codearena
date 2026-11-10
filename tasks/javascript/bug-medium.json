@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "game": "bug",
+  "title": "Найди баг: JavaScript — средний уровень",
+  "author": "q-werty452",
+  "description": "await, сравнение массивов, return в forEach, sort чисел, this в стрелке, обработчики, innerHTML, localStorage, мутация аргументов. 20 заданий.",
+  "tasks": [
+    {
+      "type": "find_line",
+      "topic": "Асинхронность",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "async function loadUsers() {\n  const res = fetch(\"/api/users\");\n  const users = await res.json();\n  return users;\n}",
+      "line": 2,
+      "explanation": "Без await в res лежит Promise, у него нет метода json. Нужно const res = await fetch(...)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Сравнение",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const a = [1, 2];\nconst b = [1, 2];\nif (a === b) {\n  console.log(\"Одинаковые\");\n}",
+      "line": 3,
+      "explanation": "=== сравнивает ссылки: это два разных массива. Содержимое сравнивают поэлементно или через JSON.stringify."
+    },
+    {
+      "type": "find_line",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "function hasNegative(nums) {\n  nums.forEach((n) => {\n    if (n < 0) return true;\n  });\n  return false;\n}",
+      "line": 3,
+      "explanation": "return внутри колбэка выходит только из колбэка, а не из hasNegative. Правильно: return nums.some((n) => n < 0)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const scores = [100, 25, 3];\nscores.sort();\nconsole.log(scores[0]); // ждём 3",
+      "line": 2,
+      "explanation": "sort() без функции сравнивает как строки: «100» < «25» < «3». Нужно scores.sort((a, b) => a - b)."
+    },
+    {
+      "type": "find_line",
+      "topic": "this",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const user = {\n  name: \"Айбек\",\n  hello: () => {\n    return \"Привет, \" + this.name;\n  },\n};",
+      "line": 3,
+      "explanation": "У стрелочной функции нет своего this — this.name будет undefined. Метод пишут как hello() { … }."
+    },
+    {
+      "type": "find_line",
+      "topic": "DOM",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const btn = document.querySelector(\"#save\");\nbtn.addEventListener(\"click\", save());\n\nfunction save() {\n  console.log(\"Сохранено\");\n}",
+      "line": 2,
+      "explanation": "save() вызывается сразу, а в обработчик уходит undefined. Передают саму функцию: addEventListener(\"click\", save)."
+    },
+    {
+      "type": "find_line",
+      "topic": "DOM",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const a = document.querySelector(\"#a\").value;\nconst b = document.querySelector(\"#b\").value;\nconst sum = a + b;\ndocument.querySelector(\"#result\").textContent = sum;",
+      "line": 3,
+      "explanation": "value всегда строка: «2» + «3» = «23». Нужно Number(a) + Number(b)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Безопасность",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const params = new URLSearchParams(location.search);\nconst name = params.get(\"name\");\nconst title = document.querySelector(\"h1\");\ntitle.innerHTML = \"Привет, \" + name;",
+      "line": 4,
+      "explanation": "Текст из адреса попадает в innerHTML — так можно подсунуть свой скрипт (XSS). Для текста — textContent."
+    },
+    {
+      "type": "find_line",
+      "topic": "localStorage",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const cart = [{ id: 1, qty: 2 }];\nlocalStorage.setItem(\"cart\", cart);\nconst saved = JSON.parse(localStorage.getItem(\"cart\"));",
+      "line": 2,
+      "explanation": "localStorage хранит только строки: массив превратится в «[object Object]». Нужно JSON.stringify(cart)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const total = [100, 200, 300].reduce((sum, price) => {\n  sum + price;\n}, 0);\nconsole.log(total);",
+      "line": 2,
+      "explanation": "В фигурных скобках стрелки нужен return, иначе колбэк вернёт undefined. Или без скобок: (sum, price) => sum + price."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Как сделать копию объекта, чтобы правка копии не меняла оригинал (один уровень)?",
+      "variants": [
+        "const copy = user;",
+        "const copy = Object(user);",
+        "const copy = [user];",
+        "const copy = { ...user };"
+      ],
+      "correct": 3,
+      "explanation": "Spread создаёт новый объект. user и Object(user) — та же ссылка."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Как проверить, есть ли в массиве хотя бы одно отрицательное число?",
+      "variants": [
+        "nums.forEach((n) => n < 0)",
+        "nums.filter((n) => n < 0).length > 0",
+        "nums.includes(n < 0)",
+        "nums.some((n) => n < 0)"
+      ],
+      "correct": 3,
+      "explanation": "some останавливается на первом найденном. filter работает, но проходит весь массив и создаёт лишний. includes ищет значение, а не условие."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Безопасность",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Как вывести на страницу текст, который ввёл пользователь?",
+      "variants": [
+        "document.write(text);",
+        "el.innerHTML = text;",
+        "el.textContent = text;",
+        "el.outerHTML = text;"
+      ],
+      "correct": 2,
+      "explanation": "textContent вставляет именно текст. innerHTML и document.write выполнят HTML и скрипты из ввода."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Асинхронность",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Как загрузить несколько адресов параллельно и дождаться всех?",
+      "variants": [
+        "const results = [];\nfor (const u of urls) results.push(await fetch(u));",
+        "const results = await Promise.all(urls.map((u) => fetch(u)));",
+        "urls.forEach(async (u) => await fetch(u));",
+        "const results = await fetch(urls);"
+      ],
+      "correct": 1,
+      "explanation": "Promise.all запускает все запросы сразу. Цикл с await ждёт их по очереди, forEach с async вообще не дожидается."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Типы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "javascript",
+      "prompt": "Исправь: значения приходят и числами, и строками, а нужна сумма чисел.",
+      "code": "function sumAll(values) {\n  let total = 0;\n  for (const v of values) total += v;\n  return total;\n}",
+      "tests": [
+        {
+          "call": "sumAll([\"1\", \"2\", 3])",
+          "expected": "6"
+        },
+        {
+          "call": "sumAll([])",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "function sumAll(values) {\n  let total = 0;\n  for (const v of values) total += Number(v);\n  return total;\n}",
+      "explanation": "0 + «1» превращает сумму в строку. Каждое значение приводим к числу."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "javascript",
+      "prompt": "Исправь: числа должны сортироваться по возрастанию, а исходный массив не должен меняться.",
+      "code": "function sortNumbers(nums) {\n  return nums.sort();\n}",
+      "tests": [
+        {
+          "call": "sortNumbers([10, 9, 1])",
+          "expected": "[1, 9, 10]"
+        },
+        {
+          "call": "(() => { const a = [3, 1, 2]; sortNumbers(a); return a; })()",
+          "expected": "[3, 1, 2]"
+        }
+      ],
+      "rules": [],
+      "solution": "function sortNumbers(nums) {\n  return [...nums].sort((a, b) => a - b);\n}",
+      "explanation": "sort без функции сравнивает строки и меняет исходный массив. Копируем и сортируем числами."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Массивы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "javascript",
+      "prompt": "Исправь: повторы должны убираться все.",
+      "code": "function unique(items) {\n  const out = [];\n  for (const x of items) {\n    if (out.indexOf(x)) out.push(x);\n  }\n  return out;\n}",
+      "tests": [
+        {
+          "call": "unique([1, 1, 2, 2])",
+          "expected": "[1, 2]"
+        },
+        {
+          "call": "unique([3, 1, 3])",
+          "expected": "[3, 1]"
+        }
+      ],
+      "rules": [],
+      "solution": "function unique(items) {\n  const out = [];\n  for (const x of items) {\n    if (!out.includes(x)) out.push(x);\n  }\n  return out;\n}",
+      "explanation": "indexOf возвращает -1 (истина!) когда не нашёл и 0 (ложь) для первого элемента. Нужно === -1 или includes."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "javascript",
+      "prompt": "Исправь: функция должна возвращать новый объект и не трогать исходный.",
+      "code": "function birthday(user) {\n  user.age += 1;\n  return user;\n}",
+      "tests": [
+        {
+          "call": "birthday({ name: \"Аня\", age: 17 }).age",
+          "expected": "18"
+        },
+        {
+          "call": "(() => { const u = { age: 17 }; birthday(u); return u.age; })()",
+          "expected": "17"
+        }
+      ],
+      "rules": [],
+      "solution": "function birthday(user) {\n  return { ...user, age: user.age + 1 };\n}",
+      "explanation": "Объект передаётся по ссылке — функция меняла чужие данные. Возвращаем копию с новым возрастом."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Объекты",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "javascript",
+      "prompt": "Исправь проверку на пустой объект.",
+      "code": "function isEmpty(obj) {\n  return obj === {};\n}",
+      "tests": [
+        {
+          "call": "isEmpty({})",
+          "expected": "true"
+        },
+        {
+          "call": "isEmpty({ a: 1 })",
+          "expected": "false"
+        }
+      ],
+      "rules": [],
+      "solution": "function isEmpty(obj) {\n  return Object.keys(obj).length === 0;\n}",
+      "explanation": "{} в сравнении — новый объект, он никогда не равен другому по ссылке. Считаем ключи."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "javascript",
+      "prompt": "Исправь: нужно последнее слово строки.",
+      "code": "function lastWord(text) {\n  const words = text.split(\" \");\n  return words[words.length];\n}",
+      "tests": [
+        {
+          "call": "lastWord(\"привет большой мир\")",
+          "expected": "\"мир\""
+        },
+        {
+          "call": "lastWord(\"один \")",
+          "expected": "\"один\""
+        }
+      ],
+      "rules": [],
+      "solution": "function lastWord(text) {\n  const words = text.trim().split(/\\s+/);\n  return words[words.length - 1];\n}",
+      "explanation": "Последний индекс — length - 1. И лишние пробелы в конце дают пустое «слово» — убираем trim."
+    }
+  ]
+}

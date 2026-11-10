@@ -27,6 +27,13 @@ const GAMES = {
     tasks: [{ type: "code", topic: "t", language: "python", prompt: "Верни список только чётных чисел из nums.",
       starter: "def evens(nums):\n    pass", tests: [{ call: "evens([1, 2, 3, 4])", expected: "[2, 4]" }, { call: "evens([])", expected: "[]" }] }],
   },
+  // Dart: файл задачи .dart, проверка через dart ученика.
+  dartcw: {
+    game: "codewars",
+    settings: NO_PASTE_GUARD,
+    tasks: [{ type: "code", topic: "t", language: "dart", prompt: "Верни список только чётных чисел из nums.",
+      starter: "List<int> evens(List<int> nums) {\n  return [];\n}", tests: [{ call: "evens([1, 2, 3, 4])", expected: "[2, 4]" }, { call: "evens([])", expected: "[]" }] }],
+  },
   lesson: { game: "quiz", tasks: [] },
   fixbug: {
     game: "bug",

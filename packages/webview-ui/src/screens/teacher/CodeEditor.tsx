@@ -13,13 +13,14 @@ import { onHostMessage } from "../../lib/vscode.ts";
 
 export type CodeTaskDraft = Extract<Task, { type: "code" }>;
 /** Языки Codewars: фронтенд первым (HTML/CSS проверяются правилами), потом JS и Python. */
-type Lang = Extract<Language, "html" | "css" | "javascript" | "python">;
+type Lang = Extract<Language, "html" | "css" | "javascript" | "python" | "dart">;
 const isRules = (l: Language) => l === "html" || l === "css";
 const STARTERS: Record<Lang, string> = {
   html: "<!-- твоя разметка -->",
   css: ".selector {\n  \n}",
   javascript: "function solve(x) {\n  \n}",
   python: "def solve(x):\n    pass",
+  dart: "int solve(int x) {\n  return 0;\n}",
 };
 
 export function blankCode(language: Lang = "html"): CodeTaskDraft {
@@ -236,6 +237,7 @@ export function CodeCard({
             { value: "css", label: "CSS" },
             { value: "javascript", label: "JS" },
             { value: "python", label: "Python" },
+            { value: "dart", label: "Dart" },
           ]}
         />
         <Segmented<string>
@@ -282,7 +284,7 @@ export function CodeCard({
                   <input
                     value={test.call}
                     onChange={(e) => onChange({ tests: q.tests.map((x, k) => (k === i ? { ...x, call: e.target.value } : x)) })}
-                    placeholder={q.language === "python" ? "solve(2)" : "solve(2)"}
+                    placeholder="solve(2)"
                     aria-label={t("cw.call")}
                     spellCheck={false}
                     className="h-8 min-w-0 flex-[3] rounded-[8px] border border-border bg-input px-2 font-mono text-[12.5px] outline-none focus:border-[var(--ca-focus)]"
@@ -326,8 +328,8 @@ export function CodeCard({
           {check && !check.running && (
             <span className={cn("inline-flex items-center gap-1.5 text-[12px] font-semibold", check.error || failed ? "text-error" : "text-success")}>
               {check.error || failed ? <X size={13} /> : <Check size={13} />}
-              {check.error === "no_python"
-                ? t("cw.noPython")
+              {check.error === "no_python" || check.error === "no_dart"
+                ? t(check.error === "no_dart" ? "cw.noDart" : "cw.noPython")
                 : check.error === "timeout"
                   ? t("cw.timeout")
                   : check.error

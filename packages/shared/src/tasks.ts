@@ -2,13 +2,13 @@ import { z } from "zod";
 
 /**
  * Языки заданий. Приоритет — фронтенд: HTML/CSS → JavaScript → Python.
- * Dart (Flutter) — только для показа кода (найди строку, выбери лучший), без запуска.
+ * Dart запускается через `dart` ученика (Dart SDK или Flutter), как Python через python3.
  */
 export const Language = z.enum(["html", "css", "javascript", "python", "dart"]);
 export type Language = z.infer<typeof Language>;
 
 /** Языки, код на которых проверяется у ученика (есть раннер). */
-export const RUNNABLE_LANGUAGES: ReadonlySet<Language> = new Set(["html", "css", "javascript", "python"]);
+export const RUNNABLE_LANGUAGES: ReadonlySet<Language> = new Set(["html", "css", "javascript", "python", "dart"]);
 /** Языки, где проверка — правила по селекторам, а не тесты-вызовы. */
 export const RULE_LANGUAGES: ReadonlySet<Language> = new Set(["html", "css"]);
 

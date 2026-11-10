@@ -1,0 +1,339 @@
+{
+  "version": 1,
+  "game": "bug",
+  "title": "Найди баг: HTML и CSS — средний уровень",
+  "author": "q-werty452",
+  "description": "Таблицы, radio, пути из папки pages, специфичность, поля без name, inline-элементы, @font-face, полупрозрачный фон, figure. 19 заданий.",
+  "tasks": [
+    {
+      "type": "find_line",
+      "topic": "Таблицы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<table>\n  <tr>\n    <th>Имя</th>\n    <th>Балл</th>\n  </tr>\n  <td>Айбек</td>\n  <td>95</td>\n</table>",
+      "line": 6,
+      "explanation": "Ячейки должны лежать внутри строки <tr>, а здесь вторая строка не открыта."
+    },
+    {
+      "type": "find_line",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<p>Размер пиццы:</p>\n<input type=\"radio\" name=\"size\" value=\"s\"> S\n<input type=\"radio\" name=\"size\" value=\"m\"> M\n<input type=\"radio\" name=\"pizza\" value=\"l\"> L",
+      "line": 4,
+      "explanation": "У третьей кнопки другой name — её можно выбрать вместе с другими. Группа radio — одинаковый name."
+    },
+    {
+      "type": "find_line",
+      "topic": "Селекторы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<div class=\"card\">Тариф «Старт»</div>\n<style>\n  #card {\n    padding: 16px;\n    border-radius: 12px;\n  }\n</style>",
+      "line": 3,
+      "explanation": "#card ищет id, а у блока class. Нужен селектор .card."
+    },
+    {
+      "type": "find_line",
+      "topic": "Ссылки",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<!-- файл: pages/about.html -->\n<nav>\n  <a href=\"index.html\">Главная</a>\n  <a href=\"contacts.html\">Контакты</a>\n</nav>",
+      "line": 3,
+      "explanation": "about.html лежит в pages/, а index.html — на уровень выше: нужно ../index.html. contacts.html лежит рядом, там всё верно."
+    },
+    {
+      "type": "find_line",
+      "topic": "Цвета",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".title {\n  font-size: 2rem;\n  color: #ff00000;\n  margin-bottom: 1em;\n}",
+      "line": 3,
+      "explanation": "В hex-цвете 3, 4, 6 или 8 цифр. Семь — ошибка, браузер выкинет свойство."
+    },
+    {
+      "type": "find_line",
+      "topic": "Специфичность",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": "#menu a {\n  color: white;\n}\n.active {\n  color: yellow;\n}",
+      "line": 4,
+      "explanation": "Активная ссылка останется белой: #menu a (1,0,1) специфичнее .active (0,1,0). Нужно #menu a.active."
+    },
+    {
+      "type": "find_line",
+      "topic": "Display",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".logo {\n  display: inline;\n  width: 120px;\n  margin: 0 auto;\n}",
+      "line": 2,
+      "explanation": "У inline-элемента не работают width и margin: auto. Нужно display: block."
+    },
+    {
+      "type": "find_line",
+      "topic": "Типографика",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": "@font-face {\n  font-family: \"Oswald\";\n  src: url(\"fonts/Oswald.ttf\");\n}\nh1 {\n  font-family: Oswold, sans-serif;\n}",
+      "line": 6,
+      "explanation": "Опечатка в имени шрифта: Oswold вместо Oswald — браузер возьмёт запасной sans-serif."
+    },
+    {
+      "type": "find_line",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<form action=\"/login\" method=\"post\">\n  <input type=\"text\" name=\"login\" required>\n  <input type=\"password\" required>\n  <button type=\"submit\">Войти</button>\n</form>",
+      "line": 3,
+      "explanation": "Поле без name не отправляется на сервер — пароль не дойдёт."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Какая разметка правильно связывает подпись с полем?",
+      "variants": [
+        "<label for=\"age\">Возраст</label>\n<input id=\"age\" type=\"number\">",
+        "<label id=\"age\">Возраст</label>\n<input for=\"age\" type=\"number\">",
+        "<p>Возраст</p>\n<input type=\"number\">",
+        "<label>Возраст</label>\n<input id=\"age\" type=\"number\">"
+      ],
+      "correct": 0,
+      "explanation": "for у label должен совпадать с id поля. Тогда клик по подписи ставит курсор в поле."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Семантика",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Как правильно сверстать меню навигации?",
+      "variants": [
+        "<nav>\n  <a href=\"/\"><li>Главная</li></a>\n</nav>",
+        "<div class=\"nav\">\n  <a>Главная</a>\n  <a>О нас</a>\n</div>",
+        "<menu>\n  <p onclick=\"go()\">Главная</p>\n</menu>",
+        "<nav>\n  <ul>\n    <li><a href=\"/\">Главная</a></li>\n    <li><a href=\"/about\">О нас</a></li>\n  </ul>\n</nav>"
+      ],
+      "correct": 3,
+      "explanation": "nav + список ссылок: понятно и браузеру, и экранному диктору. li не кладут внутрь a."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Медиа",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Как сделать картинки резиновыми, без искажений?",
+      "variants": [
+        "img {\n  width: 100%;\n  height: 300px;\n}",
+        "img {\n  width: 1000px;\n}",
+        "img {\n  max-width: 100%;\n  height: auto;\n}",
+        "img {\n  zoom: 50%;\n}"
+      ],
+      "correct": 2,
+      "explanation": "max-width не даёт вылезти за родителя, height: auto сохраняет пропорции."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Цвета",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Как затемнить фон под текстом, чтобы текст оставался чётким?",
+      "variants": [
+        ".overlay {\n  filter: blur(5px);\n}",
+        ".overlay {\n  background: rgba(0, 0, 0, 0.5);\n}",
+        ".overlay {\n  background: black;\n  opacity: 0.5;\n}",
+        ".overlay {\n  color: rgba(0, 0, 0, 0.5);\n}"
+      ],
+      "correct": 1,
+      "explanation": "opacity делает прозрачным и текст тоже. rgba затрагивает только фон."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Таблицы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "html",
+      "prompt": "Раздели таблицу на шапку и тело: первая строка — заголовки <th> в <thead>, остальное — в <tbody>.",
+      "code": "<table>\n  <tr><td>Имя</td><td>Балл</td></tr>\n  <tr><td>Айбек</td><td>95</td></tr>\n  <tr><td>Нурай</td><td>88</td></tr>\n</table>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "thead th",
+          "label": "в шапке 2 заголовка th",
+          "minCount": 2
+        },
+        {
+          "selector": "tbody tr",
+          "label": "в теле 2 строки",
+          "minCount": 2
+        },
+        {
+          "selector": "thead td",
+          "label": "в шапке нет td",
+          "exists": false
+        }
+      ],
+      "solution": "<table>\n  <thead>\n    <tr><th>Имя</th><th>Балл</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>Айбек</td><td>95</td></tr>\n    <tr><td>Нурай</td><td>88</td></tr>\n  </tbody>\n</table>",
+      "explanation": "Заголовки — th, шапка — thead, данные — tbody."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "html",
+      "prompt": "Собери radio в одну группу size, чтобы выбиралась только одна пицца.",
+      "code": "<input type=\"radio\" name=\"small\" value=\"s\"> S\n<input type=\"radio\" name=\"medium\" value=\"m\"> M\n<input type=\"radio\" name=\"large\" value=\"l\"> L",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "input[type=\"radio\"][name=\"size\"]",
+          "label": "три radio с name=\"size\"",
+          "minCount": 3
+        },
+        {
+          "selector": "input[name=\"small\"]",
+          "label": "нет name=\"small\"",
+          "exists": false
+        }
+      ],
+      "solution": "<input type=\"radio\" name=\"size\" value=\"s\"> S\n<input type=\"radio\" name=\"size\" value=\"m\"> M\n<input type=\"radio\" name=\"size\" value=\"l\"> L",
+      "explanation": "Одна группа — один name у всех радиокнопок."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Формы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "html",
+      "prompt": "Поле почты должно проверяться браузером: тип email, обязательное, с name=\"email\".",
+      "code": "<form>\n  <input type=\"text\" placeholder=\"Почта\">\n  <button>Отправить</button>\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "input[type=\"email\"]",
+          "label": "тип email"
+        },
+        {
+          "selector": "input[required]",
+          "label": "поле обязательное"
+        },
+        {
+          "selector": "input[name=\"email\"]",
+          "label": "name=\"email\""
+        }
+      ],
+      "solution": "<form>\n  <input type=\"email\" name=\"email\" placeholder=\"Почта\" required>\n  <button>Отправить</button>\n</form>",
+      "explanation": "type=\"email\" проверяет формат, required не даёт отправить пустым, без name значение не уйдёт."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Медиа",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "html",
+      "prompt": "Подпись к фото — это <figcaption> внутри <figure>, а не отдельный абзац.",
+      "code": "<img src=\"dog.jpg\" alt=\"Собака\">\n<p>Мой пёс Рекс</p>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "figure img",
+          "label": "картинка внутри figure"
+        },
+        {
+          "selector": "figure figcaption",
+          "label": "подпись «Рекс» в figcaption",
+          "text": "Рекс"
+        },
+        {
+          "selector": "p",
+          "label": "нет отдельного абзаца",
+          "exists": false
+        }
+      ],
+      "solution": "<figure>\n  <img src=\"dog.jpg\" alt=\"Собака\">\n  <figcaption>Мой пёс Рекс</figcaption>\n</figure>",
+      "explanation": "figure объединяет картинку и подпись по смыслу."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Box model",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "Поле .input с width: 100% вылезает за родителя из-за padding. Исправь через box-sizing.",
+      "code": ".input {\n  width: 100%;\n  padding: 12px;\n  border: 1px solid #ccc;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".input",
+          "css": {
+            "property": "box-sizing",
+            "value": "border-box"
+          },
+          "label": ".input { box-sizing: border-box }"
+        },
+        {
+          "selector": ".input",
+          "css": {
+            "property": "width",
+            "value": "100%"
+          },
+          "label": ".input { width: 100% }"
+        }
+      ],
+      "solution": ".input {\n  box-sizing: border-box;\n  width: 100%;\n  padding: 12px;\n  border: 1px solid #ccc;\n}",
+      "explanation": "По умолчанию padding и border прибавляются к 100%. border-box включает их внутрь."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Цвета",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "Затемни только фон .overlay: background: rgba(0, 0, 0, 0.5), а opacity убери — текст должен быть чётким.",
+      "code": ".overlay {\n  background: rgb(0, 0, 0);\n  opacity: 0.5;\n  color: white;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "background",
+            "value": "rgba(0, 0, 0, 0.5)"
+          },
+          "label": ".overlay { background: rgba(0, 0, 0, 0.5) }"
+        },
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "opacity"
+          },
+          "label": "у .overlay нет opacity",
+          "exists": false
+        }
+      ],
+      "solution": ".overlay {\n  background: rgba(0, 0, 0, 0.5);\n  color: white;\n}",
+      "explanation": "opacity делает прозрачным весь блок вместе с текстом. Альфа-канал в rgba действует только на фон."
+    }
+  ]
+}

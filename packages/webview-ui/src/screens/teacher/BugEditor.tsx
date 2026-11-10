@@ -18,7 +18,7 @@ type BestT = Extract<Task, { type: "best_variant" }>;
 export type BugTask = FindT | FixT | BestT;
 
 const SHOW_LANGS: Language[] = ["html", "css", "javascript", "python", "dart"];
-const RUN_LANGS: Language[] = ["html", "css", "javascript", "python"];
+const RUN_LANGS: Language[] = ["html", "css", "javascript", "python", "dart"];
 const LANG_LABEL: Record<Language, string> = { html: "HTML", css: "CSS", javascript: "JS", python: "Python", dart: "Dart" };
 const isRules = (l: Language) => l === "html" || l === "css";
 const FIX_TIMES = [60, 120, 180, 300] as const;
@@ -390,8 +390,8 @@ function FixFields({ q, onChange }: { q: FixT; onChange: (p: Partial<FixT>) => v
         {!state.running && (state.broken || state.fixed || state.error) && (
           <span className={cn("inline-flex items-center gap-1.5 text-[12px] font-semibold", allGood ? "text-success" : "text-warning")}>
             {allGood ? <Check size={13} /> : <AlertTriangle size={13} />}
-            {state.error === "no_python"
-              ? t("cw.noPython")
+            {state.error === "no_python" || state.error === "no_dart"
+              ? t(state.error === "no_dart" ? "cw.noDart" : "cw.noPython")
               : state.error
                 ? t("cw.compile")
                 : brokenPasses

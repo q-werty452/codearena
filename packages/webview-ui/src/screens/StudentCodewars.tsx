@@ -14,6 +14,8 @@ import { useT } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
 import { formatClock } from "./StudentTug.tsx";
 
+export const LANG_LABEL: Record<string, string> = { html: "HTML", css: "CSS", javascript: "JavaScript", python: "Python", dart: "Dart" };
+
 type CodeTask = Extract<NonNullable<GameSnapshot["task"]>, { type: "code" }>;
 
 /** Codewars у ученика: панель рядом с файлом задачи. */
@@ -43,7 +45,7 @@ export function StudentCodewarsBody({ session, g }: { session: SessionSnapshot; 
 
       <Card className="p-4">
         <div className="mb-1 flex items-center gap-2">
-          <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase text-muted">{task.language === "python" ? "Python" : "JavaScript"}</span>
+          <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase text-muted">{LANG_LABEL[task.language] ?? task.language}</span>
         </div>
         <p className="whitespace-pre-wrap text-[15px] font-semibold leading-snug">
           <CodeAwareText text={task.prompt} />
@@ -53,8 +55,8 @@ export function StudentCodewarsBody({ session, g }: { session: SessionSnapshot; 
       <AnimatePresence mode="wait">
         {solved ? (
           <SolvedCard key="solved" place={g.result?.place ?? null} />
-        ) : run?.error === "no_python" ? (
-          <NoPython key="nopy" />
+        ) : noRuntime(run?.error) ? (
+          <NoPython key="nopy" dart={run?.error === "no_dart"} />
         ) : run?.error === "timeout" || run?.error === "compile" ? (
           <motion.div key="err" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="flex items-start gap-3 border-error/40 p-4">
@@ -176,16 +178,19 @@ function SolvedCard({ place }: { place: number | null }) {
   );
 }
 
-export function NoPython() {
+/** Нет интерпретатора у ученика: Python или Dart (error no_python / no_dart). */
+export const noRuntime = (e: string | null | undefined) => e === "no_python" || e === "no_dart";
+
+export function NoPython({ dart = false }: { dart?: boolean }) {
   const t = useT();
   return (
     <Card className="flex items-start gap-3 border-warning/50 p-4">
       <AlertTriangle size={20} className="mt-0.5 shrink-0 text-warning" />
       <div>
-        <div className="font-semibold">{t("cw.noPython")}</div>
-        <p className="mt-0.5 text-muted">{t("cw.noPythonHint")}</p>
+        <div className="font-semibold">{t(dart ? "cw.noDart" : "cw.noPython")}</div>
+        <p className="mt-0.5 text-muted">{t(dart ? "cw.noDartHint" : "cw.noPythonHint")}</p>
         <ExternalA
-          href="https://www.python.org/downloads/"
+          href={dart ? "https://dart.dev/get-dart" : "https://www.python.org/downloads/"}
           className="mt-2 inline-flex items-center gap-1.5 rounded-btn bg-accent px-3 py-1.5 text-[13px] font-semibold text-white no-underline hover:bg-accent-hover"
         >
           {t("cw.howInstall")} <ExternalLink size={13} />

@@ -11,7 +11,7 @@ import { Rope } from "../../ui/Rope.tsx";
 import { teamColor } from "../../ui/Avatar.tsx";
 import { TeamIcon } from "../../ui/Shapes.tsx";
 import { formatClock } from "../StudentTug.tsx";
-import { SolutionsList } from "../StudentCodewars.tsx";
+import { LANG_LABEL, SolutionsList } from "../StudentCodewars.tsx";
 import { TeacherBug } from "./TeacherBug.tsx";
 import { TeacherRace } from "./TeacherRace.tsx";
 import { CodeBlock } from "../../ui/Code.tsx";
@@ -434,7 +434,7 @@ function TeacherCodewars({ session, g, teamNames }: { session: SessionSnapshot; 
               )}
             </div>
             <Card className="p-5">
-              <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase text-muted">{task.language === "python" ? "Python" : "JavaScript"}</span>
+              <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase text-muted">{LANG_LABEL[task.language] ?? task.language}</span>
               <p className="mt-2 whitespace-pre-wrap text-[18px] font-semibold">{task.prompt}</p>
             </Card>
 

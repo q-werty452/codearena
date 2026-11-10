@@ -37,7 +37,7 @@ export interface LocalRun {
   running: boolean;
   results: TestResult[];
   /** no_python / no_runtime — нет интерпретатора; timeout — дольше 5 с; compile — ошибка в коде. */
-  error: null | "no_python" | "no_runtime" | "timeout" | "compile";
+  error: null | "no_python" | "no_dart" | "no_runtime" | "timeout" | "compile";
   message?: string;
   /** Отправлен ли этот прогон на сервер (а не просто «Запустить тесты»). */
   submitted: boolean;
