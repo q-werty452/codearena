@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import type { LessonStatus, SessionSnapshot } from "@codearena/shared";
+import { isDone, type LessonStatus, type SessionSnapshot } from "@codearena/shared";
 import type { Session } from "./session.ts";
 
 /**
@@ -50,17 +50,19 @@ export class LessonBar implements vscode.Disposable {
   private render(s: SessionSnapshot): void {
     const inLesson = s.role === "student" && !!s.me && !s.ended;
     void vscode.commands.executeCommand("setContext", "codearena.inLesson", inLesson);
+    void vscode.commands.executeCommand("setContext", "codearena.isTeacher", s.role === "teacher" && !!s.lobby);
     this.item.backgroundColor = undefined;
 
     if (s.role === "teacher" && s.lobby) {
       const total = s.lobby.players.length;
-      const done = s.lobby.players.filter((p) => s.lesson.statuses[p.id] === "done").length;
+      const done = s.lobby.players.filter((p) => isDone(s.lesson, p.id)).length;
       this.item.text = L.teacher(done, total, s.lesson.confused);
       this.item.tooltip = "CodeArena";
       this.item.command = "codearena.openPanel";
       if (s.lesson.confused > 0) this.item.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");
     } else if (inLesson) {
-      this.item.text = s.game && s.game.phase !== "over" ? L.game() : L.status(s.lesson.myStatus);
+      const pct = s.lesson.myProgress !== null ? `  ${s.lesson.myProgress}%` : "";
+      this.item.text = s.game && s.game.phase !== "over" ? L.game() : L.status(s.lesson.myStatus) + pct;
       this.item.tooltip = `CodeArena · ${L.pick()}`;
       this.item.command = s.game && s.game.phase !== "over" ? "codearena.openPanel" : "codearena.setStatus";
       if (s.lesson.myStatus === "lost") this.item.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");

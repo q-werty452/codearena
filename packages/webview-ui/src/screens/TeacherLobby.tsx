@@ -10,9 +10,9 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Check, ChevronDown, Copy, DoorClosed, Flag, Gamepad2, Link2, MessageCircleQuestion, MoreHorizontal, Pencil, Shuffle, UserX, Users, WifiOff } from "lucide-react";
+import { Check, ChevronDown, Copy, DoorClosed, Flag, Radio, Gamepad2, Link2, MessageCircleQuestion, MoreHorizontal, Pencil, Shuffle, UserX, Users, WifiOff } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { shuffleIntoTeams, type LessonSnapshot, type LessonStatus, type PlayerInfo, type SessionSnapshot, type TeamIndex, type TeamMode } from "@codearena/shared";
+import { isDone, shuffleIntoTeams, type LessonSnapshot, type LessonStatus, type PlayerInfo, type SessionSnapshot, type TeamIndex, type TeamMode } from "@codearena/shared";
 import { Button } from "../ui/Button.tsx";
 import { Card } from "../ui/Card.tsx";
 import { Avatar, teamColor } from "../ui/Avatar.tsx";
@@ -72,7 +72,8 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
         <div className="flex items-center gap-3">
           <Logo />
           <span className="rounded-full bg-success/15 px-2.5 py-1 text-[12px] font-semibold text-success">
-            {t("lesson.title")} · {t("lesson.step", { n: lesson.checkpoint + 1 })}
+            {t("lesson.title")}
+            {lesson.checkpoint > 0 && <> · {t("live2.checkpointN", { n: lesson.checkpoint })}</>}
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -154,14 +155,16 @@ const STATUS_ORDER: Record<LessonStatus, number> = { lost: 0, writing: 1, done: 
 function LessonHero({ code, link, players, lesson }: { code: string; link: string; players: PlayerInfo[]; lesson: LessonSnapshot }) {
   const t = useT();
   const total = players.length;
-  const done = players.filter((p) => lesson.statuses[p.id] === "done").length;
+  const done = players.filter((p) => isDone(lesson, p.id)).length;
   const pct = total ? (done / total) * 100 : 0;
   return (
     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
       <Card className="relative overflow-hidden p-5">
         <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full opacity-[0.12] blur-3xl" style={{ background: "var(--ca-success)" }} />
         <div className="relative">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("lesson.title")}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            {t("lesson.title")}
+          </div>
           <motion.div key={done} initial={{ scale: 1.08 }} animate={{ scale: 1 }} className="mt-2 text-[34px] font-bold leading-none tabular">
             {t("lesson.doneOf", { n: done, total })}
           </motion.div>
@@ -174,9 +177,26 @@ function LessonHero({ code, link, players, lesson }: { code: string; link: strin
               <span className="text-[14px] font-semibold tabular">{t("lesson.confusedCount", { n: lesson.confused })}</span>
               <span className="text-[11px] opacity-80">{t("lesson.confusedAnon")}</span>
             </div>
-            <Button size="sm" icon={<Flag size={14} />} title={t("lesson.newStepHint")} onClick={() => host.send({ type: "checkpoint_set" })}>
-              {t("lesson.newStep")}
+            <Button size="sm" icon={<Flag size={14} />} title={t("live2.checkpointHint")} onClick={() => host.post({ type: "checkpoint" })}>
+              {t("live2.checkpoint")}
             </Button>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+            {lesson.share ? (
+              <>
+                <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-success">
+                  <Radio size={14} className="animate-pulse" /> {t("live2.sharing", { f: lesson.share.fileName })}
+                </span>
+                <Button size="sm" variant="ghost" onClick={() => host.post({ type: "share_stop" })}>
+                  {t("live2.stop")}
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" icon={<Radio size={14} />} title={t("live2.shareHint")} onClick={() => host.post({ type: "share_file" })}>
+                {t("live2.share")}
+              </Button>
+            )}
+            <span className="text-[11px] text-muted">{lesson.share ? t("live2.checkpointHint") : t("live2.shareHint")}</span>
           </div>
         </div>
       </Card>
@@ -198,34 +218,48 @@ function LessonHero({ code, link, players, lesson }: { code: string; link: strin
 /** Ученики урока: сначала «не понял», потом «пишет», потом «готово». */
 function LessonStudents({ players, lesson }: { players: PlayerInfo[]; lesson: LessonSnapshot }) {
   const t = useT();
-  const status = (p: PlayerInfo): LessonStatus => lesson.statuses[p.id] ?? "writing";
-  const sorted = [...players].sort((a, b) => STATUS_ORDER[status(a)] - STATUS_ORDER[status(b)] || a.name.localeCompare(b.name));
+  const status = (p: PlayerInfo): LessonStatus => (isDone(lesson, p.id) ? "done" : (lesson.statuses[p.id] ?? "writing"));
+  const pct = (p: PlayerInfo) => lesson.progress[p.id] ?? -1;
+  // Отстающие сверху: «не понял», потом по прогрессу по возрастанию; готовые внизу.
+  const sorted = [...players].sort((a, b) => STATUS_ORDER[status(a)] - STATUS_ORDER[status(b)] || pct(a) - pct(b) || a.name.localeCompare(b.name));
+  const anyProgress = Object.keys(lesson.progress).length > 0;
   return (
     <section>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-        {t("lesson.students")} · {players.length}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+          {t("lesson.students")} · {players.length}
+        </span>
+        <span className="text-[11px] text-muted">{t("live2.peekHint")}</span>
       </div>
       <motion.div layout className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-2">
         <AnimatePresence>
           {sorted.map((p) => {
             const st = status(p);
             return (
-              <motion.div
+              <motion.button
                 key={p.id}
                 layout
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                className="flex h-11 items-center gap-2.5 rounded-[10px] border border-border bg-surface px-2.5"
+                onClick={() => p.connected && host.post({ type: "peek", playerId: p.id })}
+                disabled={!p.connected}
+                className="relative flex h-12 items-center gap-2.5 overflow-hidden rounded-[10px] border border-border bg-surface px-2.5 text-left transition-colors enabled:hover:bg-surface-2"
                 style={{ borderLeft: `3px solid ${STATUS_COLOR[st]}` }}
               >
+                {anyProgress && (
+                  <span className="absolute inset-x-0 bottom-0 h-[3px] bg-surface-2">
+                    <motion.span className="block h-full" style={{ background: STATUS_COLOR[st] }} animate={{ width: `${Math.max(0, pct(p))}%` }} />
+                  </span>
+                )}
                 <Avatar name={p.name} team={p.team} size={26} offline={!p.connected} />
                 <span className={cn("min-w-0 flex-1 truncate text-[13px] font-medium", !p.connected && "text-muted")}>{p.name}</span>
+                {pct(p) >= 0 && <span className="shrink-0 text-[12px] font-bold tabular text-muted">{pct(p)}%</span>}
                 <span className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ color: STATUS_COLOR[st], background: `color-mix(in srgb, ${STATUS_COLOR[st]} 14%, transparent)` }}>
                   {t(`lesson.status.${st}`)}
                 </span>
-              </motion.div>
+              </motion.button>
             );
           })}
         </AnimatePresence>

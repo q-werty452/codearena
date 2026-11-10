@@ -324,6 +324,23 @@ const en = {
   "csv.score": "Score",
   "csv.progress": "Correct",
   "csv.flags": "Anti-cheat flags",
+  "live2.share": "Show current file",
+  "live2.shareHint": "Students see it next to their code, read-only",
+  "live2.sharing": "Showing {f}",
+  "live2.stop": "Stop",
+  "live2.checkpoint": "Checkpoint",
+  "live2.checkpointHint": "Your current code becomes the reference for this step",
+  "live2.checkpointN": "Checkpoint {n}",
+  "live2.peekHint": "Click a student to see their code",
+  "live2.teacherCode": "Teacher's code",
+  "live2.open": "Open",
+  "live2.follow": "Follow the teacher's cursor",
+  "live2.myFile": "My lesson file",
+  "live2.chooseFile": "Choose lesson file",
+  "live2.change": "Change",
+  "live2.myProgress": "Step progress",
+  "live2.waitShare": "The teacher isn't showing code yet",
+
 
 
 
@@ -654,6 +671,23 @@ const ru: Dict = {
   "csv.score": "Очки",
   "csv.progress": "Верно",
   "csv.flags": "Флаги анти-чита",
+  "live2.share": "Показать текущий файл",
+  "live2.shareHint": "Ученики увидят его рядом со своим кодом, только для чтения",
+  "live2.sharing": "Показываете {f}",
+  "live2.stop": "Остановить",
+  "live2.checkpoint": "Чекпоинт",
+  "live2.checkpointHint": "Ваш текущий код станет эталоном шага",
+  "live2.checkpointN": "Чекпоинт {n}",
+  "live2.peekHint": "Нажмите на ученика, чтобы увидеть его код",
+  "live2.teacherCode": "Код учителя",
+  "live2.open": "Открыть",
+  "live2.follow": "Следовать за курсором учителя",
+  "live2.myFile": "Мой файл урока",
+  "live2.chooseFile": "Выбрать файл урока",
+  "live2.change": "Сменить",
+  "live2.myProgress": "Прогресс шага",
+  "live2.waitShare": "Учитель пока не показывает код",
+
 
 
 

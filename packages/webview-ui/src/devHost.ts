@@ -48,7 +48,14 @@ export function scenario(s: DevScenario): SessionSnapshot {
       return {
         ...EMPTY_SESSION,
         // Урок: у учеников разные статусы, двое анонимно просят объяснить.
-        lesson: { ...EMPTY_LESSON, checkpoint: 2, confused: 2, statuses: { p0: "done", p1: "writing", p2: "lost", p3: "done", p5: "done", p6: "writing", p7: "lost", p8: "done" } },
+        lesson: {
+          ...EMPTY_LESSON,
+          checkpoint: 2,
+          confused: 2,
+          statuses: { p0: "done", p1: "writing", p2: "lost", p3: "writing", p5: "writing", p6: "writing", p7: "lost", p8: "done" },
+          progress: { p1: 40, p2: 15, p3: 100, p4: 0, p5: 85, p6: 60, p7: 30 },
+          share: { fileName: "index.html", line: 12, version: 41 },
+        },
         role: "teacher",
         status: "online",
         code: "482913",
@@ -62,7 +69,15 @@ export function scenario(s: DevScenario): SessionSnapshot {
     case "codewars":
     case "bug":
     case "race":
-      return { ...EMPTY_SESSION, role: "student", status: "online", code: "482913", me: { playerId: "p0", name: "Айбек Касымов", team: 0 }, lobby };
+      return {
+        ...EMPTY_SESSION,
+        role: "student",
+        status: "online",
+        code: "482913",
+        me: { playerId: "p0", name: "Айбек Касымов", team: 0 },
+        lobby,
+        lesson: { ...EMPTY_LESSON, checkpoint: 2, share: { fileName: "index.html", line: 12, version: 41 }, refFile: "index.html", myFile: "site/index.html", myProgress: 64 },
+      };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
     case "join":
@@ -306,6 +321,22 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         break;
       case "export_csv":
         console.log("[dev host] export_csv", m.fileName, "\n" + m.content);
+        break;
+      case "toggle_follow":
+        s = { ...s, lesson: { ...s.lesson, follow: !s.lesson.follow } };
+        push();
+        break;
+      case "share_stop":
+        s = { ...s, lesson: { ...s.lesson, share: null } };
+        push();
+        break;
+      case "share_file":
+        s = { ...s, lesson: { ...s.lesson, share: { fileName: "index.html", line: 0, version: 1 } } };
+        push();
+        break;
+      case "checkpoint":
+        s = { ...s, lesson: { ...s.lesson, checkpoint: s.lesson.checkpoint + 1, statuses: {}, confused: 0, progress: {} } };
+        push();
         break;
       case "lesson_status":
         s = { ...s, lesson: { ...s.lesson, myStatus: m.status } };

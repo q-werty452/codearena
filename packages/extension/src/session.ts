@@ -157,9 +157,9 @@ export class Session implements vscode.Disposable {
     this.send({ type: "confused" });
   }
 
-  /** Учитель: новый шаг урока. */
-  checkpoint(): void {
-    if (this.state.role === "teacher") this.send({ type: "checkpoint_set" });
+  /** Изменить состояние урока локально (модули урока: показ кода, файл урока, прогресс). */
+  patchLesson(patch: Partial<SessionSnapshot["lesson"]>): void {
+    this.set({ lesson: { ...this.state.lesson, ...patch } });
   }
 
   /** Локальные изменения игры (например, результат прогона тестов у ученика). */
@@ -290,8 +290,21 @@ export class Session implements vscode.Disposable {
       case "lesson_state":
         this.set({ lesson: { ...this.state.lesson, checkpoint: msg.checkpoint, statuses: msg.statuses, confused: msg.confused, progress: msg.progress } });
         break;
-      case "lesson_me":
-        this.set({ lesson: { ...this.state.lesson, checkpoint: msg.checkpoint, myStatus: msg.status, iConfused: msg.confused } });
+      case "lesson_me": {
+        const newStep = msg.checkpoint !== this.state.lesson.checkpoint;
+        this.set({
+          lesson: { ...this.state.lesson, checkpoint: msg.checkpoint, myStatus: msg.status, iConfused: msg.confused, ...(newStep ? { myProgress: null, refFile: null } : {}) },
+        });
+        break;
+      }
+      case "lesson_share":
+        this.patchLesson({ share: { fileName: msg.fileName, line: msg.line, version: msg.version } });
+        break;
+      case "lesson_share_off":
+        this.patchLesson({ share: null });
+        break;
+      case "checkpoint":
+        this.patchLesson({ checkpoint: msg.checkpoint, refFile: msg.fileName || null });
         break;
       case "kicked":
         await this.end("kicked");

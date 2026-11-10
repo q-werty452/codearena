@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { DoorClosed, MessageCircleQuestion, PanelsTopLeft } from "lucide-react";
-import type { SessionSnapshot } from "@codearena/shared";
+import { isDone, type SessionSnapshot } from "@codearena/shared";
 import { Button } from "../ui/Button.tsx";
 import { Card } from "../ui/Card.tsx";
 import { Avatar } from "../ui/Avatar.tsx";
@@ -23,7 +23,7 @@ export function TeacherSidebar({ session }: { session: SessionSnapshot }) {
       <Card className="flex flex-col gap-2 px-3 py-2.5">
         <div className="flex items-center justify-between gap-2">
           <span className="whitespace-nowrap text-[14px] font-semibold tabular">
-            {t("lesson.doneOf", { n: players.filter((p) => session.lesson.statuses[p.id] === "done").length, total: players.length })}
+            {t("lesson.doneOf", { n: players.filter((p) => isDone(session.lesson, p.id)).length, total: players.length })}
           </span>
           {session.lesson.confused > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 text-[12px] font-semibold text-warning tabular" title={t("lesson.confused")}>

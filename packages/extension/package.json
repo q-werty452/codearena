@@ -130,6 +130,38 @@
         "command": "codearena.paste",
         "title": "Paste (game guard)",
         "category": "CodeArena"
+      },
+      {
+        "command": "codearena.shareFile",
+        "title": "Lesson: show this file to the class",
+        "category": "CodeArena",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "codearena.stopShare",
+        "title": "Lesson: stop showing the file",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.checkpoint",
+        "title": "Lesson: checkpoint (current code is the reference)",
+        "category": "CodeArena",
+        "icon": "$(milestone)"
+      },
+      {
+        "command": "codearena.openTeacherCode",
+        "title": "Lesson: open the teacher's code",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.toggleFollow",
+        "title": "Lesson: follow the teacher's cursor",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.chooseLessonFile",
+        "title": "Lesson: choose my lesson file",
+        "category": "CodeArena"
       }
     ],
     "configuration": {
@@ -196,6 +228,16 @@
           "command": "codearena.submitCode",
           "when": "codearena.taskFile",
           "group": "navigation@2"
+        },
+        {
+          "command": "codearena.shareFile",
+          "when": "codearena.isTeacher && resourceScheme == file",
+          "group": "navigation@5"
+        },
+        {
+          "command": "codearena.checkpoint",
+          "when": "codearena.isTeacher && resourceScheme == file",
+          "group": "navigation@6"
         }
       ],
       "commandPalette": [
@@ -230,6 +272,30 @@
         {
           "command": "codearena.paste",
           "when": "false"
+        },
+        {
+          "command": "codearena.shareFile",
+          "when": "codearena.isTeacher"
+        },
+        {
+          "command": "codearena.stopShare",
+          "when": "codearena.isTeacher"
+        },
+        {
+          "command": "codearena.checkpoint",
+          "when": "codearena.isTeacher"
+        },
+        {
+          "command": "codearena.openTeacherCode",
+          "when": "codearena.inLesson"
+        },
+        {
+          "command": "codearena.toggleFollow",
+          "when": "codearena.inLesson"
+        },
+        {
+          "command": "codearena.chooseLessonFile",
+          "when": "codearena.inLesson"
         }
       ]
     }
@@ -240,7 +306,7 @@
     "typecheck": "tsc --noEmit",
     "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies",
     "test": "vitest run",
-    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat"
+    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

@@ -6,6 +6,7 @@ import { Session } from "./session.ts";
 import { CodeTasks } from "./codeTask.ts";
 import { LessonBar } from "./lessonBar.ts";
 import { AntiCheat } from "./antiCheat.ts";
+import { LessonLive } from "./lessonLive.ts";
 import { runChecks } from "./runner.ts";
 
 /**
@@ -58,7 +59,7 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
   // Началась игра — ученику открываем панель игры (там вопросы и плитки).
   session.onGameStarted = () => GamePanel.show(context);
   // Урок в статус-баре: «Войти в урок» → статус ученика / сводка учителя.
-  context.subscriptions.push(new LessonBar(session));
+  context.subscriptions.push(new LessonBar(session), new LessonLive(context, session));
   // Игра закончилась — ученик возвращается к своему коду, панель игры закрывается.
   session.onBackToLesson = () => {
     if (session.snapshot.role === "student") GamePanel.close();
@@ -163,6 +164,27 @@ class WebviewHost implements vscode.WebviewViewProvider {
         break;
       case "lesson_confused":
         await vscode.commands.executeCommand("codearena.status.confused");
+        break;
+      case "share_file":
+        await vscode.commands.executeCommand("codearena.shareFile");
+        break;
+      case "share_stop":
+        await vscode.commands.executeCommand("codearena.stopShare");
+        break;
+      case "checkpoint":
+        await vscode.commands.executeCommand("codearena.checkpoint");
+        break;
+      case "peek":
+        await vscode.commands.executeCommand("codearena.peek", msg.playerId);
+        break;
+      case "open_teacher_code":
+        await vscode.commands.executeCommand("codearena.openTeacherCode");
+        break;
+      case "toggle_follow":
+        await vscode.commands.executeCommand("codearena.toggleFollow");
+        break;
+      case "choose_lesson_file":
+        await vscode.commands.executeCommand("codearena.chooseLessonFile");
         break;
       case "save_tasks":
         await saveTasks(msg.set);

@@ -109,9 +109,35 @@ export interface LessonSnapshot {
   progress: Record<string, number>;
   myStatus: LessonStatus;
   iConfused: boolean;
+  /** Показываемый файл учителя (у учителя — что он показывает, у ученика — что видит). */
+  share: { fileName: string; line: number; version: number } | null;
+  /** Ученик: файл эталона текущего чекпоинта (если учитель его задал). */
+  refFile: string | null;
+  /** Ученик: «мой файл урока» (путь для показа) и процент по чекпоинту. */
+  myFile: string | null;
+  myProgress: number | null;
+  /** Ученик: следовать за курсором учителя. */
+  follow: boolean;
 }
 
-export const EMPTY_LESSON: LessonSnapshot = { checkpoint: 0, statuses: {}, confused: 0, progress: {}, myStatus: "writing", iConfused: false };
+export const EMPTY_LESSON: LessonSnapshot = {
+  checkpoint: 0,
+  statuses: {},
+  confused: 0,
+  progress: {},
+  myStatus: "writing",
+  iConfused: false,
+  share: null,
+  refFile: null,
+  myFile: null,
+  myProgress: null,
+  follow: true,
+};
+
+/** Ученик «готов» по чекпоинту: прогресс 100% или сам отметил «Готово». */
+export function isDone(lesson: LessonSnapshot, playerId: string): boolean {
+  return lesson.statuses[playerId] === "done" || (lesson.progress[playerId] ?? 0) >= 100;
+}
 
 export interface SessionSnapshot {
   role: Role;
@@ -164,6 +190,15 @@ export type UiToHost =
   /** Урок: статус ученика и анонимное «объясните ещё раз». */
   | { type: "lesson_status"; status: LessonStatus }
   | { type: "lesson_confused" }
+  /** Учитель: показывать активный файл / перестать / чекпоинт / посмотреть код ученика. */
+  | { type: "share_file" }
+  | { type: "share_stop" }
+  | { type: "checkpoint" }
+  | { type: "peek"; playerId: string }
+  /** Ученик: открыть код учителя, следовать за курсором, выбрать свой файл урока. */
+  | { type: "open_teacher_code" }
+  | { type: "toggle_follow" }
+  | { type: "choose_lesson_file" }
   /** Набор заданий учителя: сохранить в файл / загрузить из файла. */
   | { type: "save_tasks"; set: TaskSet }
   | { type: "load_tasks" }

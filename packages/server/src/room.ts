@@ -44,15 +44,34 @@ interface LessonData {
   checkpoint: number;
   statuses: Record<string, LessonStatus>;
   confusedBy: string[];
+  /** Процент учеников по текущему чекпоинту. */
+  progress?: Record<string, number>;
+  /** Эталон текущего чекпоинта (код учителя на момент «Чекпоинт»). */
+  refCode?: string;
+  refFile?: string;
 }
 
-const newLesson = (): LessonData => ({ checkpoint: 0, statuses: {}, confusedBy: [] });
+/** Показываемый файл учителя. В памяти — каждое обновление, в хранилище — не чаще раза в 10 с. */
+interface ShareData {
+  fileName: string;
+  lang: string;
+  text: string;
+  line: number;
+  version: number;
+}
+
+const newLesson = (): LessonData => ({ checkpoint: 0, statuses: {}, confusedBy: [], progress: {} });
+const SHARE_PERSIST_MS = 10_000;
+const PROGRESS_PERSIST_MS = 15_000;
 
 /** Что привязано к каждому WebSocket (переживает гибернацию). */
 type Attachment = { role: "teacher" } | { role: "student"; playerId: string | null };
 
 export class Room extends DurableObject<Env> {
   private data: RoomData | null = null;
+  private share: ShareData | null = null;
+  private sharePersistedAt = 0;
+  private progressPersistedAt = 0;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -61,7 +80,9 @@ export class Room extends DurableObject<Env> {
       if (this.data) {
         this.data.game ??= null;
         this.data.lesson ??= newLesson();
+        this.data.lesson.progress ??= {};
       }
+      this.share = (await ctx.storage.get<ShareData>("share")) ?? null;
     });
     // Автоответ на ping без пробуждения объекта — не тратит лимит.
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('{"type":"ping"}', '{"type":"pong","t":0}'));
@@ -194,6 +215,7 @@ export class Room extends DurableObject<Env> {
         d.kicked.push(p.token);
         delete d.players[p.id];
         delete d.lesson.statuses[p.id];
+        delete d.lesson.progress?.[p.id];
         d.lesson.confusedBy = d.lesson.confusedBy.filter((id) => id !== p.id);
         for (const s of this.studentSockets(p.id)) {
           this.send(s, { type: "kicked" });
@@ -210,13 +232,47 @@ export class Room extends DurableObject<Env> {
       }
       case "checkpoint_set": {
         // Новый шаг урока: все снова «пишут», счётчик «не поняли» обнуляется.
-        d.lesson = { checkpoint: d.lesson.checkpoint + 1, statuses: {}, confusedBy: [] };
+        d.lesson = {
+          checkpoint: d.lesson.checkpoint + 1,
+          statuses: {},
+          confusedBy: [],
+          progress: {},
+          refCode: msg.code,
+          refFile: msg.fileName ?? this.share?.fileName,
+        };
         await this.save();
+        const ref = this.checkpointMsg();
         for (const s of this.studentSockets()) {
           const a = s.deserializeAttachment() as Attachment;
-          if (a.role === "student" && a.playerId) this.send(s, this.lessonMe(a.playerId));
+          if (a.role !== "student" || !a.playerId) continue;
+          this.send(s, this.lessonMe(a.playerId));
+          if (ref) this.send(s, ref);
         }
         this.sendLessonToTeacher();
+        return;
+      }
+      case "lesson_share": {
+        const version = (this.share?.version ?? 0) + 1;
+        this.share = { fileName: msg.fileName, lang: msg.lang, text: msg.text, line: msg.line, version };
+        const raw = JSON.stringify({ type: "lesson_share", ...this.share } satisfies ServerMessage);
+        for (const s of this.studentSockets()) this.sendRaw(s, raw);
+        // В хранилище — не на каждое обновление: экономим бесплатный лимит записей.
+        if (Date.now() - this.sharePersistedAt > SHARE_PERSIST_MS) {
+          this.sharePersistedAt = Date.now();
+          await this.ctx.storage.put("share", this.share);
+        }
+        return;
+      }
+      case "lesson_share_stop": {
+        this.share = null;
+        await this.ctx.storage.delete("share");
+        for (const s of this.studentSockets()) this.send(s, { type: "lesson_share_off" });
+        return;
+      }
+      case "peek": {
+        const sockets = this.studentSockets(msg.playerId);
+        if (!sockets.length) return this.error(ws, "not_joined", "Ученик не в сети");
+        for (const s of sockets) this.send(s, { type: "peek_request" });
         return;
       }
       case "start_game": {
@@ -297,6 +353,9 @@ export class Room extends DurableObject<Env> {
       ws.serializeAttachment({ role: "student", playerId: player.id } satisfies Attachment);
       this.send(ws, { type: "joined", playerId: player.id, token: player.token, team: player.team });
       this.send(ws, this.lessonMe(player.id));
+      if (this.share) this.send(ws, { type: "lesson_share", ...this.share });
+      const ref = this.checkpointMsg();
+      if (ref) this.send(ws, ref);
       this.broadcastLobby();
       this.sendLessonToTeacher();
       // Игра уже идёт — вернуть ученика в то же место.
@@ -313,6 +372,26 @@ export class Room extends DurableObject<Env> {
       await this.save();
       for (const s of this.studentSockets(pid)) this.send(s, this.lessonMe(pid));
       this.sendLessonToTeacher();
+      return;
+    }
+
+    if (msg.type === "progress") {
+      if (msg.checkpoint !== d.lesson.checkpoint) return; // устаревший шаг
+      d.lesson.progress ??= {};
+      d.lesson.progress[att.playerId] = Math.round(msg.percent);
+      this.sendLessonToTeacher();
+      if (Date.now() - this.progressPersistedAt > PROGRESS_PERSIST_MS) {
+        this.progressPersistedAt = Date.now();
+        await this.save();
+      }
+      return;
+    }
+
+    if (msg.type === "peek_reply") {
+      const name = d.players[att.playerId]?.name ?? "?";
+      for (const s of this.ctx.getWebSockets("teacher")) {
+        this.send(s, { type: "peek_code", playerId: att.playerId, name, fileName: msg.fileName, text: msg.text });
+      }
       return;
     }
 
@@ -344,7 +423,13 @@ export class Room extends DurableObject<Env> {
     const d = this.data!;
     const statuses: Record<string, LessonStatus> = {};
     for (const id of Object.keys(d.players)) statuses[id] = d.lesson.statuses[id] ?? "writing";
-    return { type: "lesson_state", checkpoint: d.lesson.checkpoint, statuses, confused: d.lesson.confusedBy.length, progress: {} };
+    return { type: "lesson_state", checkpoint: d.lesson.checkpoint, statuses, confused: d.lesson.confusedBy.length, progress: d.lesson.progress ?? {} };
+  }
+
+  private checkpointMsg(): ServerMessage | null {
+    const l = this.data!.lesson;
+    if (l.refCode === undefined) return null;
+    return { type: "checkpoint", checkpoint: l.checkpoint, fileName: l.refFile ?? "", code: l.refCode };
   }
 
   private lessonMe(playerId: string): ServerMessage {

@@ -125,6 +125,15 @@ export const ClientMessage = z.discriminatedUnion("type", [
   z.object({ type: z.literal("confused") }),
   /** Учитель: новый шаг урока — статусы и «не поняли» сбрасываются. Код эталона — во второй части урока. */
   z.object({ type: z.literal("checkpoint_set"), code: z.string().max(100_000).optional(), fileName: z.string().max(200).optional() }),
+  /** Учитель: текущий код показываемого файла (пачкой раз в 300–500 мс) и строка курсора. */
+  z.object({ type: z.literal("lesson_share"), fileName: z.string().max(200), lang: z.string().max(40), text: z.string().max(100_000), line: z.number().int().min(0) }),
+  z.object({ type: z.literal("lesson_share_stop") }),
+  /** Ученик: процент по текущему чекпоинту (не чаще раза в 2 с, только при изменении). */
+  z.object({ type: z.literal("progress"), checkpoint: z.number().int(), percent: z.number().min(0).max(100) }),
+  /** Учитель: посмотреть код ученика. */
+  z.object({ type: z.literal("peek"), playerId: z.string() }),
+  /** Ученик: ответ на просьбу учителя посмотреть код. */
+  z.object({ type: z.literal("peek_reply"), fileName: z.string().max(200), text: z.string().max(100_000) }),
   z.object({ type: z.literal("ping") }),
 ]);
 export type ClientMessage = z.infer<typeof ClientMessage>;
@@ -254,6 +263,15 @@ export const ServerMessage = z.discriminatedUnion("type", [
   }),
   /** Ученику: его собственное состояние урока (после входа, переподключения и нового шага). */
   z.object({ type: z.literal("lesson_me"), checkpoint: z.number().int(), status: LessonStatus, confused: z.boolean() }),
+  /** Ученикам: код учителя (показываемый файл). */
+  z.object({ type: z.literal("lesson_share"), fileName: z.string(), lang: z.string(), text: z.string(), line: z.number().int(), version: z.number().int() }),
+  z.object({ type: z.literal("lesson_share_off") }),
+  /** Ученикам: эталон текущего чекпоинта — с ним сравнивается файл урока. */
+  z.object({ type: z.literal("checkpoint"), checkpoint: z.number().int(), fileName: z.string(), code: z.string() }),
+  /** Ученику: учитель просит показать код. */
+  z.object({ type: z.literal("peek_request") }),
+  /** Учителю: код ученика. */
+  z.object({ type: z.literal("peek_code"), playerId: z.string(), name: z.string(), fileName: z.string(), text: z.string() }),
   z.object({ type: z.literal("game_reset") }),
   /** Сервер принял ответ ученика (правильность станет известна при показе). */
   z.object({ type: z.literal("answered"), taskId: z.string(), answer: z.union([z.string(), z.number()]) }),

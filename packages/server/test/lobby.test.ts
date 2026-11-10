@@ -306,3 +306,46 @@ describe("урок — режим комнаты по умолчанию", () =>
     expect((await t2.next("lesson_state")).statuses[ja.playerId]).toBe("lost");
   });
 });
+
+describe("урок, часть 2: код учителя, чекпоинты, прогресс", () => {
+  it("трансляция, эталон чекпоинта, проценты учителю, код ученика по запросу", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    await t.next("lesson_state");
+
+    // Учитель начал показывать файл до прихода ученика — поздний ученик получает его при входе.
+    t.send({ type: "lesson_share", fileName: "index.html", lang: "html", text: "<ul>\n  <li>1</li>\n</ul>", line: 1 });
+    const a = await connect(code);
+    a.send({ type: "join", name: "Айбек К." });
+    const ja = await a.next("joined");
+    expect(await a.next("lesson_share")).toMatchObject({ fileName: "index.html", line: 1, version: 1 });
+
+    t.send({ type: "lesson_share", fileName: "index.html", lang: "html", text: "<ul>\n  <li>1</li>\n  <li>2</li>\n</ul>", line: 2 });
+    expect((await a.next("lesson_share")).version).toBe(2);
+
+    // Чекпоинт: эталон уходит ученикам, проценты сбрасываются.
+    t.send({ type: "checkpoint_set", code: "<ul>\n  <li>1</li>\n  <li>2</li>\n</ul>", fileName: "index.html" });
+    const cp = await a.next("checkpoint");
+    expect(cp).toMatchObject({ checkpoint: 1, fileName: "index.html" });
+    a.send({ type: "progress", checkpoint: 0, percent: 90 }); // старый шаг — игнор
+    a.send({ type: "progress", checkpoint: 1, percent: 50 });
+    const st = await t.next("lesson_state", (m) => m.progress[ja.playerId] === 50);
+    expect(st.checkpoint).toBe(1);
+
+    // Учитель смотрит код ученика.
+    t.send({ type: "peek", playerId: ja.playerId });
+    await a.next("peek_request");
+    a.send({ type: "peek_reply", fileName: "index.html", text: "<ul><li>1</li>" });
+    expect(await t.next("peek_code")).toMatchObject({ playerId: ja.playerId, name: "Айбек К.", text: "<ul><li>1</li>" });
+
+    // Новый чекпоинт обнуляет проценты; остановка показа.
+    t.send({ type: "checkpoint_set", code: "x" });
+    expect((await t.next("lesson_state", (m) => m.checkpoint === 2)).progress).toEqual({});
+    t.send({ type: "lesson_share_stop" });
+    await a.next("lesson_share_off");
+
+    // Ученик не может показывать код и смотреть чужой.
+    a.send({ type: "peek", playerId: ja.playerId });
+    expect((await a.next("error")).code).toBe("not_teacher");
+  });
+});

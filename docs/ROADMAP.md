@@ -24,14 +24,15 @@ sees everyone's progress.
 | 9 | Race | ✅ |
 | 9½ | **Server online**: https://codearena.codearena-server.workers.dev, per-IP rate limits | ✅ |
 | 10 | Anti-cheat (off in Lesson), live teacher table, CSV export | ✅ |
-| 11 | ⏳ next — **Lesson, part 2**: read-only teacher file (`codearena:` FileSystemProvider, follow cursor, batched 300–500 ms), checkpoints with line-diff progress, lesson panel, anonymous «Explain again» counter | |
-| 12 | AI task generation | |
+| 11 | **Lesson, part 2**: teacher shares one file read-only (`codearena:` FileSystemProvider, follow cursor, batched every 400 ms), checkpoints with line-diff progress, «Done N of M», laggards on top, click → student's code | ✅ |
+| 12 | ⏳ next — AI task generation (Gemini, teacher's own key in SecretStorage) | |
 | 13 | Localization polish, publishing (Marketplace + Open VSX) | |
 | 14 | Projector page, Docker server | |
 
-## Lesson protocol (planned)
+## Lesson protocol
 
-`lesson_start`, `lesson_share` (teacher code, batched), `checkpoint_set`,
+`lesson_share` / `lesson_share_stop` (teacher code, batched), `checkpoint_set` → `checkpoint`,
+`peek` → `peek_request` → `peek_reply` → `peek_code` (teacher looks at a student's file),
 `progress` (percent + checkpoint), `status`, `confused` (anonymous), `lesson_state`
 (teacher: everyone's progress).
 

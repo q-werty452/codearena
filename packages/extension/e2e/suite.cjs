@@ -60,6 +60,87 @@ async function lessonScenario(session, step) {
   void ctx;
 }
 
+const isTeacherDoc = (e) => e.document.uri.scheme === "codearena" && e.document.uri.path.startsWith("/teacher/");
+
+async function liveStudentScenario(session, step) {
+  // Учитель показал файл — он открылся рядом, только для чтения.
+  const ted = await waitFor("teacher file beside", () => vscode.window.visibleTextEditors.find(isTeacherDoc));
+  step("teacher file opened beside: " + ted.document.uri.toString() + " (" + ted.document.lineCount + " lines)");
+  // Печать с клавиатуры идёт через команду "type" — в файле учителя она ничего не меняет.
+  const before = ted.document.getText();
+  await vscode.window.showTextDocument(ted.document, { viewColumn: ted.viewColumn, preserveFocus: false });
+  await vscode.commands.executeCommand("type", { text: "x" });
+  await sleep(300);
+  const editable = ted.document.getText() !== before || vscode.workspace.fs.isWritableFileSystem("codearena") !== false;
+  step("teacher file read-only (typing blocked, fs not writable): " + !editable);
+  if (editable) throw new Error("teacher file is editable");
+
+  // Чекпоинт: файл урока выбран сам (единственный index.html в проекте).
+  const myFile = await waitFor("lesson file auto-picked", () => session.snapshot.lesson.myFile);
+  step("lesson file auto-selected: " + myFile);
+  const first = await waitFor("first progress", () => session.snapshot.lesson.myProgress !== null && session.snapshot.lesson.myProgress);
+  step("progress before writing: " + first + "%");
+  if (first >= 100) throw new Error("progress already 100");
+
+  // Пишем код как у учителя, но со своими отступами и пустыми строками — должно быть 100 %.
+  const uri = vscode.workspace.workspaceFolders[0].uri;
+  const doc = await vscode.workspace.openTextDocument(vscode.Uri.joinPath(uri, "site", "index.html"));
+  const ed = await vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.One });
+  const mine = "<!doctype html>\n<html>\n<head>\n<title>Урок</title>\n</head>\n\n<body>\n\t<h1>Привет</h1>\n\t<p>Абзац</p>\n\n\t<ul>\n\t\t<li>Один</li>\n\t\t<li>Два</li>\n\t</ul>\n</body>\n</html>\n";
+  await ed.edit((b) => b.replace(new vscode.Range(0, 0, doc.lineCount, 0), mine));
+  await waitFor("progress 100", () => session.snapshot.lesson.myProgress === 100, 10000);
+  step("after typing (different indentation/blank lines): 100%");
+
+  // «Следовать за курсором»: учитель перешёл на строку 11 — у ученика выделена она же.
+  await waitFor("follow teacher cursor", () => {
+    const t = vscode.window.visibleTextEditors.find(isTeacherDoc);
+    return t && t.selection.active.line === 10;
+  }, 10000);
+  step("follow: teacher moved to line 11, student's view followed");
+  await sleep(1500); // ответ на «посмотреть код» долетает до учителя
+}
+
+async function liveTeacherScenario(session, step) {
+  await session.createRoom();
+  await waitFor("room", () => session.snapshot.code && session.snapshot.status === "online");
+  fs.writeFileSync(process.env.CODEARENA_E2E_HANDOFF, session.snapshot.code);
+  step("created room " + session.snapshot.code);
+  const bot = await waitFor("bot student", () => session.snapshot.lobby && session.snapshot.lobby.players.find((p) => p.name === "Bot"));
+  step("bot student joined");
+
+  const uri = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "site", "index.html");
+  const ed = await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
+  await vscode.commands.executeCommand("codearena.shareFile");
+  await waitFor("share on", () => session.snapshot.lesson.share);
+  step("shared " + session.snapshot.lesson.share.fileName);
+
+  // 10 нажатий подряд — уходят пачками раз в 400 мс.
+  await ed.edit((b) => b.insert(new vscode.Position(6, 0), "<!--  -->\n"));
+  for (let i = 0; i < 10; i++) {
+    await ed.edit((b) => b.insert(new vscode.Position(6, 5 + i), String(i)));
+    await sleep(30);
+  }
+  await sleep(1000);
+  step("typed 10 characters into the shared file");
+
+  await vscode.commands.executeCommand("codearena.checkpoint");
+  await waitFor("checkpoint 1", () => session.snapshot.lesson.checkpoint === 1);
+  step("checkpoint 1 set");
+  const p = await waitFor("bot progress", () => session.snapshot.lesson.progress[bot.id] === 40 && 40);
+  step("teacher sees bot progress: " + p + "%");
+
+  await vscode.commands.executeCommand("codearena.peek", bot.id);
+  const peek = await waitFor("student code opened", () =>
+    vscode.window.visibleTextEditors.find((e) => e.document.uri.scheme === "codearena" && e.document.uri.path.startsWith("/students/")));
+  step("peek opened " + peek.document.uri.path + ": " + JSON.stringify(peek.document.getText()));
+  if (!peek.document.getText().includes("BOT CODE")) throw new Error("wrong peek text");
+
+  await vscode.commands.executeCommand("codearena.stopShare");
+  await waitFor("share off", () => !session.snapshot.lesson.share);
+  step("share stopped");
+  await sleep(800);
+}
+
 exports.run = async function run() {
   const log = [];
   const step = (s) => { log.push(s); console.log("[e2e] " + s); };
@@ -69,9 +150,19 @@ exports.run = async function run() {
     const api = await ext.activate();
     const session = api.session;
 
+    if (SCENARIO === "liveteacher") {
+      await liveTeacherScenario(session, step);
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
     await session.join(process.env.CODEARENA_E2E_CODE, "E2E Student");
     await waitFor("joined", () => session.snapshot.me);
     step("joined room " + session.snapshot.code);
+    if (SCENARIO === "livestudent") {
+      await liveStudentScenario(session, step);
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
     if (SCENARIO === "lesson") {
       await lessonScenario(session, step);
       fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
