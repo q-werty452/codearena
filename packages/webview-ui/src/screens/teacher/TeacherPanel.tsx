@@ -41,13 +41,13 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
   const [wrongLockSec, setWrongLockSec] = useState(() => readUiState().wrongLockSec ?? 3);
   const [played, setPlayed] = useState<{ game: GameKind; tasks: Task[] } | null>(null);
 
-  useEffect(() => writeState({ draft }), [draft]);
-  useEffect(() => writeState({ draftTug }), [draftTug]);
-  useEffect(() => writeState({ draftCode }), [draftCode]);
-  useEffect(() => writeState({ draftBug }), [draftBug]);
-  useEffect(() => writeState({ draftRace, raceLength }), [draftRace, raceLength]);
-  useEffect(() => writeState({ antiCheat }), [antiCheat]);
-  useEffect(() => writeState({ questionSec, roundSec, wrongLockSec }), [questionSec, roundSec, wrongLockSec]);
+  useEffect(() => { writeState({ draft }); }, [draft]);
+  useEffect(() => { writeState({ draftTug }); }, [draftTug]);
+  useEffect(() => { writeState({ draftCode }); }, [draftCode]);
+  useEffect(() => { writeState({ draftBug }); }, [draftBug]);
+  useEffect(() => { writeState({ draftRace, raceLength }); }, [draftRace, raceLength]);
+  useEffect(() => { writeState({ antiCheat }); }, [antiCheat]);
+  useEffect(() => { writeState({ questionSec, roundSec, wrongLockSec }); }, [questionSec, roundSec, wrongLockSec]);
   const settings = (game?: GameKind) =>
     GameSettings.parse({ questionSec, roundSec: game === "race" ? Math.max(roundSec, 180) : roundSec, wrongLockSec, raceLength, antiCheat });
 

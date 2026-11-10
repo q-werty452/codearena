@@ -214,6 +214,8 @@ export type UiToHost =
   | { type: "ui_error"; message: string }
   | { type: "ai_set_key" }
   | { type: "ai_clear_key" }
+  /** Открыть ссылку во внешнем браузере (только https). */
+  | { type: "open_url"; url: string }
   /** Codewars у ученика: открыть файл задачи, прогнать тесты, отправить. */
   | { type: "open_task_file" }
   | { type: "run_tests" }

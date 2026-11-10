@@ -239,6 +239,9 @@ class WebviewHost implements vscode.WebviewViewProvider {
       case "ai_clear_key":
         await myTasks.clearKey();
         break;
+      case "open_url":
+        if (/^https:\/\//.test(msg.url)) void vscode.env.openExternal(vscode.Uri.parse(msg.url));
+        break;
     }
   }
 }

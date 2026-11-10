@@ -189,6 +189,14 @@ exports.run = async function run() {
 
     if (SCENARIO === "teacherui") {
       // Учитель создаёт комнату и открывает панель; кликами в webview управляет внешний скрипт по CDP.
+      // Ссылки из webview не открываем в настоящем браузере — только записываем.
+      const urls = process.env.CODEARENA_E2E_HANDOFF + ".urls";
+      try {
+        Object.defineProperty(vscode.env, "openExternal", { configurable: true, value: async (u) => (fs.appendFileSync(urls, String(u) + "\n"), true) });
+      } catch (e) {
+        step("cannot stub openExternal: " + e.message);
+      }
+      step("openExternal stubbed: " + (vscode.env.openExternal.toString().includes("appendFileSync")));
       await session.createRoom();
       await waitFor("room", () => session.snapshot.code && session.snapshot.status === "online");
       await vscode.commands.executeCommand("codearena.openPanel");

@@ -92,7 +92,7 @@ function RaceTask({ g, lockedLeft }: { g: GameSnapshot; lockedLeft: number }) {
   const t = useT();
   const task = g.task!;
   const [value, setValue] = useState("");
-  useEffect(() => setValue(""), [task.id]);
+  useEffect(() => { setValue(""); }, [task.id]);
   const locked = lockedLeft > 0;
 
   if (task.type === "short_answer") {

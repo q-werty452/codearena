@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- Fixed: the «AI» dialog went blank after picking a game, language or difficulty.
+- Links («Get a free key», «How to install Python») now open in your browser through VS Code.
+- Every screen and dialog is now clicked through automatically in a real VS Code before each release.
+
 ## 0.1.1
 
 - Fixed: the teacher panel went blank after choosing a game (also when editing tasks) in VS Code.

@@ -18,6 +18,7 @@ import {
 import { Button } from "../../ui/Button.tsx";
 import { Card } from "../../ui/Card.tsx";
 import { Segmented } from "../../ui/Controls.tsx";
+import { ExternalA } from "../../ui/ExternalA.tsx";
 import { cn } from "../../lib/cn.ts";
 import { LocaleContext, useT, type MessageKey } from "../../lib/i18n.ts";
 import { host } from "../../lib/session.ts";
@@ -298,8 +299,8 @@ export function AiDialog({ open, game, onClose }: { open: boolean; game: AiReque
   const [count, setCount] = useState(saved?.count ?? 8);
   const [difficulty, setDifficulty] = useState<Difficulty>((saved?.difficulty as Difficulty) ?? "easy");
   const [material, setMaterial] = useState("");
-  useEffect(() => setG(game), [game, open]);
-  useEffect(() => writeState({ aiForm: { language, topic, count, difficulty } }), [language, topic, count, difficulty]);
+  useEffect(() => { setG(game); }, [game, open]);
+  useEffect(() => { writeState({ aiForm: { language, topic, count, difficulty } }); }, [language, topic, count, difficulty]);
 
   const noTypes = aiTaskTypes(g, language).length === 0;
   const canGo = ai.hasKey && !ai.busy && !noTypes && (topic.trim().length > 1 || material.trim().length > 20);
@@ -314,9 +315,9 @@ export function AiDialog({ open, game, onClose }: { open: boolean; game: AiReque
             <div className="text-[14px] font-semibold">{t("ai.noKey")}</div>
             <div className="text-[12px] text-muted">{t("ai.noKeyHint")}</div>
           </div>
-          <a href={AI_KEY_URL} className="inline-flex items-center gap-1 text-[13px] font-semibold text-accent hover:underline">
+          <ExternalA href={AI_KEY_URL} className="inline-flex items-center gap-1 text-[13px] font-semibold text-accent hover:underline">
             {t("ai.getKey")} <ExternalLink size={12} />
-          </a>
+          </ExternalA>
           <Button variant="primary" size="sm" icon={<KeyRound size={14} />} onClick={() => host.post({ type: "ai_set_key" })}>
             {t("ai.setKey")}
           </Button>

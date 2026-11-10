@@ -122,7 +122,7 @@ export function StudentTugBody({ session, g }: { session: SessionSnapshot; g: Ga
   const task = g.task?.type === "short_answer" ? g.task : null;
 
   // Новое задание — очистить поле.
-  useEffect(() => setValue(""), [task?.id]);
+  useEffect(() => { setValue(""); }, [task?.id]);
 
   // Реакция на мой результат: верно — звук, неверно — тряска и звук ошибки.
   const lastResult = useRef(g.result);

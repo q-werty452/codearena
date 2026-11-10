@@ -42,7 +42,7 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
 
   // Оптимистичные перемещения: показываем сразу, сервер подтвердит лобби.
   const [overrides, setOverrides] = useState<Assignment>({});
-  useEffect(() => setOverrides({}), [lobby]);
+  useEffect(() => { setOverrides({}); }, [lobby]);
   const teamOf = (p: PlayerInfo) => (p.id in overrides ? overrides[p.id]! : p.team);
 
   const assignment = (): Assignment => Object.fromEntries(players.map((p) => [p.id, teamOf(p)]));
@@ -417,7 +417,7 @@ function Column({
 function TeamName({ team, name }: { team: TeamIndex; name: string }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(name);
-  useEffect(() => setValue(name), [name]);
+  useEffect(() => { setValue(name); }, [name]);
   const commit = () => {
     setEditing(false);
     const v = value.trim();

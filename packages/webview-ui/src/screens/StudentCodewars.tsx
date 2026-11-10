@@ -7,6 +7,7 @@ import { Card, Kbd, SectionTitle } from "../ui/Card.tsx";
 import { CodeBlock } from "../ui/Code.tsx";
 import { Avatar } from "../ui/Avatar.tsx";
 import { CodeAwareText } from "../ui/Game.tsx";
+import { ExternalA } from "../ui/ExternalA.tsx";
 import { cn } from "../lib/cn.ts";
 import { play, secondsLeft, useNow } from "../lib/game.ts";
 import { useT } from "../lib/i18n.ts";
@@ -156,7 +157,7 @@ export function TestRow({ call, expected, result, running }: { call: string; exp
 
 function SolvedCard({ place }: { place: number | null }) {
   const t = useT();
-  useEffect(() => play("correct"), []);
+  useEffect(() => { play("correct"); }, []);
   return (
     <motion.div
       initial={{ scale: 0.92, opacity: 0 }}
@@ -183,12 +184,12 @@ export function NoPython() {
       <div>
         <div className="font-semibold">{t("cw.noPython")}</div>
         <p className="mt-0.5 text-muted">{t("cw.noPythonHint")}</p>
-        <a
+        <ExternalA
           href="https://www.python.org/downloads/"
           className="mt-2 inline-flex items-center gap-1.5 rounded-btn bg-accent px-3 py-1.5 text-[13px] font-semibold text-white no-underline hover:bg-accent-hover"
         >
           {t("cw.howInstall")} <ExternalLink size={13} />
-        </a>
+        </ExternalA>
       </div>
     </Card>
   );

@@ -144,12 +144,17 @@ const handoff = join(tmp, "room.txt");
 const debugPort = 9300 + Math.floor(Math.random() * 600);
 let uiResult = null;
 if (SCENARIO === "teacherui") {
+  // Подстраховка: если ссылка всё же дойдёт до системы, «xdg-open» только запишет адрес.
+  const fakeBin = join(tmp, "bin");
+  mkdirSync(fakeBin, { recursive: true });
+  writeFileSync(join(fakeBin, "xdg-open"), `#!/bin/sh\necho "$@" >> "${handoff}.xdg"\n`, { mode: 0o755 });
+  process.env.PATH = fakeBin + ":" + process.env.PATH;
   const { drive } = await import("./ui-driver.mjs");
   const { existsSync } = await import("node:fs");
   void (async () => {
     while (!existsSync(handoff)) await new Promise((r) => setTimeout(r, 300));
     await new Promise((r) => setTimeout(r, 2500));
-    uiResult = await drive(debugPort).catch((e) => ({ ok: false, results: [String(e)] }));
+    uiResult = await drive(debugPort, handoff).catch((e) => ({ ok: false, results: [String(e)] }));
     writeFileSync(handoff + ".done", "x");
   })();
 }
