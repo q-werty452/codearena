@@ -17,7 +17,7 @@ import {
   type UiToHost,
 } from "@codearena/shared";
 
-export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug";
+export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars";
 
 const NAMES = [
   "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
@@ -56,6 +56,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
     case "student":
     case "quiz":
     case "tug":
+    case "codewars":
       return { ...EMPTY_SESSION, role: "student", status: "online", code: "482913", me: { playerId: "p0", name: "Айбек Касымов", team: 0 }, lobby };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
@@ -66,7 +67,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
 
 let stopGame: (() => void) | null = null;
 
-export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList } = {}): void {
+export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList; autoCode?: TaskList } = {}): void {
   stopGame?.();
   let s = initial;
   const emit = (m: HostToUi) => setTimeout(() => window.postMessage(m, "*"), 0);
@@ -112,6 +113,25 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         setTimeout(() => {
           const task = game?.tasks[game.index];
           if (!game || !task || game.taskKey !== taskId) return;
+          if (task.type === "code") {
+            // Боты присылают решения разной длины; часть — с ошибкой.
+            const good = Math.random() < 0.65;
+            const variants = [
+              "def evens(nums):\n    return [n for n in nums if n % 2 == 0]",
+              "def evens(nums):\n    result = []\n    for n in nums:\n        if n % 2 == 0:\n            result.append(n)\n    return result",
+              "evens = lambda n: [x for x in n if x % 2 < 1]",
+              "def evens(nums):\n    return list(filter(lambda n: n % 2 == 0, nums))",
+            ];
+            const code = good ? variants[Math.floor(Math.random() * variants.length)]! : "def evens(nums):\n    return nums";
+            const total = task.tests.length;
+            const report = good ? { passed: total, total, failures: [] } : { passed: 0, total, failures: [{ name: task.tests[0]!.call, expected: task.tests[0]!.expected, got: "[1, 2, 3, 4]" }] };
+            try {
+              deliver(engine.submit(game, env(), p.id, taskId, undefined, { code, report }));
+            } catch {
+              /* уже решил или время вышло */
+            }
+            return;
+          }
           let answer: string | number;
           if (task.type === "choice") answer = Math.random() < 0.7 ? task.correct : Math.floor(Math.random() * task.options.length);
           else if (task.type === "short_answer") answer = Math.random() < 0.6 ? task.answers[0]! : "0";
@@ -121,7 +141,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
           } catch {
             /* опоздал, заблокирован или уже показали ответ */
           }
-        }, tug ? 2500 + Math.random() * 9000 : 1500 + Math.random() * 11000),
+        }, tug ? 2500 + Math.random() * 9000 : game?.game === "codewars" ? 4000 + Math.random() * 20000 : 1500 + Math.random() * 11000),
       );
     }
   };
@@ -132,7 +152,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
     clearInterval(tick);
     timers.forEach(clearTimeout);
   };
-  const startGame = (kind: "quiz" | "tug", tasks: TaskList, settings = GameSettings.parse({})) => {
+  const startGame = (kind: "quiz" | "tug" | "codewars", tasks: TaskList, settings = GameSettings.parse({})) => {
     try {
       game = engine.startGame(kind, tasks, settings, Date.now(), s.lobby!.mode);
     } catch (e) {
@@ -143,6 +163,32 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
   };
   if (opts.autoQuiz) setTimeout(() => startGame("quiz", opts.autoQuiz!), 300);
   if (opts.autoTug) setTimeout(() => startGame("tug", opts.autoTug!), 300);
+  if (opts.autoCode) setTimeout(() => startGame("codewars", opts.autoCode!), 300);
+
+  // Codewars у «меня»: в браузере нет запускалки — первый прогон падает, второй проходит.
+  let runs = 0;
+  const fakeRun = (submit: boolean) => {
+    const task = game?.tasks[game.index];
+    if (!game || !task || task.type !== "code" || !s.game) return;
+    const taskId = game.taskKey;
+    s = { ...s, game: { ...s.game, localRun: { taskId, running: true, results: [], error: null, submitted: submit } } };
+    push();
+    setTimeout(() => {
+      const pass = runs++ > 0;
+      const results = task.tests.map((t, i) => ({ call: t.call, expected: t.expected, ok: pass || i > 0, got: pass || i > 0 ? t.expected : "None" }));
+      s = { ...s, game: { ...s.game!, localRun: { taskId, running: false, results, error: null, submitted: submit } } };
+      push();
+      if (submit && me) {
+        const passed = results.filter((r) => r.ok).length;
+        const report = { passed, total: results.length, failures: results.filter((r) => !r.ok).map((r) => ({ name: r.call, expected: r.expected, got: r.got })) };
+        try {
+          deliver(engine.submit(game!, env(), me, taskId, undefined, { code: "def evens(nums):\n    return [n for n in nums if not n % 2]", report }));
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+    }, 700);
+  };
 
   const onSend = (m: ClientMessage) => {
     const lobby = s.lobby;
@@ -159,7 +205,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         return push();
       }
     }
-    if (m.type === "start_game") return startGame(m.game === "tug" ? "tug" : "quiz", m.tasks, m.settings);
+    if (m.type === "start_game") return startGame(m.game === "tug" || m.game === "codewars" ? m.game : "quiz", m.tasks, m.settings);
     switch (m.type) {
       case "set_teams": {
         const n = m.mode === "teams2" ? 2 : m.mode === "teams3" ? 3 : 0;
@@ -193,6 +239,15 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         break;
       case "send":
         onSend(m.msg);
+        break;
+      case "run_tests":
+        fakeRun(false);
+        break;
+      case "submit_code":
+        fakeRun(true);
+        break;
+      case "check_code":
+        setTimeout(() => emit({ type: "check_result", requestId: m.requestId, results: m.tests.map((t) => ({ ...t, ok: true, got: t.expected })), error: null }), 500);
         break;
       case "answer":
         if (game && me) {

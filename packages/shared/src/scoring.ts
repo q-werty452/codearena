@@ -69,3 +69,9 @@ export function shuffleIntoTeams<T>(items: readonly T[], teams: number, rnd: () 
   a.forEach((x, i) => out[i % teams]!.push(x));
   return out;
 }
+
+/** Очки за место в Codewars: 1-е — 1000, дальше −100 за место, но не меньше 300. */
+export function codewarsPoints(place: number): number {
+  if (place < 1) return 0;
+  return Math.max(300, 1000 - (place - 1) * 100);
+}

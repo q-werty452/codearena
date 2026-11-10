@@ -6,6 +6,7 @@ import {
   EMPTY_SESSION,
   applyGameMessage,
   parseServerMessage,
+  type GameSnapshot,
   type HostToUi,
   type ServerMessage,
   type SessionSnapshot,
@@ -132,6 +133,12 @@ export class Session implements vscode.Disposable {
     const g = this.state.game;
     if (!g || g.phase !== "playing" || g.task?.id !== taskId || g.myAnswer !== null) return;
     this.send({ type: "submit", taskId, answer });
+  }
+
+  /** Локальные изменения игры (например, результат прогона тестов у ученика). */
+  patchGame(patch: Partial<GameSnapshot>): void {
+    if (!this.state.game) return;
+    this.set({ game: { ...this.state.game, ...patch } });
   }
 
   /** Выйти из комнаты (учитель при этом закрывает комнату). */

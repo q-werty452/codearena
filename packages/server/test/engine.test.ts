@@ -208,3 +208,67 @@ describe("перетягивание каната", () => {
     expect(g.deadline).toBe(COUNTDOWN_MS + 180_000 + 60_000);
   });
 });
+
+describe("Codewars", () => {
+  const code = (prompt = "Верни чётные") =>
+    Task.parse({
+      type: "code",
+      topic: "t",
+      language: "python",
+      prompt,
+      starter: "def evens(nums):\n    pass",
+      tests: [{ call: "evens([1, 2])", expected: "[2]" }],
+      timeLimitSec: 300,
+    });
+  const ok = { passed: 1, total: 1, failures: [] };
+  const bad = { passed: 0, total: 1, failures: [{ name: "evens([1, 2])", expected: "[2]", got: "None" }] };
+
+  function cwStarted(): GameData {
+    const g = startGame("codewars", [code(), code("Второе")], GameSettings.parse({}), 0);
+    onDeadline(g, env(COUNTDOWN_MS));
+    return g;
+  }
+
+  it("только задачи с кодом и тестами", () => {
+    expect(() => startGame("codewars", [q(1)], settings, 0)).toThrow(GameError);
+    const noTests = Task.parse({ type: "code", topic: "t", language: "python", prompt: "p", starter: "" });
+    expect(() => startGame("codewars", [noTests], settings, 0)).toThrow(/тестами/);
+  });
+
+  it("неправильное видит только учитель, правильное фиксирует место по длине", () => {
+    const g = cwStarted();
+    expect(g.deadline).toBe(COUNTDOWN_MS + 300_000);
+    const fx = submit(g, env(5000), "a", "t0", undefined, { code: "def evens(n): pass", report: bad });
+    expect(fx.find((e) => e.to === "teacher")!.msg).toMatchObject({ event: { correct: false, code: "def evens(n): pass" } });
+    expect(fx.some((e) => e.to === "all")).toBe(false); // ученикам ничего не рассылается
+
+    const long = "def evens(nums):\n    return [n for n in nums if n % 2 == 0]";
+    const short = "evens=lambda n:[x for x in n if x%2<1]";
+    submit(g, env(6000), "a", "t0", undefined, { code: long, report: ok });
+    const fxB = submit(g, env(7000), "b", "t0", undefined, { code: short, report: ok });
+    const resB = fxB.find((e) => e.msg.type === "result")!.msg as { place: number };
+    expect(resB.place).toBe(1); // короче — выше, хоть и позже
+    expect(() => submit(g, env(8000), "a", "t0", undefined, { code: short, report: ok })).toThrow(/решена/);
+  });
+
+  it("решили все — показ решений, очки за место, команды считают решивших", () => {
+    const g = cwStarted();
+    const e = (now: number) => env(now, ["a", "b", "c"], "teams2");
+    submit(g, e(5000), "a", "t0", undefined, { code: "xxxxx", report: ok });
+    submit(g, e(6000), "c", "t0", undefined, { code: "xx", report: ok });
+    const fx = submit(g, e(7000), "b", "t0", undefined, { code: "xxx", report: ok });
+    expect(g.phase).toBe("reveal");
+    const rv = fx.find((x) => x.msg.type === "reveal")!.msg as { solutions: { playerId: string; length: number }[] };
+    expect(rv.solutions.map((s) => s.playerId)).toEqual(["c", "b", "a"]);
+    expect(g.scores).toEqual({ c: 1000, b: 900, a: 800 });
+    expect(gameState(g, e(8000)).teamScores).toEqual([2, 1]); // a,b — команда 0; c — команда 1
+  });
+
+  it("переподключение возвращает «решено» с местом", () => {
+    const g = cwStarted();
+    submit(g, env(5000), "a", "t0", undefined, { code: "abc", report: ok });
+    const msgs = resumeFor(g, env(6000), "a");
+    expect(msgs.map((m) => m.type)).toEqual(["game_started", "task", "result", "state"]);
+    expect(msgs[2]).toMatchObject({ correct: true, place: 1 });
+  });
+});

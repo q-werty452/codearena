@@ -17,6 +17,44 @@ import type {
   TeamIndex,
 } from "./protocol.ts";
 import type { PublicTask, TaskSet } from "./tasks.ts";
+import type { TestReport } from "./protocol.ts";
+
+/** Результат одного теста при локальном запуске (у ученика или учителя). */
+export interface TestResult {
+  call: string;
+  expected: string;
+  got?: string;
+  ok: boolean;
+}
+
+/** Локальный прогон кода: идёт, готов, или ошибка окружения. */
+export interface LocalRun {
+  taskId: string;
+  running: boolean;
+  results: TestResult[];
+  /** no_python — Python не установлен; timeout — дольше 5 с; compile — ошибка в коде. */
+  error: null | "no_python" | "timeout" | "compile";
+  message?: string;
+  /** Отправлен ли этот прогон на сервер (а не просто «Запустить тесты»). */
+  submitted: boolean;
+}
+
+/** Отправка ученика глазами учителя. */
+export interface Submission {
+  correct: boolean;
+  code?: string;
+  report?: TestReport;
+  answer?: unknown;
+  at: number;
+  attempts: number;
+}
+
+export interface SolutionView {
+  playerId: string;
+  name: string;
+  code: string;
+  length: number;
+}
 
 export type Role = "none" | "student" | "teacher";
 export type ConnStatus = "idle" | "connecting" | "online" | "reconnecting";
@@ -41,8 +79,8 @@ export interface GameSnapshot {
   task: (PublicTask & { id: string }) | null;
   /** Мой ответ на текущее задание (сервер подтвердил). */
   myAnswer: number | string | null;
-  reveal: { answer: unknown; explanation?: string; stats?: number[] } | null;
-  result: { correct: boolean; points: number } | null;
+  reveal: { answer: unknown; explanation?: string; stats?: number[]; solutions?: SolutionView[] } | null;
+  result: { correct: boolean; points: number; place: number | null } | null;
   leaders: LeaderRow[];
   teamScores: number[];
   answered: number;
@@ -53,6 +91,10 @@ export interface GameSnapshot {
   winner: TeamIndex | null;
   /** До какого момента мой ввод заблокирован после ошибки (локальные часы). */
   lockedUntil: number | null;
+  /** Учитель: отправки учеников по текущему заданию (включая неправильные). */
+  submissions: Record<string, Submission>;
+  /** Ученик: локальный прогон тестов по текущему заданию. */
+  localRun: LocalRun | null;
 }
 
 export interface SessionSnapshot {
@@ -103,7 +145,13 @@ export type UiToHost =
   | { type: "answer"; taskId: string; answer: number | string }
   /** Набор заданий учителя: сохранить в файл / загрузить из файла. */
   | { type: "save_tasks"; set: TaskSet }
-  | { type: "load_tasks" };
+  | { type: "load_tasks" }
+  /** Codewars у ученика: открыть файл задачи, прогнать тесты, отправить. */
+  | { type: "open_task_file" }
+  | { type: "run_tests" }
+  | { type: "submit_code" }
+  /** Учитель проверяет эталонное решение своей задачи. */
+  | { type: "check_code"; requestId: string; language: "python" | "javascript"; code: string; tests: { call: string; expected: string }[] };
 
 /** расширение → webview */
 export type HostToUi =
@@ -111,7 +159,8 @@ export type HostToUi =
   | { type: "prefill"; code: string }
   | { type: "server"; msg: ServerMessage }
   | { type: "toast"; text: string }
-  | { type: "tasks_loaded"; set: TaskSet };
+  | { type: "tasks_loaded"; set: TaskSet }
+  | { type: "check_result"; requestId: string; results: TestResult[]; error: LocalRun["error"]; message?: string };
 
 /* ───────────────────────── Разбор игровых сообщений ───────────────────────── */
 
@@ -137,6 +186,8 @@ export function emptyGame(kind: GameKind, settings: GameSettings): GameSnapshot 
     lastPull: null,
     winner: null,
     lockedUntil: null,
+    submissions: {},
+    localRun: null,
   };
 }
 
@@ -167,13 +218,29 @@ export function applyGameMessage(
         reveal: null,
         // В канате блокировка после ошибки переживает смену задания.
         result: game?.kind === "tug" ? game.result : null,
+        // Новое задание — новые отправки; локальный прогон остаётся, если задание то же.
+        submissions: game?.task?.id === msg.taskId ? game.submissions : {},
+        localRun: game?.localRun?.taskId === msg.taskId ? game.localRun : null,
       });
     case "answered":
       return game?.task?.id === msg.taskId ? patch({ myAnswer: msg.answer }) : game;
     case "reveal":
-      return patch({ reveal: { answer: msg.answer, explanation: msg.explanation, stats: msg.stats } });
+      return patch({ reveal: { answer: msg.answer, explanation: msg.explanation, stats: msg.stats, solutions: msg.solutions } });
     case "result":
-      return patch({ result: { correct: msg.correct, points: msg.points }, lockedUntil: local(msg.lockedUntil) });
+      return patch({ result: { correct: msg.correct, points: msg.points, place: msg.place }, lockedUntil: local(msg.lockedUntil) });
+    case "teacher_feed": {
+      const e = msg.event;
+      if (!game || e.kind !== "submission" || e.taskId !== game.task?.id) return game;
+      const prev = game.submissions[e.playerId];
+      // Правильное решение не затирается последующими попытками.
+      if (prev?.correct && !e.correct) return game;
+      return patch({
+        submissions: {
+          ...game.submissions,
+          [e.playerId]: { correct: e.correct, code: e.code, report: e.report, answer: e.answer, at: e.at - clock.offset, attempts: (prev?.attempts ?? 0) + 1 },
+        },
+      });
+    }
     case "state": {
       const st = msg.state;
       clock.offset = st.serverNow - Date.now();

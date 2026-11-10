@@ -60,6 +60,7 @@ interface UiState {
   sound?: boolean;
   draft?: TaskSet;
   draftTug?: TaskSet;
+  draftCode?: TaskSet;
   questionSec?: number;
   roundSec?: number;
   wrongLockSec?: number;
@@ -156,6 +157,45 @@ export function sampleTug(locale: Locale): TaskSet {
       s("print(sum([1, 2, 3]))", "6"),
       s("144 ÷ 12", "12"),
       s("print(bool(0))", "False"),
+    ],
+  };
+}
+
+/* ───────────────────────── Пример для Codewars ───────────────────────── */
+
+export function sampleCodewars(locale: Locale): TaskSet {
+  const ru = locale === "ru";
+  type T = TaskSet["tasks"][number];
+  const py = (prompt: string, starter: string, tests: [string, string][], solution: string): T => ({
+    type: "code", topic: "Python", difficulty: "easy", timeLimitSec: 300, language: "python", prompt, starter,
+    tests: tests.map(([call, expected]) => ({ call, expected })), rules: [], solution,
+  });
+  const js = (prompt: string, starter: string, tests: [string, string][], solution: string): T => ({
+    type: "code", topic: "JavaScript", difficulty: "easy", timeLimitSec: 300, language: "javascript", prompt, starter,
+    tests: tests.map(([call, expected]) => ({ call, expected })), rules: [], solution,
+  });
+  return {
+    version: 1,
+    title: ru ? "Codewars: разминка" : "Codewars: warm-up",
+    tasks: [
+      py(
+        ru ? "Верни список только чётных чисел из nums." : "Return a list with only the even numbers from nums.",
+        "def evens(nums):\n    pass",
+        [["evens([1, 2, 3, 4])", "[2, 4]"], ["evens([])", "[]"], ["evens([7, 9])", "[]"], ["evens([0, -2, 5])", "[0, -2]"]],
+        "def evens(nums):\n    return [n for n in nums if n % 2 == 0]",
+      ),
+      py(
+        ru ? "Переверни строку s." : "Reverse the string s.",
+        "def reverse(s):\n    pass",
+        [["reverse('abc')", "'cba'"], ["reverse('')", "''"], ["reverse('Python')", "'nohtyP'"]],
+        "def reverse(s):\n    return s[::-1]",
+      ),
+      js(
+        ru ? "Верни сумму всех чисел массива arr." : "Return the sum of all numbers in arr.",
+        "function sum(arr) {\n  \n}",
+        [["sum([1, 2, 3])", "6"], ["sum([])", "0"], ["sum([-5, 5, 10])", "10"]],
+        "function sum(arr) {\n  return arr.reduce((a, b) => a + b, 0);\n}",
+      ),
     ],
   };
 }

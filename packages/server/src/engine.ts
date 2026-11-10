@@ -3,12 +3,14 @@
  * никакого Cloudflare, только «состояние + время → новое состояние + сообщения».
  * Durable Object комнаты хранит GameData и рассылает эффекты.
  *
- * Игры: викторина (quiz), перетягивание каната (tug).
+ * Игры: викторина (quiz), перетягивание каната (tug), Codewars (codewars).
  */
 import {
   LIMITS,
   checkShortAnswer,
+  codewarsPoints,
   pullRope,
+  rankSolutions,
   quizPoints,
   ropeWinner,
   teamAverage,
@@ -21,6 +23,7 @@ import {
   type Task,
   type TeamIndex,
   type TeamMode,
+  type TestReport,
 } from "@codearena/shared";
 
 export const COUNTDOWN_MS = 3500;
@@ -101,6 +104,9 @@ export function startGame(game: GameKind, tasks: Task[], settings: GameSettings,
   if (tasks.length === 0) throw new GameError("invalid_tasks", "Добавьте хотя бы одно задание");
   if (game === "quiz") {
     if (tasks.some((t) => t.type !== "choice")) throw new GameError("invalid_tasks", "В викторине только вопросы с вариантами ответа");
+  } else if (game === "codewars") {
+    const bad = tasks.some((t) => t.type !== "code" || (t.language !== "python" && t.language !== "javascript") || t.tests.length === 0);
+    if (bad) throw new GameError("invalid_tasks", "В Codewars нужны задачи на Python или JavaScript с тестами");
   } else if (game === "tug") {
     if (mode !== "teams2") throw new GameError("need_two_teams", "Для каната нужно ровно 2 команды");
     if (tasks.some((t) => t.type !== "short_answer")) throw new GameError("invalid_tasks", "В канате только задания с коротким ответом");
@@ -150,7 +156,9 @@ function begin(g: GameData, env: EngineEnv): Effect[] {
 }
 
 function limitMs(g: GameData): number {
-  return (g.game === "tug" ? g.settings.roundSec : g.settings.questionSec) * 1000;
+  if (g.game === "tug") return g.settings.roundSec * 1000;
+  if (g.game === "codewars") return (g.tasks[g.index]?.timeLimitSec ?? 300) * 1000;
+  return g.settings.questionSec * 1000;
 }
 
 function taskMessage(g: GameData): ServerMessage {
@@ -172,20 +180,65 @@ function showTask(g: GameData, index: number, env: EngineEnv): Effect[] {
   g.taskKey = g.game === "tug" ? `${task.id}.${g.shown}` : task.id;
   g.shown += 1;
   g.shownAt = env.now;
-  // В викторине у каждого вопроса свой таймер, в канате — один на весь раунд.
-  if (g.game === "quiz") g.deadline = env.now + limitMs(g);
+  // В викторине и Codewars у каждого задания свой таймер, в канате — один на весь раунд.
+  if (g.game !== "tug") g.deadline = env.now + limitMs(g);
   g.answers[g.taskKey] ??= {};
   return [{ to: "all", msg: taskMessage(g) }, stateEffect(g, env)];
 }
 
 /* ───────────────────────── Ответы ───────────────────────── */
 
-export function submit(g: GameData, env: EngineEnv, playerId: string, taskId: string, answer: unknown): Effect[] {
+export function submit(
+  g: GameData,
+  env: EngineEnv,
+  playerId: string,
+  taskId: string,
+  answer: unknown,
+  extra: { code?: string; report?: TestReport } = {},
+): Effect[] {
   const task = g.tasks[g.index];
   if (g.phase !== "playing" || !task) throw new GameError("locked", "Сейчас нельзя отвечать");
   if (g.taskKey !== taskId) throw new GameError("unknown_task", "Это задание уже закончилось");
   if (env.now > (g.deadline ?? 0)) throw new GameError("locked", "Время вышло");
-  return g.game === "tug" ? submitTug(g, env, playerId, task, answer) : submitQuiz(g, env, playerId, task, answer);
+  if (g.game === "tug") return submitTug(g, env, playerId, task, answer);
+  if (g.game === "codewars") return submitCode(g, env, playerId, extra.code, extra.report);
+  return submitQuiz(g, env, playerId, task, answer);
+}
+
+/** Место среди правильных решений текущего задания: короче выше, при равной длине — раньше. */
+function solutionsRanked(g: GameData, env: EngineEnv) {
+  const bucket = g.answers[g.taskKey] ?? {};
+  const names = new Map(env.players.map((p) => [p.id, p.name]));
+  return rankSolutions(
+    Object.entries(bucket)
+      .filter(([, a]) => a.correct)
+      .map(([playerId, a]) => ({ playerId, code: String(a.answer), at: a.at })),
+  ).map((s) => ({ ...s, name: names.get(s.playerId) ?? "?" }));
+}
+
+/**
+ * Codewars: тесты прогоняет расширение ученика, сюда приходят код и отчёт.
+ * Неправильные решения видит только учитель; правильное фиксируется, и место
+ * считается по длине кода без пробелов.
+ */
+function submitCode(g: GameData, env: EngineEnv, playerId: string, code: string | undefined, report: TestReport | undefined): Effect[] {
+  const bucket = (g.answers[g.taskKey] ??= {});
+  if (bucket[playerId]?.correct) throw new GameError("already_answered", "Задача уже решена");
+  if (typeof code !== "string" || !code.trim() || !report) throw new GameError("unknown_task", "Нет кода или результатов тестов");
+  const correct = report.total > 0 && report.passed === report.total;
+  const out: Effect[] = [
+    { to: "teacher", msg: { type: "teacher_feed", event: { kind: "submission", playerId, taskId: g.taskKey, correct, code, report, at: env.now } } },
+  ];
+  if (!correct) {
+    out.push({ to: { player: playerId }, msg: { type: "result", taskId: g.taskKey, correct: false, points: 0, lockedUntil: null, place: null } });
+    return out;
+  }
+  bucket[playerId] = { answer: code, at: env.now, correct: true, points: 0 };
+  const place = solutionsRanked(g, env).findIndex((s) => s.playerId === playerId) + 1;
+  out.push({ to: { player: playerId }, msg: { type: "result", taskId: g.taskKey, correct: true, points: 0, lockedUntil: null, place } });
+  // Решили все, кто в сети, — показываем решения, не дожидаясь таймера.
+  if ([...env.online].every((id) => bucket[id]?.correct)) return [...out, ...reveal(g, env)];
+  return [...out, stateEffect(g, env)];
 }
 
 function submitQuiz(g: GameData, env: EngineEnv, playerId: string, task: IdTask, answer: unknown): Effect[] {
@@ -251,8 +304,12 @@ function feed(playerId: string, taskId: string, correct: boolean, answer: unknow
 
 /* ───────────────────────── Показ ответа (викторина) ───────────────────────── */
 
-function revealMessages(g: GameData, task: IdTask): ServerMessage[] {
+function revealMessages(g: GameData, task: IdTask, env: EngineEnv): ServerMessage[] {
   const bucket = g.answers[g.taskKey] ?? {};
+  if (g.game === "codewars") {
+    const solutions = solutionsRanked(g, env).map(({ playerId, name, code, length }) => ({ playerId, name, code, length }));
+    return [{ type: "reveal", taskId: g.taskKey, answer: null, explanation: task.explanation, solutions }];
+  }
   if (task.type !== "choice") return [];
   const stats = task.options.map((_, i) => Object.values(bucket).filter((a) => a.answer === i).length);
   return [{ type: "reveal", taskId: g.taskKey, answer: task.correct, explanation: task.explanation, stats }];
@@ -264,14 +321,18 @@ function reveal(g: GameData, env: EngineEnv): Effect[] {
   g.phase = "reveal";
   g.deadline = null;
   const bucket = g.answers[g.taskKey] ?? {};
+  // Codewars: очки за место в списке правильных решений.
+  const ranked = g.game === "codewars" ? solutionsRanked(g, env) : [];
+  ranked.forEach((s, i) => (bucket[s.playerId]!.points = codewarsPoints(i + 1)));
   for (const [pid, a] of Object.entries(bucket)) g.scores[pid] = (g.scores[pid] ?? 0) + a.points;
 
-  const out: Effect[] = revealMessages(g, task).map((msg) => ({ to: "all" as const, msg }));
+  const out: Effect[] = revealMessages(g, task, env).map((msg) => ({ to: "all" as const, msg }));
   for (const p of env.players) {
     const a = bucket[p.id];
+    const place = ranked.findIndex((s) => s.playerId === p.id) + 1 || null;
     out.push({
       to: { player: p.id },
-      msg: { type: "result", taskId: g.taskKey, correct: a?.correct ?? false, points: a?.points ?? 0, lockedUntil: null, place: null },
+      msg: { type: "result", taskId: g.taskKey, correct: a?.correct ?? false, points: a?.points ?? 0, lockedUntil: null, place },
     });
   }
   out.push(stateEffect(g, env));
@@ -324,8 +385,10 @@ export function resume(g: GameData, env: EngineEnv): Effect[] {
 
 export function finish(g: GameData, env: EngineEnv): Effect[] {
   // Викторину завершили посреди вопроса — засчитываем уже данные ответы.
-  if (g.game === "quiz" && (g.phase === "playing" || (g.phase === "paused" && g.pausedFrom === "playing"))) {
-    for (const [pid, a] of Object.entries(g.answers[g.taskKey] ?? {})) g.scores[pid] = (g.scores[pid] ?? 0) + a.points;
+  if (g.game !== "tug" && (g.phase === "playing" || (g.phase === "paused" && g.pausedFrom === "playing"))) {
+    const bucket = g.answers[g.taskKey] ?? {};
+    if (g.game === "codewars") solutionsRanked(g, env).forEach((s, i) => (bucket[s.playerId]!.points = codewarsPoints(i + 1)));
+    for (const [pid, a] of Object.entries(bucket)) g.scores[pid] = (g.scores[pid] ?? 0) + a.points;
   }
   if (g.game === "tug") g.winner = ropeWinner(g.rope, LIMITS.ropeLimit, true);
   g.phase = "over";
@@ -349,7 +412,10 @@ export function standings(g: GameData, env: EngineEnv): { leaders: LeaderRow[]; 
   // Канат: сколько рывков сделала команда.
   const teamScores = Array.from({ length: n }, (_, t) => {
     const scores = leaders.filter((l) => l.team === t).map((l) => l.score);
-    return g.game === "tug" ? scores.reduce((a, b) => a + b, 0) : teamAverage(scores);
+    if (g.game === "tug") return scores.reduce((a, b) => a + b, 0);
+    // Codewars: сколько участников команды решили (по всем задачам).
+    if (g.game === "codewars") return leaders.filter((l) => l.team === t).reduce((a, l) => a + l.progress, 0);
+    return teamAverage(scores);
   });
   return { leaders, teamScores };
 }
@@ -394,15 +460,20 @@ export function resumeFor(g: GameData, env: EngineEnv, playerId: string | null):
     const bucket = g.answers[g.taskKey] ?? {};
     const mine = playerId ? bucket[playerId] : undefined;
     if (g.game === "quiz" && mine && g.phase !== "reveal") out.push({ type: "answered", taskId: g.taskKey, answer: mine.answer });
+    if (g.game === "codewars" && mine?.correct && g.phase !== "reveal") {
+      const place = solutionsRanked(g, env).findIndex((s) => s.playerId === playerId) + 1;
+      out.push({ type: "result", taskId: g.taskKey, correct: true, points: 0, lockedUntil: null, place });
+    }
     // Канат: если игрок ещё заблокирован после ошибки — вернуть блокировку.
     const lock = playerId ? g.locks[playerId] : undefined;
     if (g.game === "tug" && lock && lock > env.now) {
       out.push({ type: "result", taskId: g.taskKey, correct: false, points: 0, lockedUntil: lock, place: null });
     }
     if (g.phase === "reveal") {
-      out.push(...revealMessages(g, task));
+      out.push(...revealMessages(g, task, env));
       if (playerId) {
-        out.push({ type: "result", taskId: g.taskKey, correct: mine?.correct ?? false, points: mine?.points ?? 0, lockedUntil: null, place: null });
+        const place = g.game === "codewars" ? solutionsRanked(g, env).findIndex((s) => s.playerId === playerId) + 1 || null : null;
+        out.push({ type: "result", taskId: g.taskKey, correct: mine?.correct ?? false, points: mine?.points ?? 0, lockedUntil: null, place });
       }
     }
   }

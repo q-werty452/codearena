@@ -82,6 +82,23 @@
         "command": "codearena.leave",
         "title": "Leave the room",
         "category": "CodeArena"
+      },
+      {
+        "command": "codearena.runTests",
+        "title": "Run tests",
+        "category": "CodeArena",
+        "icon": "$(play)"
+      },
+      {
+        "command": "codearena.submitCode",
+        "title": "Submit solution",
+        "category": "CodeArena",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "codearena.openTaskFile",
+        "title": "Open task file",
+        "category": "CodeArena"
       }
     ],
     "configuration": {
@@ -93,18 +110,53 @@
           "markdownDescription": "Game server URL. Change it only if your school runs its own server."
         }
       }
+    },
+    "keybindings": [
+      {
+        "command": "codearena.submitCode",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && codearena.taskFile"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "codearena.runTests",
+          "when": "codearena.taskFile",
+          "group": "navigation@1"
+        },
+        {
+          "command": "codearena.submitCode",
+          "when": "codearena.taskFile",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "codearena.runTests",
+          "when": "codearena.taskFile"
+        },
+        {
+          "command": "codearena.submitCode",
+          "when": "codearena.taskFile"
+        }
+      ]
     }
   },
   "scripts": {
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies"
+    "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies",
+    "test": "vitest run",
+    "e2e": "node e2e/run.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@types/vscode": "~1.100.0",
     "@types/ws": "^8.18.2",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^4.1.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"

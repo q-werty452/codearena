@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronRight, Eye, Flag, Pause, Play, RotateCcw, SkipForward, Square, Users, Zap } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, CircleDashed, Clock, Eye, Flag, Pause, Play, RotateCcw, SkipForward, Square, Users, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { GameSnapshot, SessionSnapshot, Task } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -11,6 +11,9 @@ import { Rope } from "../../ui/Rope.tsx";
 import { teamColor } from "../../ui/Avatar.tsx";
 import { TeamIcon } from "../../ui/Shapes.tsx";
 import { formatClock } from "../StudentTug.tsx";
+import { SolutionsList } from "../StudentCodewars.tsx";
+import { CodeBlock } from "../../ui/Code.tsx";
+import { Avatar } from "../../ui/Avatar.tsx";
 import { cn } from "../../lib/cn.ts";
 import { celebrate, play, secondsLeft, useNow } from "../../lib/game.ts";
 import { prettyCode, useT } from "../../lib/i18n.ts";
@@ -22,6 +25,7 @@ export function TeacherGame({ session, tasks, onAgain }: { session: SessionSnaps
   const teamNames = session.lobby?.teams.map((x) => x.name) ?? [];
   if (g.phase === "over") return <TeacherResults g={g} teamNames={teamNames} onAgain={onAgain} />;
   if (g.kind === "tug") return <TeacherTug session={session} g={g} tasks={tasks} teamNames={teamNames} />;
+  if (g.kind === "codewars") return <TeacherCodewars session={session} g={g} teamNames={teamNames} />;
   return <TeacherRound session={session} g={g} tasks={tasks} teamNames={teamNames} />;
 }
 
@@ -155,14 +159,14 @@ function TeacherRound({ session, g, tasks, teamNames }: { session: SessionSnapsh
   );
 }
 
-function AnsweredBar({ n, total }: { n: number; total: number }) {
+function AnsweredBar({ n, total, label }: { n: number; total: number; label?: string }) {
   const t = useT();
   const pct = total > 0 ? Math.min(100, (n / total) * 100) : 0;
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       <div className="flex items-center gap-1.5 text-[13px] text-muted">
         <Users size={14} />
-        <span className="tabular">{t("game.answered", { n, total })}</span>
+        <span className="tabular">{label ?? t("game.answered", { n, total })}</span>
       </div>
       <div className="h-2 w-full max-w-[360px] overflow-hidden rounded-full bg-surface-2">
         <motion.div className="h-full rounded-full bg-accent" animate={{ width: `${pct}%` }} transition={{ type: "spring", stiffness: 200, damping: 26 }} />
@@ -352,3 +356,156 @@ function WinnerBanner({ winner, names }: { winner: number | null; names: string[
 }
 
 export { WinnerBanner };
+
+/* ───────────────────────── Codewars ───────────────────────── */
+
+function TeacherCodewars({ session, g, teamNames }: { session: SessionSnapshot; g: GameSnapshot; teamNames: string[] }) {
+  const t = useT();
+  const now = useNow(250);
+  const left = secondsLeft(g, now);
+  const paused = g.phase === "paused";
+  const revealed = g.phase === "reveal";
+  const task = g.task?.type === "code" ? g.task : null;
+  const players = session.lobby?.players ?? [];
+  const solved = Object.values(g.submissions).filter((x) => x.correct).length;
+  const [open, setOpen] = useState<string | null>(null);
+  const lastPlace = g.index + 1 >= g.count;
+  // Решения могли показаться сами (все решили) — короткая блокировка от случайного клика.
+  const [cooling, setCooling] = useState(false);
+  useEffect(() => {
+    setCooling(true);
+    const id = setTimeout(() => setCooling(false), 900);
+    return () => clearTimeout(id);
+  }, [g.phase, g.index]);
+
+  // Место среди решивших: короче выше, при равной длине — раньше (как на сервере).
+  const ranked = Object.entries(g.submissions)
+    .filter(([, x]) => x.correct && x.code)
+    .map(([id, x]) => ({ id, len: x.code!.replace(/\s+/g, "").length, at: x.at }))
+    .sort((a, b) => a.len - b.len || a.at - b.at);
+  const placeOf = (id: string) => ranked.findIndex((r) => r.id === id) + 1;
+
+  return (
+    <div className="flex min-h-full flex-col">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-[color-mix(in_srgb,var(--ca-team-1)_15%,transparent)] px-2.5 py-1 text-[12px] font-semibold text-[var(--ca-team-1)]">Codewars</span>
+          {g.index >= 0 && <span className="font-medium tabular">{t("tug.task", { n: g.index + 1 })} / {g.count}</span>}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[12px] text-muted tabular">{prettyCode(session.code ?? "")}</span>
+          <StatusDot status={session.status} withText={false} />
+          <SoundToggle />
+        </div>
+      </header>
+
+      <div className="mx-auto flex w-full max-w-[1100px] flex-1 flex-col gap-5 px-6 py-5">
+        {g.phase === "countdown" || (paused && g.index < 0) ? (
+          <Countdown left={left} title="Codewars" />
+        ) : task ? (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <AnsweredBar n={solved} total={g.total} label={t("cw.solvedCount", { n: solved, total: g.total })} />
+              {!revealed && (
+                <span className={cn("inline-flex items-center gap-2 font-mono text-[36px] font-bold leading-none tabular", left <= 30 && "text-warning")}>
+                  <Clock size={22} className="text-muted" />
+                  {formatClock(left)}
+                </span>
+              )}
+            </div>
+            <Card className="p-5">
+              <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase text-muted">{task.language === "python" ? "Python" : "JavaScript"}</span>
+              <p className="mt-2 whitespace-pre-wrap text-[18px] font-semibold">{task.prompt}</p>
+            </Card>
+
+            {revealed ? (
+              <SolutionsList solutions={g.reveal?.solutions ?? []} lang={task.language} />
+            ) : (
+              <Card className="p-2">
+                <ul className="flex flex-col">
+                  {players.map((p) => {
+                    const sub = g.submissions[p.id];
+                    const status = sub ? (sub.correct ? "solved" : "wrong") : "thinking";
+                    const isOpen = open === p.id && !!sub?.code;
+                    return (
+                      <li key={p.id} className="border-b border-border last:border-0">
+                        <button
+                          onClick={() => setOpen(isOpen ? null : p.id)}
+                          disabled={!sub?.code}
+                          className="flex h-11 w-full items-center gap-3 rounded-[8px] px-2 text-left transition-colors enabled:hover:bg-hover"
+                        >
+                          <Avatar name={p.name} team={p.team} size={26} offline={!p.connected} />
+                          <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
+                          {sub && sub.attempts > 1 && <span className="text-[12px] text-muted">{t("cw.attempts", { n: sub.attempts })}</span>}
+                          {status === "solved" && sub?.code && (
+                            <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold tabular text-muted">{t("cw.chars", { n: sub.code.replace(/\s+/g, "").length })}</span>
+                          )}
+                          <span
+                            className={cn(
+                              "inline-flex w-[92px] items-center justify-end gap-1 text-[12px] font-semibold",
+                              status === "solved" ? "text-success" : status === "wrong" ? "text-error" : "text-muted",
+                            )}
+                          >
+                            {status === "solved" ? <Check size={13} strokeWidth={3} /> : status === "wrong" ? <X size={13} strokeWidth={3} /> : <CircleDashed size={13} />}
+                            {status === "solved" ? `#${placeOf(p.id)}` : t(`cw.status.${status}` as "cw.status.thinking")}
+                          </span>
+                          {sub?.code ? <ChevronDown size={14} className={cn("text-muted transition-transform", isOpen && "rotate-180")} /> : <span className="w-[14px]" />}
+                        </button>
+                        <AnimatePresence>
+                          {isOpen && sub?.code && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden px-2 pb-3">
+                              {sub.report && sub.report.failures.length > 0 && (
+                                <ul className="mb-2 flex flex-col gap-1 font-mono text-[12px] text-error">
+                                  {sub.report.failures.slice(0, 5).map((f, i) => (
+                                    <li key={i}>
+                                      ✗ {f.name} → {f.expected} · {t("cw.got")}: {f.got}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                              <CodeBlock code={sub.code} lang={task.language} lineNumbers />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Card>
+            )}
+            {g.teamScores.length > 0 && (
+              <Card className="p-4">
+                <SectionTitle>{t("game.teams")}</SectionTitle>
+                <TeamScores scores={g.teamScores} names={teamNames} />
+              </Card>
+            )}
+          </>
+        ) : null}
+      </div>
+
+      <footer className="sticky bottom-0 z-20 mt-auto border-t border-border bg-[color-mix(in_srgb,var(--vscode-editor-background,var(--ca-bg))_88%,transparent)] backdrop-blur">
+        <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 px-6 py-3">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" icon={<Square size={14} />} onClick={() => host.send({ type: "end_game" })}>
+              {t("game.end")}
+            </Button>
+            {!revealed && (
+              <Button icon={paused ? <Play size={14} /> : <Pause size={14} />} onClick={() => host.send({ type: paused ? "resume" : "pause" })}>
+                {paused ? t("game.resume") : t("game.pause")}
+              </Button>
+            )}
+          </div>
+          <Button
+            variant="primary"
+            size="lg"
+            icon={revealed ? (lastPlace ? <Flag size={18} /> : <ChevronRight size={18} />) : <Eye size={18} />}
+            onClick={() => host.send({ type: "next" })}
+            disabled={paused || cooling}
+          >
+            {revealed ? (lastPlace ? t("game.finish") : t("game.next")) : g.phase === "countdown" ? t("game.next") : t("cw.showSolutions")}
+          </Button>
+        </div>
+      </footer>
+    </div>
+  );
+}

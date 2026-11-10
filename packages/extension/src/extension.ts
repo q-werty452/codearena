@@ -3,6 +3,8 @@ import { homedir } from "node:os";
 import { TaskSet, type HostToUi, type UiToHost } from "@codearena/shared";
 import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
+import { CodeTasks } from "./codeTask.ts";
+import { runTests } from "./runner.ts";
 
 /**
  * CodeArena — точка входа расширения.
@@ -13,7 +15,12 @@ import { Session } from "./session.ts";
 let session: Session;
 let sidebar: WebviewHost;
 
-export function activate(context: vscode.ExtensionContext): void {
+/** API для сквозных тестов (e2e/), пользователям не нужно. */
+export interface CodeArenaApi {
+  session: Session;
+}
+
+export function activate(context: vscode.ExtensionContext): CodeArenaApi {
   session = new Session(context);
   sidebar = new WebviewHost(context, "sidebar");
 
@@ -48,8 +55,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Началась игра — ученику открываем панель игры (там вопросы и плитки).
   session.onGameStarted = () => GamePanel.show(context);
+  // Codewars: файл задачи в редакторе, панель игры — рядом.
+  context.subscriptions.push(new CodeTasks(context, session, () => GamePanel.show(context, vscode.ViewColumn.Two, true)));
 
   void session.restore();
+  return { session };
 }
 
 /** Набор заданий → файл .codearena.json */
@@ -141,6 +151,20 @@ class WebviewHost implements vscode.WebviewViewProvider {
       case "save_tasks":
         await saveTasks(msg.set);
         break;
+      case "open_task_file":
+        await vscode.commands.executeCommand("codearena.openTaskFile");
+        break;
+      case "run_tests":
+        await vscode.commands.executeCommand("codearena.runTests");
+        break;
+      case "submit_code":
+        await vscode.commands.executeCommand("codearena.submitCode");
+        break;
+      case "check_code": {
+        const o = await runTests(msg.language, msg.code, msg.tests);
+        this.post({ type: "check_result", requestId: msg.requestId, results: o.results, error: o.error, message: o.message });
+        break;
+      }
       case "load_tasks": {
         const set = await loadTasks();
         if (set) this.post({ type: "tasks_loaded", set });
@@ -163,12 +187,12 @@ class GamePanel {
     panel.onDidDispose(() => (GamePanel.current = undefined), undefined, context.subscriptions);
   }
 
-  static show(context: vscode.ExtensionContext): void {
+  static show(context: vscode.ExtensionContext, column: vscode.ViewColumn = vscode.ViewColumn.Active, preserveFocus = false): void {
     if (GamePanel.current) {
-      GamePanel.current.panel.reveal();
+      GamePanel.current.panel.reveal(column === vscode.ViewColumn.Active ? undefined : column, preserveFocus);
       return;
     }
-    const panel = vscode.window.createWebviewPanel("codearena.game", "CodeArena", vscode.ViewColumn.Active, {
+    const panel = vscode.window.createWebviewPanel("codearena.game", "CodeArena", { viewColumn: column, preserveFocus }, {
       retainContextWhenHidden: true,
     });
     panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "icon.png");

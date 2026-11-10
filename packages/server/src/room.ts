@@ -277,7 +277,7 @@ export class Room extends DurableObject<Env> {
     if (msg.type === "submit") {
       if (!d.game) return this.error(ws, "no_game", "Игра не идёт");
       try {
-        this.dispatch(engine.submit(d.game, this.gameEnv(), att.playerId, msg.taskId, msg.answer ?? msg.code));
+        this.dispatch(engine.submit(d.game, this.gameEnv(), att.playerId, msg.taskId, msg.answer, { code: msg.code, report: msg.report }));
       } catch (e) {
         if (e instanceof GameError) return this.error(ws, e.code, e.message);
         throw e;

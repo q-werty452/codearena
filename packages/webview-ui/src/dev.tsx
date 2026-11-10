@@ -18,7 +18,7 @@ import { OptionTile } from "./ui/OptionTile.tsx";
 import { JoinScreen } from "./screens/Join.tsx";
 import { App } from "./App.tsx";
 import { installDevHost, scenario, type DevScenario } from "./devHost.ts";
-import { sampleQuiz, sampleTug } from "./lib/game.ts";
+import { sampleCodewars, sampleQuiz, sampleTug } from "./lib/game.ts";
 
 function Gallery() {
   const [dark, setDark] = useState(() => new URLSearchParams(location.search).get("theme") !== "light");
@@ -35,7 +35,13 @@ function Gallery() {
     if (tab !== "ds") {
       installDevHost(
         scenario(tab),
-        tab === "quiz" ? { autoQuiz: sampleQuiz(locale).tasks } : tab === "tug" ? { autoTug: sampleTug(locale).tasks } : {},
+        tab === "quiz"
+          ? { autoQuiz: sampleQuiz(locale).tasks }
+          : tab === "tug"
+            ? { autoTug: sampleTug(locale).tasks }
+            : tab === "codewars"
+              ? { autoCode: sampleCodewars(locale).tasks }
+              : {},
       );
       setMount((m) => m + 1);
     }
@@ -69,6 +75,7 @@ function Gallery() {
                 { value: "ended", label: "Выгнали" },
                 { value: "quiz", label: "Викторина" },
                 { value: "tug", label: "Канат" },
+                { value: "codewars", label: "Codewars" },
               ]}
             />
             <Segmented

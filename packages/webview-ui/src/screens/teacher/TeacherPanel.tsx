@@ -4,13 +4,14 @@ import { TeacherLobby } from "../TeacherLobby.tsx";
 import { GamePicker } from "./GamePicker.tsx";
 import { QuizEditor } from "./QuizEditor.tsx";
 import { TugEditor } from "./TugEditor.tsx";
+import { CodeEditor } from "./CodeEditor.tsx";
 import { TeacherGame } from "./TeacherGame.tsx";
-import { readUiState, sampleQuiz, sampleTug, setSoundDefault, writeState } from "../../lib/game.ts";
+import { readUiState, sampleCodewars, sampleQuiz, sampleTug, setSoundDefault, writeState } from "../../lib/game.ts";
 import { LocaleContext } from "../../lib/i18n.ts";
 import { host } from "../../lib/session.ts";
 import { onHostMessage } from "../../lib/vscode.ts";
 
-type View = "lobby" | "pick" | "edit-quiz" | "edit-tug";
+type View = "lobby" | "pick" | "edit-quiz" | "edit-tug" | "edit-codewars";
 const EMPTY: TaskSet = { version: 1, title: "", tasks: [] };
 
 /**
@@ -24,6 +25,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
   const [view, setView] = useState<View>("lobby");
   const [draft, setDraft] = useState<TaskSet>(() => readUiState().draft ?? EMPTY);
   const [draftTug, setDraftTug] = useState<TaskSet>(() => readUiState().draftTug ?? EMPTY);
+  const [draftCode, setDraftCode] = useState<TaskSet>(() => readUiState().draftCode ?? EMPTY);
   const [questionSec, setQuestionSec] = useState(() => readUiState().questionSec ?? 20);
   const [roundSec, setRoundSec] = useState(() => readUiState().roundSec ?? 180);
   const [wrongLockSec, setWrongLockSec] = useState(() => readUiState().wrongLockSec ?? 3);
@@ -31,6 +33,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
 
   useEffect(() => writeState({ draft }), [draft]);
   useEffect(() => writeState({ draftTug }), [draftTug]);
+  useEffect(() => writeState({ draftCode }), [draftCode]);
   useEffect(() => writeState({ questionSec, roundSec, wrongLockSec }), [questionSec, roundSec, wrongLockSec]);
   const settings = () => GameSettings.parse({ questionSec, roundSec, wrongLockSec });
 
@@ -41,6 +44,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
         // Загруженный файл попадает в редактор той игры, к которой подходят задания.
         if (m.type === "tasks_loaded") {
           if (m.set.tasks.every((x) => x.type === "short_answer")) setDraftTug(m.set);
+          else if (m.set.tasks.every((x) => x.type === "code")) setDraftCode(m.set);
           else setDraft(m.set);
         }
       }),
@@ -69,7 +73,21 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
       <GamePicker
         mode={session.lobby?.mode ?? "solo"}
         onBack={() => setView("lobby")}
-        onPick={(g) => (g === "quiz" ? setView("edit-quiz") : g === "tug" ? setView("edit-tug") : undefined)}
+        onPick={(g) => (g === "quiz" ? setView("edit-quiz") : g === "tug" ? setView("edit-tug") : g === "codewars" ? setView("edit-codewars") : undefined)}
+      />
+    );
+  }
+
+  if (view === "edit-codewars") {
+    return (
+      <CodeEditor
+        set={draftCode}
+        onChange={setDraftCode}
+        onBack={() => setView("pick")}
+        onStart={(tasks) => start("codewars", tasks)}
+        onSample={() => setDraftCode(sampleCodewars(locale))}
+        onLoad={() => host.post({ type: "load_tasks" })}
+        onSave={() => host.post({ type: "save_tasks", set: draftCode })}
       />
     );
   }

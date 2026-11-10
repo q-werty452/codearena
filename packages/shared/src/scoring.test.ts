@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   checkShortAnswer,
+  codewarsPoints,
   pullRope,
   quizPoints,
   rankSolutions,
@@ -35,6 +36,13 @@ describe("Codewars", () => {
       { playerId: "c", code: "x+1", at: 50 },
     ]);
     expect(r.map((s) => s.playerId)).toEqual(["c", "b", "a"]);
+  });
+});
+
+describe("очки Codewars", () => {
+  it("за место: 1000, 900, … не меньше 300", () => {
+    expect([1, 2, 3, 8, 20].map(codewarsPoints)).toEqual([1000, 900, 800, 300, 300]);
+    expect(codewarsPoints(0)).toBe(0);
   });
 });
 
