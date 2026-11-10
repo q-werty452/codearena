@@ -41,6 +41,7 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
+    "onStartupFinished",
     "onUri"
   ],
   "contributes": {
@@ -99,6 +100,31 @@
         "command": "codearena.openTaskFile",
         "title": "Open task file",
         "category": "CodeArena"
+      },
+      {
+        "command": "codearena.setStatus",
+        "title": "Lesson: set my status",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.status.done",
+        "title": "Lesson: Done",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.status.writing",
+        "title": "Lesson: Still writing",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.status.lost",
+        "title": "Lesson: Lost",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.status.confused",
+        "title": "Lesson: Explain again (anonymous)",
+        "category": "CodeArena"
       }
     ],
     "configuration": {
@@ -117,6 +143,30 @@
         "key": "ctrl+enter",
         "mac": "cmd+enter",
         "when": "editorTextFocus && codearena.taskFile"
+      },
+      {
+        "command": "codearena.status.done",
+        "key": "ctrl+alt+1",
+        "mac": "cmd+alt+1",
+        "when": "codearena.inLesson"
+      },
+      {
+        "command": "codearena.status.writing",
+        "key": "ctrl+alt+2",
+        "mac": "cmd+alt+2",
+        "when": "codearena.inLesson"
+      },
+      {
+        "command": "codearena.status.lost",
+        "key": "ctrl+alt+3",
+        "mac": "cmd+alt+3",
+        "when": "codearena.inLesson"
+      },
+      {
+        "command": "codearena.status.confused",
+        "key": "ctrl+alt+4",
+        "mac": "cmd+alt+4",
+        "when": "codearena.inLesson"
       }
     ],
     "menus": {
@@ -140,6 +190,26 @@
         {
           "command": "codearena.submitCode",
           "when": "codearena.taskFile"
+        },
+        {
+          "command": "codearena.setStatus",
+          "when": "codearena.inLesson"
+        },
+        {
+          "command": "codearena.status.done",
+          "when": "codearena.inLesson"
+        },
+        {
+          "command": "codearena.status.writing",
+          "when": "codearena.inLesson"
+        },
+        {
+          "command": "codearena.status.lost",
+          "when": "codearena.inLesson"
+        },
+        {
+          "command": "codearena.status.confused",
+          "when": "codearena.inLesson"
         }
       ]
     }
@@ -150,7 +220,7 @@
     "typecheck": "tsc --noEmit",
     "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies",
     "test": "vitest run",
-    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs fixbug"
+    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs fixbug && node e2e/run.mjs lesson"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

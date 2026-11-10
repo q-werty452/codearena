@@ -17,6 +17,26 @@ const SCENARIO = process.env.CODEARENA_E2E_SCENARIO || "codewars";
 const FILE_RE = SCENARIO === "fixbug" ? /task-1\.html$/ : /task-1\.py$/;
 const MARK = "─── CodeArena ───";
 
+async function lessonScenario(session, step) {
+  // Урок — режим по умолчанию: сразу после входа статус «пишу».
+  await waitFor("lesson_me", () => session.snapshot.lesson && session.snapshot.me);
+  step("in lesson right after join, status: " + session.snapshot.lesson.myStatus);
+  const ctx = await vscode.commands.executeCommand("getContext", "codearena.inLesson").catch(() => "n/a");
+  await vscode.commands.executeCommand("codearena.status.done"); // = Ctrl+Alt+1
+  await waitFor("status done", () => session.snapshot.lesson.myStatus === "done");
+  step("Ctrl+Alt+1 command → status done");
+  await vscode.commands.executeCommand("codearena.status.confused"); // = Ctrl+Alt+4, анонимно
+  await waitFor("confused", () => session.snapshot.lesson.iConfused);
+  step("Ctrl+Alt+4 command → anonymous «explain again» sent");
+  // Учитель запускает викторину поверх урока — у ученика открывается панель игры.
+  await waitFor("game panel", () => vscode.window.tabGroups.all.some((g) => g.tabs.some((t) => t.label === "CodeArena")), 20000);
+  step("teacher started a game → game panel opened");
+  // Учитель закрывает итоги — ученик возвращается в урок, панель закрывается сама.
+  await waitFor("back to lesson", () => !session.snapshot.game && !vscode.window.tabGroups.all.some((g) => g.tabs.some((t) => t.label === "CodeArena")), 20000);
+  step("back to lesson: game panel closed, status kept: " + session.snapshot.lesson.myStatus);
+  void ctx;
+}
+
 exports.run = async function run() {
   const log = [];
   const step = (s) => { log.push(s); console.log("[e2e] " + s); };
@@ -29,6 +49,11 @@ exports.run = async function run() {
     await session.join(process.env.CODEARENA_E2E_CODE, "E2E Student");
     await waitFor("joined", () => session.snapshot.me);
     step("joined room " + session.snapshot.code);
+    if (SCENARIO === "lesson") {
+      await lessonScenario(session, step);
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
 
     // Учитель запускает Codewars — расширение само открывает файл задачи.
     const editor = await waitFor("task file opened", () =>

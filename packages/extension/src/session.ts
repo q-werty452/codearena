@@ -3,11 +3,13 @@ import WebSocket from "ws";
 import {
   ClientMessage,
   CreateRoomResponse,
+  EMPTY_LESSON,
   EMPTY_SESSION,
   applyGameMessage,
   parseServerMessage,
   type GameSnapshot,
   type HostToUi,
+  type LessonStatus,
   type ServerMessage,
   type SessionSnapshot,
 } from "@codearena/shared";
@@ -46,6 +48,8 @@ export class Session implements vscode.Disposable {
   private clock = { offset: 0 };
   /** Вызывается, когда началась игра (расширение открывает панель игры). */
   onGameStarted: (() => void) | null = null;
+  /** Игра закончилась, комната вернулась в урок (ученику закрываем панель игры). */
+  onBackToLesson: (() => void) | null = null;
 
   constructor(private readonly ctx: vscode.ExtensionContext) {
     this.state = { ...EMPTY_SESSION, savedName: ctx.globalState.get<string>(NAME_KEY, "") };
@@ -133,6 +137,27 @@ export class Session implements vscode.Disposable {
     const g = this.state.game;
     if (!g || g.phase !== "playing" || g.task?.id !== taskId || g.myAnswer !== null) return;
     this.send({ type: "submit", taskId, answer });
+  }
+
+  /* ─────────────── Урок ─────────────── */
+
+  /** Ученик: «пишу / готово / не понял». Показываем сразу, сервер подтвердит. */
+  setStatus(status: LessonStatus): void {
+    if (this.state.role !== "student" || !this.state.me) return;
+    this.set({ lesson: { ...this.state.lesson, myStatus: status } });
+    this.send({ type: "status", status });
+  }
+
+  /** Ученик: анонимное «объясните ещё раз» — один раз на шаг урока. */
+  confused(): void {
+    if (this.state.role !== "student" || !this.state.me || this.state.lesson.iConfused) return;
+    this.set({ lesson: { ...this.state.lesson, iConfused: true } });
+    this.send({ type: "confused" });
+  }
+
+  /** Учитель: новый шаг урока. */
+  checkpoint(): void {
+    if (this.state.role === "teacher") this.send({ type: "checkpoint_set" });
   }
 
   /** Локальные изменения игры (например, результат прогона тестов у ученика). */
@@ -257,8 +282,15 @@ export class Session implements vscode.Disposable {
         const next = applyGameMessage(this.state.game, msg, this.clock);
         if (next !== undefined) this.set({ game: next });
         if (msg.type === "game_started" && wasIdle) this.onGameStarted?.();
+        if (msg.type === "game_reset") this.onBackToLesson?.();
         break;
       }
+      case "lesson_state":
+        this.set({ lesson: { ...this.state.lesson, checkpoint: msg.checkpoint, statuses: msg.statuses, confused: msg.confused, progress: msg.progress } });
+        break;
+      case "lesson_me":
+        this.set({ lesson: { ...this.state.lesson, checkpoint: msg.checkpoint, myStatus: msg.status, iConfused: msg.confused } });
+        break;
       case "kicked":
         await this.end("kicked");
         break;
@@ -275,7 +307,7 @@ export class Session implements vscode.Disposable {
     await this.ctx.globalState.update(SAVED_KEY, undefined);
     this.closeSocket();
     this.token = null;
-    this.set({ ...EMPTY_SESSION, savedName: this.state.savedName, ended: reason, code: this.state.code });
+    this.set({ ...EMPTY_SESSION, savedName: this.state.savedName, ended: reason, code: this.state.code, lesson: EMPTY_LESSON });
   }
 
   /* ─────────────── Утилиты ─────────────── */

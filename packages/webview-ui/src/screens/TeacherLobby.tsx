@@ -10,9 +10,9 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Check, Copy, DoorClosed, Gamepad2, Link2, MoreHorizontal, Pencil, Shuffle, UserX, Users, WifiOff } from "lucide-react";
+import { Check, ChevronDown, Copy, DoorClosed, Flag, Gamepad2, Link2, MessageCircleQuestion, MoreHorizontal, Pencil, Shuffle, UserX, Users, WifiOff } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { shuffleIntoTeams, type PlayerInfo, type SessionSnapshot, type TeamIndex, type TeamMode } from "@codearena/shared";
+import { shuffleIntoTeams, type LessonSnapshot, type LessonStatus, type PlayerInfo, type SessionSnapshot, type TeamIndex, type TeamMode } from "@codearena/shared";
 import { Button } from "../ui/Button.tsx";
 import { Card } from "../ui/Card.tsx";
 import { Avatar, teamColor } from "../ui/Avatar.tsx";
@@ -28,7 +28,10 @@ const NONE = "none";
 
 const teamCount = (m: TeamMode) => (m === "teams2" ? 2 : m === "teams3" ? 3 : 0);
 
-/** Лобби учителя: код комнаты, игроки, деление на команды. */
+/**
+ * Урок у учителя — стартовый экран комнаты: кто готов, кто застрял,
+ * анонимное «объясните ещё раз», код комнаты, команды для игр и «Начать игру».
+ */
 export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapshot; onChooseGame: () => void }) {
   const t = useT();
   const lobby = session.lobby;
@@ -60,10 +63,18 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
     sendTeams(mode, a);
   };
 
+  const lesson = session.lesson;
+  const [teamsOpen, setTeamsOpen] = useState(mode !== "solo");
+
   return (
     <div className="mx-auto flex min-h-full max-w-[1100px] flex-col gap-5 px-6 pt-5">
       <header className="flex items-center justify-between gap-3">
-        <Logo />
+        <div className="flex items-center gap-3">
+          <Logo />
+          <span className="rounded-full bg-success/15 px-2.5 py-1 text-[12px] font-semibold text-success">
+            {t("lesson.title")} · {t("lesson.step", { n: lesson.checkpoint + 1 })}
+          </span>
+        </div>
         <div className="flex items-center gap-3">
           <StatusDot status={session.status} />
           <Button size="sm" variant="ghost" icon={<DoorClosed size={14} />} onClick={() => host.post({ type: "leave" })}>
@@ -72,45 +83,62 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
         </div>
       </header>
 
-      <RoomHero code={code} link={session.webLink ?? session.link ?? ""} count={players.length} players={players} />
+      <LessonHero code={code} link={session.webLink ?? session.link ?? ""} players={players} lesson={lesson} />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Segmented<TeamMode>
-          value={mode}
-          onChange={(m) => sendTeams(m, assignment())}
-          options={[
-            { value: "solo", label: <><Users size={13} />{t("teacher.mode.solo")}</> },
-            { value: "teams2", label: t("teacher.mode.teams2") },
-            { value: "teams3", label: t("teacher.mode.teams3") },
-          ]}
-        />
-        {mode !== "solo" && players.length > 0 && (
-          <Button icon={<Shuffle size={14} />} onClick={shuffle}>
-            {t("teacher.shuffle")}
-          </Button>
-        )}
-      </div>
+      {players.length === 0 ? <EmptyState link={session.webLink ?? session.link ?? ""} /> : <LessonStudents players={players} lesson={lesson} />}
 
-      {players.length === 0 ? (
-        <EmptyState link={session.webLink ?? session.link ?? ""} />
-      ) : mode === "solo" ? (
-        <Card className="p-3">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-2">
-            <AnimatePresence>
-              {players.map((p) => (
-                <PlayerChip key={p.id} player={p} team={null} />
-              ))}
-            </AnimatePresence>
-          </div>
-        </Card>
-      ) : (
-        <TeamBoard players={players} teams={teams} teamOf={teamOf} onMove={move} />
+      {players.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <button
+            onClick={() => setTeamsOpen((v) => !v)}
+            className="flex items-center gap-2 self-start rounded-[8px] px-1 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted hover:text-fg"
+            aria-expanded={teamsOpen}
+          >
+            <ChevronDown size={14} className={cn("transition-transform", !teamsOpen && "-rotate-90")} />
+            {t("lesson.teams")} · {t(`teacher.mode.${mode}`)}
+          </button>
+          <AnimatePresence initial={false}>
+            {teamsOpen && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="flex flex-col gap-3 overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Segmented<TeamMode>
+                    value={mode}
+                    onChange={(m) => sendTeams(m, assignment())}
+                    options={[
+                      { value: "solo", label: <><Users size={13} />{t("teacher.mode.solo")}</> },
+                      { value: "teams2", label: t("teacher.mode.teams2") },
+                      { value: "teams3", label: t("teacher.mode.teams3") },
+                    ]}
+                  />
+                  {mode !== "solo" && (
+                    <Button icon={<Shuffle size={14} />} onClick={shuffle}>
+                      {t("teacher.shuffle")}
+                    </Button>
+                  )}
+                </div>
+                {mode === "solo" ? (
+                  <Card className="p-3">
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-2">
+                      <AnimatePresence>
+                        {players.map((p) => (
+                          <PlayerChip key={p.id} player={p} team={null} />
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </Card>
+                ) : (
+                  <TeamBoard players={players} teams={teams} teamOf={teamOf} onMove={move} />
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
       )}
 
       <footer className="sticky bottom-0 z-20 -mx-6 mt-auto border-t border-border bg-[color-mix(in_srgb,var(--vscode-editor-background,var(--ca-bg))_88%,transparent)] backdrop-blur">
         <div className="flex items-center justify-end gap-3 px-6 py-3">
           <Button variant="primary" size="lg" icon={<Gamepad2 size={18} />} onClick={onChooseGame}>
-            {t("teacher.chooseGame")}
+            {t("lesson.startGame")}
           </Button>
         </div>
       </footer>
@@ -118,42 +146,91 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
   );
 }
 
-/* ───────────────────────── Код комнаты ───────────────────────── */
+/* ───────────────────────── Урок: счётчики и ученики ───────────────────────── */
 
-function RoomHero({ code, link, count, players }: { code: string; link: string; count: number; players: PlayerInfo[] }) {
+const STATUS_COLOR: Record<LessonStatus, string> = { done: "var(--ca-success)", writing: "var(--ca-accent)", lost: "var(--ca-warning)" };
+const STATUS_ORDER: Record<LessonStatus, number> = { lost: 0, writing: 1, done: 2 };
+
+function LessonHero({ code, link, players, lesson }: { code: string; link: string; players: PlayerInfo[]; lesson: LessonSnapshot }) {
   const t = useT();
+  const total = players.length;
+  const done = players.filter((p) => lesson.statuses[p.id] === "done").length;
+  const pct = total ? (done / total) * 100 : 0;
   return (
-    <Card className="relative overflow-hidden p-6">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full opacity-[0.12] blur-3xl"
-        style={{ background: "var(--ca-accent)" }}
-      />
-      <div className="relative flex flex-wrap items-end justify-between gap-6">
-        <div className="min-w-0">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("teacher.code")}</div>
-          <div className="mt-2 font-mono text-[64px] font-bold leading-none tracking-[0.06em] tabular">{prettyCode(code)}</div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <CopyButton text={link} label={t("teacher.copyLink")} icon={<Link2 size={14} />} primary />
-            <CopyButton text={code} label={t("teacher.copyCode")} icon={<Copy size={14} />} />
-          </div>
-          <p className="mt-2 truncate text-[12px] text-muted" title={link}>
-            {t("teacher.linkHint")} · <span className="font-mono">{link.replace(/^https?:\/\//, "")}</span>
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <motion.div key={count} initial={{ scale: 1.15 }} animate={{ scale: 1 }} transition={{ duration: 0.25 }} className="text-[13px] text-muted">
-            {t("teacher.inRoom", { n: "" })}
-            <span className="ml-1 text-[40px] font-bold leading-none text-fg tabular">{count}</span>
+    <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
+      <Card className="relative overflow-hidden p-5">
+        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full opacity-[0.12] blur-3xl" style={{ background: "var(--ca-success)" }} />
+        <div className="relative">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("lesson.title")}</div>
+          <motion.div key={done} initial={{ scale: 1.08 }} animate={{ scale: 1 }} className="mt-2 text-[34px] font-bold leading-none tabular">
+            {t("lesson.doneOf", { n: done, total })}
           </motion.div>
-          <div className="flex -space-x-2">
-            {players.slice(-8).map((p) => (
-              <Avatar key={p.id} name={p.name} team={p.team} size={28} offline={!p.connected} className="ring-2 ring-[var(--ca-surface)]" />
-            ))}
+          <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-surface-2">
+            <motion.div className="h-full rounded-full bg-success" animate={{ width: `${pct}%` }} transition={{ type: "spring", stiffness: 160, damping: 24 }} />
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className={cn("inline-flex items-center gap-2 rounded-btn px-3 py-1.5", lesson.confused ? "bg-warning/15 text-warning" : "bg-surface-2 text-muted")}>
+              <MessageCircleQuestion size={16} />
+              <span className="text-[14px] font-semibold tabular">{t("lesson.confusedCount", { n: lesson.confused })}</span>
+              <span className="text-[11px] opacity-80">{t("lesson.confusedAnon")}</span>
+            </div>
+            <Button size="sm" icon={<Flag size={14} />} title={t("lesson.newStepHint")} onClick={() => host.send({ type: "checkpoint_set" })}>
+              {t("lesson.newStep")}
+            </Button>
           </div>
         </div>
+      </Card>
+      <Card className="p-5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("teacher.code")}</div>
+        <div className="mt-2 font-mono text-[44px] font-bold leading-none tracking-[0.06em] tabular">{prettyCode(code)}</div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <CopyButton text={link} label={t("teacher.copyLink")} icon={<Link2 size={14} />} primary />
+          <CopyButton text={code} label={t("teacher.copyCode")} icon={<Copy size={14} />} />
+        </div>
+        <p className="mt-2 truncate text-[12px] text-muted" title={link}>
+          {t("teacher.linkHint")}
+        </p>
+      </Card>
+    </div>
+  );
+}
+
+/** Ученики урока: сначала «не понял», потом «пишет», потом «готово». */
+function LessonStudents({ players, lesson }: { players: PlayerInfo[]; lesson: LessonSnapshot }) {
+  const t = useT();
+  const status = (p: PlayerInfo): LessonStatus => lesson.statuses[p.id] ?? "writing";
+  const sorted = [...players].sort((a, b) => STATUS_ORDER[status(a)] - STATUS_ORDER[status(b)] || a.name.localeCompare(b.name));
+  return (
+    <section>
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+        {t("lesson.students")} · {players.length}
       </div>
-    </Card>
+      <motion.div layout className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-2">
+        <AnimatePresence>
+          {sorted.map((p) => {
+            const st = status(p);
+            return (
+              <motion.div
+                key={p.id}
+                layout
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                className="flex h-11 items-center gap-2.5 rounded-[10px] border border-border bg-surface px-2.5"
+                style={{ borderLeft: `3px solid ${STATUS_COLOR[st]}` }}
+              >
+                <Avatar name={p.name} team={p.team} size={26} offline={!p.connected} />
+                <span className={cn("min-w-0 flex-1 truncate text-[13px] font-medium", !p.connected && "text-muted")}>{p.name}</span>
+                <span className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ color: STATUS_COLOR[st], background: `color-mix(in srgb, ${STATUS_COLOR[st]} 14%, transparent)` }}>
+                  {t(`lesson.status.${st}`)}
+                </span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
+    </section>
   );
 }
 

@@ -20,8 +20,8 @@ sees everyone's progress.
 | 5 | Tug of war | ✅ |
 | 6 | Codewars (HTML/CSS, JS, Python) | ✅ |
 | 7 | JavaScript task bank | ✅ |
-| 8 | **Lesson, base**: room starts in Lesson, status bar «Join lesson» → status picker, «Start game», back to lesson after results | ⏳ next |
-| 9 | Race | |
+| 8 | **Lesson, base**: room starts in Lesson, status bar «Join lesson» → status picker, «Start game», back to lesson after results | ✅ |
+| 9 | Race | ⏳ next |
 | 10 | Anti-cheat (off in Lesson), live teacher table, CSV export | |
 | 11 | **Lesson, part 2**: read-only teacher file (`codearena:` FileSystemProvider, follow cursor, batched 300–500 ms), checkpoints with line-diff progress, lesson panel, anonymous «Explain again» counter | |
 | 12 | AI task generation | |

@@ -5,6 +5,7 @@ import {
   parseClientMessage,
   type ClientMessage,
   type ErrorCode,
+  type LessonStatus,
   type PlayerInfo,
   type ServerMessage,
   type TeamIndex,
@@ -33,9 +34,19 @@ interface RoomData {
   players: Record<string, StoredPlayer>;
   /** Токены выгнанных — с ними обратно не пустит. */
   kicked: string[];
-  /** Текущая игра (null — лобби). */
+  /** Текущая игра (null — урок: режим комнаты по умолчанию). */
   game: GameData | null;
+  /** Урок: номер шага, статусы учеников, кто нажал «объясните ещё раз» (учителю — только число). */
+  lesson: LessonData;
 }
+
+interface LessonData {
+  checkpoint: number;
+  statuses: Record<string, LessonStatus>;
+  confusedBy: string[];
+}
+
+const newLesson = (): LessonData => ({ checkpoint: 0, statuses: {}, confusedBy: [] });
 
 /** Что привязано к каждому WebSocket (переживает гибернацию). */
 type Attachment = { role: "teacher" } | { role: "student"; playerId: string | null };
@@ -47,7 +58,10 @@ export class Room extends DurableObject<Env> {
     super(ctx, env);
     ctx.blockConcurrencyWhile(async () => {
       this.data = (await ctx.storage.get<RoomData>("room")) ?? null;
-      if (this.data) this.data.game ??= null;
+      if (this.data) {
+        this.data.game ??= null;
+        this.data.lesson ??= newLesson();
+      }
     });
     // Автоответ на ping без пробуждения объекта — не тратит лимит.
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('{"type":"ping"}', '{"type":"pong","t":0}'));
@@ -68,6 +82,7 @@ export class Room extends DurableObject<Env> {
       players: {},
       kicked: [],
       game: null,
+      lesson: newLesson(),
     };
     await this.save();
     return true;
@@ -97,6 +112,7 @@ export class Room extends DurableObject<Env> {
       // Учитель сразу видит лобби.
       queueMicrotask(() => {
         this.send(server, this.lobbyMessage());
+        this.send(server, this.lessonState());
         const g = this.data?.game;
         if (g) for (const m of engine.resumeFor(g, this.gameEnv(), null)) this.send(server, m);
       });
@@ -177,16 +193,30 @@ export class Room extends DurableObject<Env> {
         if (!p) return;
         d.kicked.push(p.token);
         delete d.players[p.id];
+        delete d.lesson.statuses[p.id];
+        d.lesson.confusedBy = d.lesson.confusedBy.filter((id) => id !== p.id);
         for (const s of this.studentSockets(p.id)) {
           this.send(s, { type: "kicked" });
           s.close(4001, "kicked");
         }
         await this.save();
         this.broadcastLobby();
+        this.sendLessonToTeacher();
         return;
       }
       case "close_room": {
         await this.destroy();
+        return;
+      }
+      case "checkpoint_set": {
+        // Новый шаг урока: все снова «пишут», счётчик «не поняли» обнуляется.
+        d.lesson = { checkpoint: d.lesson.checkpoint + 1, statuses: {}, confusedBy: [] };
+        await this.save();
+        for (const s of this.studentSockets()) {
+          const a = s.deserializeAttachment() as Attachment;
+          if (a.role === "student" && a.playerId) this.send(s, this.lessonMe(a.playerId));
+        }
+        this.sendLessonToTeacher();
         return;
       }
       case "start_game": {
@@ -266,13 +296,25 @@ export class Room extends DurableObject<Env> {
       for (const s of this.studentSockets(player.id)) if (s !== ws) s.close(4002, "replaced");
       ws.serializeAttachment({ role: "student", playerId: player.id } satisfies Attachment);
       this.send(ws, { type: "joined", playerId: player.id, token: player.token, team: player.team });
+      this.send(ws, this.lessonMe(player.id));
       this.broadcastLobby();
+      this.sendLessonToTeacher();
       // Игра уже идёт — вернуть ученика в то же место.
       if (d.game) for (const m of engine.resumeFor(d.game, this.gameEnv(), player.id)) this.send(ws, m);
       return;
     }
 
     if (!att.playerId || !d.players[att.playerId]) return this.error(ws, "not_joined", "Сначала войди в комнату");
+
+    if (msg.type === "status" || msg.type === "confused") {
+      const pid = att.playerId;
+      if (msg.type === "status") d.lesson.statuses[pid] = msg.status;
+      else if (!d.lesson.confusedBy.includes(pid)) d.lesson.confusedBy.push(pid); // один раз на шаг
+      await this.save();
+      for (const s of this.studentSockets(pid)) this.send(s, this.lessonMe(pid));
+      this.sendLessonToTeacher();
+      return;
+    }
 
     if (msg.type === "submit") {
       if (!d.game) return this.error(ws, "no_game", "Игра не идёт");
@@ -286,6 +328,26 @@ export class Room extends DurableObject<Env> {
       return;
     }
     return this.error(ws, "not_teacher", "Это может только учитель");
+  }
+
+  /* ─────────────── Урок ─────────────── */
+
+  /** Сводка для учителя. Кто именно просил объяснить — не раскрывается. */
+  private lessonState(): ServerMessage {
+    const d = this.data!;
+    const statuses: Record<string, LessonStatus> = {};
+    for (const id of Object.keys(d.players)) statuses[id] = d.lesson.statuses[id] ?? "writing";
+    return { type: "lesson_state", checkpoint: d.lesson.checkpoint, statuses, confused: d.lesson.confusedBy.length, progress: {} };
+  }
+
+  private lessonMe(playerId: string): ServerMessage {
+    const l = this.data!.lesson;
+    return { type: "lesson_me", checkpoint: l.checkpoint, status: l.statuses[playerId] ?? "writing", confused: l.confusedBy.includes(playerId) };
+  }
+
+  private sendLessonToTeacher(): void {
+    const msg = this.lessonState();
+    for (const s of this.ctx.getWebSockets("teacher")) this.send(s, msg);
   }
 
   /* ─────────────── Игра ─────────────── */

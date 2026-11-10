@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { DoorClosed, PanelsTopLeft } from "lucide-react";
+import { DoorClosed, MessageCircleQuestion, PanelsTopLeft } from "lucide-react";
 import type { SessionSnapshot } from "@codearena/shared";
 import { Button } from "../ui/Button.tsx";
 import { Card } from "../ui/Card.tsx";
@@ -20,12 +20,24 @@ export function TeacherSidebar({ session }: { session: SessionSnapshot }) {
       </div>
       <div className="font-mono text-[40px] font-bold leading-none tracking-[0.05em] tabular">{prettyCode(session.code ?? "")}</div>
 
-      <Card className="flex items-center justify-between gap-2 px-3 py-2.5">
-        <span className="whitespace-nowrap text-[13px] text-muted">{t("teacher.inRoom", { n: players.length })}</span>
+      <Card className="flex flex-col gap-2 px-3 py-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="whitespace-nowrap text-[14px] font-semibold tabular">
+            {t("lesson.doneOf", { n: players.filter((p) => session.lesson.statuses[p.id] === "done").length, total: players.length })}
+          </span>
+          {session.lesson.confused > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 text-[12px] font-semibold text-warning tabular" title={t("lesson.confused")}>
+              <MessageCircleQuestion size={12} /> {session.lesson.confused}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-2">
+        <span className="whitespace-nowrap text-[12px] text-muted">{t("teacher.inRoom", { n: players.length })}</span>
         <div className="flex -space-x-1.5">
           {players.slice(-4).map((p) => (
             <Avatar key={p.id} name={p.name} team={p.team} size={22} offline={!p.connected} className="ring-2 ring-[var(--ca-bg)]" />
           ))}
+        </div>
         </div>
       </Card>
 

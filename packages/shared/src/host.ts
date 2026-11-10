@@ -6,6 +6,7 @@
  */
 import type {
   ClientMessage,
+  LessonStatus,
   GameKind,
   GameSettings,
   GameState,
@@ -97,6 +98,18 @@ export interface GameSnapshot {
   localRun: LocalRun | null;
 }
 
+/** Урок глазами клиента. У учителя — статусы всех, у ученика — свой. */
+export interface LessonSnapshot {
+  checkpoint: number;
+  statuses: Record<string, LessonStatus>;
+  confused: number;
+  progress: Record<string, number>;
+  myStatus: LessonStatus;
+  iConfused: boolean;
+}
+
+export const EMPTY_LESSON: LessonSnapshot = { checkpoint: 0, statuses: {}, confused: 0, progress: {}, myStatus: "writing", iConfused: false };
+
 export interface SessionSnapshot {
   role: Role;
   status: ConnStatus;
@@ -114,6 +127,7 @@ export interface SessionSnapshot {
   ended: null | "kicked" | "room_closed";
   busy: boolean;
   game: GameSnapshot | null;
+  lesson: LessonSnapshot;
 }
 
 export const EMPTY_SESSION: SessionSnapshot = {
@@ -129,6 +143,7 @@ export const EMPTY_SESSION: SessionSnapshot = {
   ended: null,
   busy: false,
   game: null,
+  lesson: EMPTY_LESSON,
 };
 
 /** webview → расширение */
@@ -143,6 +158,9 @@ export type UiToHost =
   | { type: "send"; msg: ClientMessage }
   /** Ответ ученика на текущее задание. */
   | { type: "answer"; taskId: string; answer: number | string }
+  /** Урок: статус ученика и анонимное «объясните ещё раз». */
+  | { type: "lesson_status"; status: LessonStatus }
+  | { type: "lesson_confused" }
   /** Набор заданий учителя: сохранить в файл / загрузить из файла. */
   | { type: "save_tasks"; set: TaskSet }
   | { type: "load_tasks" }

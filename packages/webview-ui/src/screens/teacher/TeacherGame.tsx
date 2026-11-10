@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Check, ChevronDown, ChevronRight, CircleDashed, Clock, Eye, Flag, Pause, Play, RotateCcw, SkipForward, Square, Users, X, Zap } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronRight, CircleDashed, Clock, Eye, Flag, Pause, Play, RotateCcw, SkipForward, Square, Users, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { GameSnapshot, SessionSnapshot, Task } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -224,8 +224,9 @@ function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames:
           <Button icon={<RotateCcw size={14} />} onClick={onAgain}>
             {t("game.again")}
           </Button>
-          <Button variant="primary" size="lg" onClick={() => host.send({ type: "reset_game" })}>
-            {t("game.newGame")}
+          {/* Все возвращаются в урок: та же комната, те же команды. */}
+          <Button variant="primary" size="lg" icon={<ArrowLeft size={18} />} onClick={() => host.send({ type: "reset_game" })}>
+            {t("lesson.back")}
           </Button>
         </div>
       </footer>

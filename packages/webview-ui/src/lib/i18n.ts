@@ -5,8 +5,8 @@ import { createContext, useContext } from "react";
  * русский — для класса. Ключи плоские, подстановка {name}.
  */
 const en = {
-  "app.tagline": "Coding games for your class",
-  "join.title": "Join the game",
+  "app.tagline": "Lessons and coding games for your class",
+  "join.title": "Join the lesson",
   "join.code": "Room code",
   "join.name": "First and last name",
   "join.namePlaceholder": "e.g. Aibek K.",
@@ -253,6 +253,30 @@ const en = {
   "bank.hint": "Open tasks shared by teachers. Adds to your list.",
   "bank.add": "Add {n}",
   "bank.empty": "No sets for this game yet",
+  "lesson.title": "Lesson",
+  "lesson.step": "Step {n}",
+  "lesson.done": "Done",
+  "lesson.writing": "Still writing",
+  "lesson.lost": "Lost",
+  "lesson.confused": "Explain again",
+  "lesson.confusedHint": "Anonymous — the teacher sees only the count",
+  "lesson.confusedSent": "Sent anonymously",
+  "lesson.howItGoes": "How is it going?",
+  "lesson.statusBarHint": "You can also change it in the status bar below",
+  "lesson.doneOf": "Done {n} of {total}",
+  "lesson.confusedCount": "Explain again: {n}",
+  "lesson.confusedAnon": "anonymous, no names",
+  "lesson.newStep": "New step",
+  "lesson.newStepHint": "Everyone goes back to “writing”, the counter resets",
+  "lesson.students": "Students",
+  "lesson.empty": "Nobody has joined the lesson yet",
+  "lesson.teams": "Teams for games",
+  "lesson.startGame": "Start game",
+  "lesson.back": "Back to the lesson",
+  "lesson.status.writing": "writing",
+  "lesson.status.done": "done",
+  "lesson.status.lost": "lost",
+
 
 
 } as const;
@@ -261,8 +285,8 @@ export type MessageKey = keyof typeof en;
 type Dict = Record<MessageKey, string>;
 
 const ru: Dict = {
-  "app.tagline": "Игры по программированию для класса",
-  "join.title": "Войти в игру",
+  "app.tagline": "Уроки и игры по программированию",
+  "join.title": "Войти в урок",
   "join.code": "Код комнаты",
   "join.name": "Имя и фамилия",
   "join.namePlaceholder": "Например, Айбек К.",
@@ -509,6 +533,30 @@ const ru: Dict = {
   "bank.hint": "Готовые задания от учителей. Добавляются к вашему списку.",
   "bank.add": "Добавить {n}",
   "bank.empty": "Для этой игры пока нет наборов",
+  "lesson.title": "Урок",
+  "lesson.step": "Шаг {n}",
+  "lesson.done": "Готово",
+  "lesson.writing": "Ещё пишу",
+  "lesson.lost": "Не понял",
+  "lesson.confused": "Объясните ещё раз",
+  "lesson.confusedHint": "Анонимно — учитель увидит только количество",
+  "lesson.confusedSent": "Отправлено анонимно",
+  "lesson.howItGoes": "Как у тебя дела?",
+  "lesson.statusBarHint": "Статус можно менять и в строке состояния внизу",
+  "lesson.doneOf": "Готово {n} из {total}",
+  "lesson.confusedCount": "Объясните ещё раз: {n}",
+  "lesson.confusedAnon": "анонимно, без имён",
+  "lesson.newStep": "Новый шаг",
+  "lesson.newStepHint": "Все снова «пишут», счётчик обнуляется",
+  "lesson.students": "Ученики",
+  "lesson.empty": "На урок пока никто не вошёл",
+  "lesson.teams": "Команды для игр",
+  "lesson.startGame": "Начать игру",
+  "lesson.back": "Вернуться к уроку",
+  "lesson.status.writing": "пишет",
+  "lesson.status.done": "готово",
+  "lesson.status.lost": "не понял",
+
 
 
 };

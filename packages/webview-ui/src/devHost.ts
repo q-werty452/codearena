@@ -5,6 +5,7 @@
  */
 import * as engine from "../../server/src/engine.ts";
 import {
+  EMPTY_LESSON,
   EMPTY_SESSION,
   GameSettings,
   applyGameMessage,
@@ -46,6 +47,8 @@ export function scenario(s: DevScenario): SessionSnapshot {
     case "teacher":
       return {
         ...EMPTY_SESSION,
+        // Урок: у учеников разные статусы, двое анонимно просят объяснить.
+        lesson: { ...EMPTY_LESSON, checkpoint: 2, confused: 2, statuses: { p0: "done", p1: "writing", p2: "lost", p3: "done", p5: "done", p6: "writing", p7: "lost", p8: "done" } },
         role: "teacher",
         status: "online",
         code: "482913",
@@ -229,6 +232,10 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         return push();
       }
     }
+    if (m.type === "checkpoint_set") {
+      s = { ...s, lesson: { ...s.lesson, checkpoint: s.lesson.checkpoint + 1, statuses: {}, confused: 0, myStatus: "writing", iConfused: false } };
+      return push();
+    }
     if (m.type === "start_game") return startGame(m.game === "race" ? "quiz" : m.game, m.tasks, m.settings);
     switch (m.type) {
       case "set_teams": {
@@ -263,6 +270,14 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         break;
       case "send":
         onSend(m.msg);
+        break;
+      case "lesson_status":
+        s = { ...s, lesson: { ...s.lesson, myStatus: m.status } };
+        push();
+        break;
+      case "lesson_confused":
+        s = { ...s, lesson: { ...s.lesson, iConfused: true } };
+        push();
         break;
       case "run_tests":
         fakeRun(false);

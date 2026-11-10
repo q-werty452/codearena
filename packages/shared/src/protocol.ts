@@ -18,6 +18,10 @@ export const PlayerName = z
   .transform((s) => s.trim().replace(/\s+/g, " "))
   .pipe(z.string().min(2).max(40));
 
+/** Статус ученика на уроке. «Объясните ещё раз» — отдельно и анонимно. */
+export const LessonStatus = z.enum(["writing", "done", "lost"]);
+export type LessonStatus = z.infer<typeof LessonStatus>;
+
 export const FlagKind = z.enum(["paste", "big_insert", "focus_lost", "ai_extension"]);
 export type FlagKind = z.infer<typeof FlagKind>;
 
@@ -104,6 +108,13 @@ export const ClientMessage = z.discriminatedUnion("type", [
     report: TestReport.optional(),
   }),
   z.object({ type: z.literal("flag"), kind: FlagKind, detail: z.string().max(200).default("") }),
+  /* ── Урок (режим комнаты по умолчанию) ── */
+  /** Ученик: свой статус — пишу / готово / не понял. */
+  z.object({ type: z.literal("status"), status: LessonStatus }),
+  /** Ученик: «Объясните ещё раз» — учитель видит только количество. */
+  z.object({ type: z.literal("confused") }),
+  /** Учитель: новый шаг урока — статусы и «не поняли» сбрасываются. Код эталона — во второй части урока. */
+  z.object({ type: z.literal("checkpoint_set"), code: z.string().max(100_000).optional(), fileName: z.string().max(200).optional() }),
   z.object({ type: z.literal("ping") }),
 ]);
 export type ClientMessage = z.infer<typeof ClientMessage>;
@@ -221,6 +232,16 @@ export const ServerMessage = z.discriminatedUnion("type", [
   z.object({ type: z.literal("game_over"), leaders: z.array(LeaderRow), teamScores: z.array(z.number()) }),
   z.object({ type: z.literal("kicked") }),
   z.object({ type: z.literal("room_closed") }),
+  /** Учителю: сводка урока (статусы всех, анонимное число «объясните ещё раз»). */
+  z.object({
+    type: z.literal("lesson_state"),
+    checkpoint: z.number().int(),
+    statuses: z.record(z.string(), LessonStatus),
+    confused: z.number().int(),
+    progress: z.record(z.string(), z.number()).default({}),
+  }),
+  /** Ученику: его собственное состояние урока (после входа, переподключения и нового шага). */
+  z.object({ type: z.literal("lesson_me"), checkpoint: z.number().int(), status: LessonStatus, confused: z.boolean() }),
   z.object({ type: z.literal("game_reset") }),
   /** Сервер принял ответ ученика (правильность станет известна при показе). */
   z.object({ type: z.literal("answered"), taskId: z.string(), answer: z.union([z.string(), z.number()]) }),

@@ -234,3 +234,61 @@ describe("канат через комнату", () => {
     expect(over.state.winner).toBe(0);
   });
 });
+
+describe("урок — режим комнаты по умолчанию", () => {
+  it("статусы учеников видит учитель, «объясните» — только числом и один раз на шаг", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    const first = await t.next("lesson_state");
+    expect(first).toMatchObject({ checkpoint: 0, statuses: {}, confused: 0 });
+
+    const a = await connect(code);
+    a.send({ type: "join", name: "Айбек К." });
+    const ja = await a.next("joined");
+    expect(await a.next("lesson_me")).toMatchObject({ status: "writing", confused: false });
+    const b = await connect(code);
+    b.send({ type: "join", name: "Нурай А." });
+    const jb = await b.next("joined");
+
+    a.send({ type: "status", status: "done" });
+    expect(await a.next("lesson_me", (m) => m.status === "done")).toBeTruthy();
+    const st = await t.next("lesson_state", (m) => m.statuses[ja.playerId] === "done");
+    expect(st.statuses[jb.playerId]).toBe("writing");
+
+    b.send({ type: "confused" });
+    b.send({ type: "confused" }); // повтор не накручивает счётчик
+    a.send({ type: "confused" });
+    const conf = await t.next("lesson_state", (m) => m.confused === 2);
+    expect(JSON.stringify(conf)).not.toContain("confusedBy"); // имён нет
+    expect(await b.next("lesson_me", (m) => m.confused)).toBeTruthy();
+
+    // Новый шаг: все снова «пишут», счётчик обнулён.
+    t.send({ type: "checkpoint_set" });
+    const cp = await t.next("lesson_state", (m) => m.checkpoint === 1);
+    expect(cp).toMatchObject({ confused: 0, statuses: { [ja.playerId]: "writing", [jb.playerId]: "writing" } });
+    expect(await a.next("lesson_me", (m) => m.checkpoint === 1)).toMatchObject({ status: "writing", confused: false });
+
+    // Ученик не может начать новый шаг.
+    a.send({ type: "checkpoint_set" });
+    expect((await a.next("error")).code).toBe("not_teacher");
+  });
+
+  it("после игры комната возвращается в урок с теми же статусами", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    const a = await connect(code);
+    a.send({ type: "join", name: "Тимур Б." });
+    const ja = await a.next("joined");
+    a.send({ type: "status", status: "lost" });
+    await t.next("lesson_state", (m) => m.statuses[ja.playerId] === "lost");
+    t.send({ type: "start_game", game: "quiz", settings: {}, tasks: [{ type: "choice", topic: "t", prompt: "?", options: ["a", "b"], correct: 0 }] });
+    await a.next("game_started");
+    t.send({ type: "end_game" });
+    await a.next("game_over");
+    t.send({ type: "reset_game" });
+    await a.next("game_reset");
+    // Переподключение учителя: урок на месте.
+    const t2 = await connect(code, teacherToken);
+    expect((await t2.next("lesson_state")).statuses[ja.playerId]).toBe("lost");
+  });
+});

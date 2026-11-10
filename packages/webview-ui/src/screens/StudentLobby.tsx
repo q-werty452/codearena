@@ -1,21 +1,28 @@
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { LogOut, Users } from "lucide-react";
-import type { SessionSnapshot } from "@codearena/shared";
-import { Avatar, TeamBadge, teamColor } from "../ui/Avatar.tsx";
-import { TeamIcon } from "../ui/Shapes.tsx";
+import { AnimatePresence, motion } from "motion/react";
+import { Check, CircleHelp, LogOut, MessageCircleQuestion, PenLine } from "lucide-react";
+import type { LessonStatus, SessionSnapshot } from "@codearena/shared";
+import { Avatar, TeamBadge } from "../ui/Avatar.tsx";
+import { Kbd } from "../ui/Card.tsx";
 import { StatusDot } from "../ui/Status.tsx";
-import { prettyCode, useT } from "../lib/i18n.ts";
+import { cn } from "../lib/cn.ts";
+import { prettyCode, useT, type MessageKey } from "../lib/i18n.ts";
+import { host } from "../lib/session.ts";
 
-/** Лобби ученика: крупно своё имя и команда, состав команды, спокойное ожидание. */
+const STATUSES: { status: LessonStatus; key: MessageKey; icon: typeof Check; color: string; hotkey: string }[] = [
+  { status: "done", key: "lesson.done", icon: Check, color: "var(--ca-success)", hotkey: "1" },
+  { status: "writing", key: "lesson.writing", icon: PenLine, color: "var(--ca-accent)", hotkey: "2" },
+  { status: "lost", key: "lesson.lost", icon: CircleHelp, color: "var(--ca-warning)", hotkey: "3" },
+];
+
+/**
+ * Урок у ученика (боковая панель) — режим комнаты по умолчанию.
+ * Главное действие — отметить, как идут дела: учитель видит это сразу.
+ */
 export function StudentLobby({ session, onLeave }: { session: SessionSnapshot; onLeave: () => void }) {
   const t = useT();
-  const { me, lobby } = session;
+  const { me, lobby, lesson } = session;
   if (!me) return null;
-
-  const team = me.team;
-  const teamInfo = team !== null ? lobby?.teams.find((x) => x.index === team) : undefined;
-  const mates = lobby?.players.filter((p) => team !== null && p.team === team && p.id !== me.playerId) ?? [];
-  const isSolo = lobby?.mode === "solo";
+  const teamInfo = me.team !== null ? lobby?.teams.find((x) => x.index === me.team) : undefined;
 
   return (
     <div className="flex min-h-full flex-col">
@@ -24,55 +31,76 @@ export function StudentLobby({ session, onLeave }: { session: SessionSnapshot; o
         <StatusDot status={session.status} />
       </div>
 
-      <div className="flex flex-1 flex-col items-center gap-5 px-4 py-8 text-center">
-        <motion.div layout className="relative">
-          <motion.div
-            className="absolute -inset-2 rounded-full"
-            style={{ background: teamColor(team), opacity: 0.18 }}
-            animate={{ scale: [1, 1.12, 1] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <Avatar name={me.name} team={team} size={72} />
-        </motion.div>
-
-        <div className="flex flex-col items-center gap-2">
-          <div className="text-[12px] font-medium text-muted">{t("lobby.you")}</div>
-          <h1 className="max-w-full break-words text-title font-bold leading-tight">{me.name}</h1>
-          <AnimatePresence mode="wait">
-            <motion.div key={`${lobby?.mode}-${team}-${teamInfo?.name}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-              {isSolo ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[12px] text-muted">
-                  <Users size={12} /> {t("lobby.solo")}
-                </span>
-              ) : teamInfo ? (
-                <TeamBadge team={teamInfo.index} name={teamInfo.name} />
-              ) : (
-                <span className="text-[12px] text-muted">{t("lobby.noTeamYet")}</span>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {teamInfo && (
-          <div className="w-full max-w-[300px]">
-            <div className="mb-2 flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-              <TeamIcon team={teamInfo.index} size={12} />
-              {t("lobby.team")} · {mates.length + 1}
-            </div>
-            <div className="flex flex-wrap justify-center gap-1.5">
-              <AnimatePresence>
-                {mates.map((p) => (
-                  <motion.div key={p.id} layout initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}>
-                    <Avatar name={p.name} team={p.team} size={30} offline={!p.connected} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+      <div className="flex flex-1 flex-col gap-5 px-4 py-5">
+        <div className="flex items-center gap-3">
+          <Avatar name={me.name} team={me.team} size={40} />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[15px] font-bold">{me.name}</div>
+            <div className="mt-0.5 flex items-center gap-2">
+              {teamInfo ? <TeamBadge team={teamInfo.index} name={teamInfo.name} className="px-2 py-0.5 text-[11px]" /> : null}
+              <span className="text-[12px] text-muted">
+                {t("lesson.title")} · {t("lesson.step", { n: lesson.checkpoint + 1 })}
+              </span>
             </div>
           </div>
-        )}
+        </div>
 
-        <WaitingDots />
-        <p className="max-w-[240px] text-[13px] text-muted">{t("lobby.waiting")}</p>
+        <div>
+          <div className="mb-2 text-[12px] font-medium text-muted">{t("lesson.howItGoes")}</div>
+          <div className="flex flex-col gap-2" role="radiogroup">
+            {STATUSES.map(({ status, key, icon: Icon, color, hotkey }) => {
+              const on = lesson.myStatus === status;
+              return (
+                <motion.button
+                  key={status}
+                  role="radio"
+                  aria-checked={on}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => host.post({ type: "lesson_status", status })}
+                  className={cn(
+                    "relative flex h-12 items-center gap-3 overflow-hidden rounded-btn border-2 px-3 text-left text-[15px] font-semibold transition-colors",
+                    on ? "text-white" : "border-border bg-surface hover:bg-surface-2",
+                  )}
+                  style={on ? { background: color, borderColor: color } : undefined}
+                >
+                  {on && <motion.span layoutId="lesson-status" className="absolute inset-0" style={{ background: color }} transition={{ type: "spring", stiffness: 500, damping: 40 }} />}
+                  <span className="relative z-10 flex size-7 items-center justify-center rounded-full" style={on ? { background: "rgb(255 255 255 / 0.2)" } : { color }}>
+                    <Icon size={17} strokeWidth={2.6} />
+                  </span>
+                  <span className="relative z-10 flex-1">{t(key)}</span>
+                  <span className="relative z-10 hidden text-[11px] font-normal opacity-70 min-[260px]:inline">
+                    <Kbd>Ctrl+Alt+{hotkey}</Kbd>
+                  </span>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {lesson.iConfused ? (
+            <motion.div key="sent" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 rounded-btn bg-surface px-3 py-2.5 text-[13px] text-muted">
+              <Check size={15} className="text-success" />
+              {t("lesson.confusedSent")}
+            </motion.div>
+          ) : (
+            <motion.button
+              key="ask"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onClick={() => host.post({ type: "lesson_confused" })}
+              className="flex items-start gap-2.5 rounded-btn border border-dashed border-border px-3 py-2.5 text-left transition-colors hover:border-[var(--ca-warning)] hover:bg-warning/5"
+            >
+              <MessageCircleQuestion size={17} className="mt-0.5 shrink-0 text-warning" />
+              <span>
+                <span className="block text-[13px] font-semibold">{t("lesson.confused")}</span>
+                <span className="block text-[12px] text-muted">{t("lesson.confusedHint")}</span>
+              </span>
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        <p className="text-[12px] text-muted">{t("lesson.statusBarHint")}</p>
       </div>
 
       <div className="flex justify-center pb-4">
@@ -80,23 +108,6 @@ export function StudentLobby({ session, onLeave }: { session: SessionSnapshot; o
           <LogOut size={13} /> {t("lobby.leave")}
         </button>
       </div>
-    </div>
-  );
-}
-
-/** Три точки, мягко прыгающие по очереди. */
-function WaitingDots() {
-  const reduce = useReducedMotion();
-  return (
-    <div className="flex h-6 items-end gap-1.5" aria-hidden>
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="size-2 rounded-full bg-accent"
-          animate={reduce ? { opacity: [0.35, 1, 0.35] } : { y: [0, -8, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.16, ease: "easeInOut" }}
-        />
-      ))}
     </div>
   );
 }

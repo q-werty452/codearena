@@ -4,6 +4,7 @@ import { TaskSet, type HostToUi, type UiToHost } from "@codearena/shared";
 import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
 import { CodeTasks } from "./codeTask.ts";
+import { LessonBar } from "./lessonBar.ts";
 import { runChecks } from "./runner.ts";
 
 /**
@@ -55,6 +56,12 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
 
   // Началась игра — ученику открываем панель игры (там вопросы и плитки).
   session.onGameStarted = () => GamePanel.show(context);
+  // Урок в статус-баре: «Войти в урок» → статус ученика / сводка учителя.
+  context.subscriptions.push(new LessonBar(session));
+  // Игра закончилась — ученик возвращается к своему коду, панель игры закрывается.
+  session.onBackToLesson = () => {
+    if (session.snapshot.role === "student") GamePanel.close();
+  };
   // Codewars: файл задачи в редакторе, панель игры — рядом.
   context.subscriptions.push(new CodeTasks(context, session, () => GamePanel.show(context, vscode.ViewColumn.Two, true)));
 
@@ -148,6 +155,12 @@ class WebviewHost implements vscode.WebviewViewProvider {
       case "answer":
         session.answer(msg.taskId, msg.answer);
         break;
+      case "lesson_status":
+        session.setStatus(msg.status);
+        break;
+      case "lesson_confused":
+        await vscode.commands.executeCommand("codearena.status.confused");
+        break;
       case "save_tasks":
         await saveTasks(msg.set);
         break;
@@ -201,5 +214,9 @@ class GamePanel {
 
   post(msg: HostToUi): void {
     this.host.post(msg);
+  }
+
+  static close(): void {
+    GamePanel.current?.panel.dispose();
   }
 }

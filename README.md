@@ -6,7 +6,7 @@ Open source (MIT), zero cost: students' code runs on their own machines, the gam
 
 Made by [**q-werty452**](https://github.com/q-werty452).
 
-> 🚧 Work in progress. Ready: rooms & teams, **Quiz**, **Find the bug**, **Tug of war**, **Codewars**, task bank. Next: **Lesson mode** (the default room mode), Race, anti-cheat. See the [roadmap](docs/ROADMAP.md) and the [spec](docs/TZ.pdf).
+> 🚧 Work in progress. Ready: **Lesson mode** (the default: students mark Done / Still writing / Lost / Explain again from the status bar), **Quiz**, **Find the bug**, **Tug of war**, **Codewars**, task bank. Next: Race, anti-cheat, live teacher code. See the [roadmap](docs/ROADMAP.md) and the [spec](docs/TZ.pdf).
 
 Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CSS are checked with selector rules (“there is a `<footer>`”, “every `img` has `alt`”, “`.card` has `display: flex`”), JavaScript and Python with test calls — all on the student's computer. Django/DRF and Flutter snippets are supported in Quiz and Find the bug (no code execution).
 
