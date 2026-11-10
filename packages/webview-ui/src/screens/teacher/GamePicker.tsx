@@ -10,7 +10,7 @@ const GAMES: { kind: GameKind; icon: LucideIcon; color: string; ready: boolean }
   { kind: "bug", icon: Bug, color: "#F59E0B", ready: true },
   { kind: "tug", icon: MoveHorizontal, color: "#F43F5E", ready: true },
   { kind: "codewars", icon: SquareCode, color: "#3B82F6", ready: true },
-  { kind: "race", icon: Flag, color: "#10B981", ready: false },
+  { kind: "race", icon: Flag, color: "#10B981", ready: true },
 ];
 
 /** Выбор игры: 5 крупных карточек. Недоступные — с пометкой и причиной. */

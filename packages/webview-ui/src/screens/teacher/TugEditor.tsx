@@ -21,7 +21,7 @@ export function shortError(q: ShortTask): "edit.errPrompt" | "tug.errAnswer" | n
   return null;
 }
 
-function cleanShort(q: ShortTask, topic: string): ShortTask {
+export function cleanShort(q: ShortTask, topic: string): ShortTask {
   return { ...q, topic: q.topic || topic || "Tug", prompt: q.prompt.trim(), answers: q.answers.map((a) => a.trim()).filter(Boolean) };
 }
 
@@ -198,7 +198,7 @@ export function TugEditor({
   );
 }
 
-function ShortCard({
+export function ShortCard({
   n,
   q,
   error,

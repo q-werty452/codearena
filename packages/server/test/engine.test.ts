@@ -362,3 +362,96 @@ describe("Codewars на HTML/CSS", () => {
     expect(() => startGame("codewars", [noRules], settings, 0)).toThrow(GameError);
   });
 });
+
+describe("Гонка", () => {
+  const sa = (prompt: string, a: string) => Task.parse({ type: "short_answer", topic: "t", prompt, answers: [a] });
+  const ch = (correct: number) => Task.parse({ type: "choice", topic: "t", prompt: "?", options: ["a", "b", "c"], correct });
+  const raceSettings = GameSettings.parse({ raceLength: 3, roundSec: 300, wrongLockSec: 3 });
+  const tasks = [sa("1+1", "2"), ch(1), sa("2*3", "6")];
+
+  function raced(mode: EngineEnv["mode"] = "solo"): { g: GameData; e: (now: number) => EngineEnv } {
+    const g = startGame("race", tasks, raceSettings, 0, mode);
+    const e = (now: number) => env(now, ["a", "b", "c"], mode);
+    onDeadline(g, e(COUNTDOWN_MS));
+    return { g, e };
+  }
+  /** Решить текущее задание игрока правильно. */
+  function solve(g: GameData, e: EngineEnv, pid: string) {
+    const pos = g.race!.pos[pid] ?? 0;
+    const t = g.tasks[pos % g.tasks.length]!;
+    const answer = t.type === "choice" ? t.correct : t.type === "short_answer" ? t.answers[0] : undefined;
+    return submit(g, e, pid, `r${pos}`, answer);
+  }
+
+  it("каждому своё задание, общий таймер раунда", () => {
+    const g = startGame("race", tasks, raceSettings, 0, "solo");
+    const fx = onDeadline(g, env(COUNTDOWN_MS));
+    expect(g.deadline).toBe(COUNTDOWN_MS + 300_000);
+    const personal = fx.filter((x) => x.msg.type === "task");
+    expect(personal.map((x) => x.to)).toEqual([{ player: "a" }, { player: "b" }, { player: "c" }]);
+    expect((personal[0]!.msg as { task: Record<string, unknown> }).task.answers).toBeUndefined(); // ответ не утекает
+  });
+
+  it("правильный — шаг вперёд и следующее задание; ошибка — ничего и блок", () => {
+    const { g, e } = raced();
+    const fx = solve(g, e(5000), "a");
+    expect(g.race!.pos.a).toBe(1);
+    expect(fx.find((x) => x.msg.type === "task" && typeof x.to === "object")!.msg).toMatchObject({ taskId: "r1" });
+    const wrong = submit(g, e(6000), "b", "r0", "5");
+    expect(g.race!.pos.b ?? 0).toBe(0);
+    expect(wrong.find((x) => x.msg.type === "result")!.msg).toMatchObject({ correct: false, lockedUntil: 9000 });
+    expect(() => submit(g, e(7000), "b", "r0", "2")).toThrow(/Подожди/);
+    expect(() => submit(g, e(9000), "a", "r0", "2")).toThrow(/решено/); // старое задание
+  });
+
+  it("финиш: места по времени финиша, остальные по позиции; все дошли — конец", () => {
+    const { g, e } = raced();
+    for (let i = 0; i < 3; i++) solve(g, e(5000 + i), "b");
+    const fx = solve(g, e(6000), "a");
+    expect(fx.find((x) => x.msg.type === "result")!.msg).toMatchObject({ place: null });
+    expect(gameState(g, e(7000)).leaders.map((l) => l.id)).toEqual(["b", "a", "c"]); // b финишировал, a на 1, c на 0
+    for (let i = 0; i < 2; i++) solve(g, e(8000 + i), "a");
+    for (let i = 0; i < 3; i++) solve(g, e(9000 + i), "c");
+    expect(g.phase).toBe("over");
+    expect(gameState(g, e(10_000)).leaders.map((l) => l.id)).toEqual(["b", "a", "c"]);
+  });
+
+  it("по времени: места по позиции", () => {
+    const { g, e } = raced();
+    solve(g, e(5000), "c");
+    solve(g, e(5001), "c");
+    solve(g, e(5002), "a");
+    onDeadline(g, e(COUNTDOWN_MS + 300_000));
+    expect(g.phase).toBe("over");
+    expect(gameState(g, e(0)).leaders.map((l) => l.id)).toEqual(["c", "a", "b"]);
+  });
+
+  it("команды: позиция — среднее по участникам, побеждает первая дошедшая", () => {
+    const { g, e } = raced("teams2"); // a, b — команда 0; c — команда 1
+    for (let i = 0; i < 3; i++) solve(g, e(5000 + i), "a"); // команда 0: (3 + 0) / 2 = 1.5
+    expect(gameState(g, e(6000)).teamScores).toEqual([1.5, 0]);
+    for (let i = 0; i < 3; i++) solve(g, e(7000 + i), "c"); // команда 1: 3 / 1 = 3 — финиш
+    for (let i = 0; i < 3; i++) solve(g, e(8000 + i), "b"); // команда 0 тоже дошла — конец
+    expect(g.phase).toBe("over");
+    expect(g.winner).toBe(1);
+  });
+
+  it("задача с кодом в гонке: засчитывается по отчёту тестов", () => {
+    const code = Task.parse({ type: "code", topic: "t", language: "javascript", prompt: "p", starter: "", tests: [{ call: "f()", expected: "1" }] });
+    const g = startGame("race", [code], GameSettings.parse({ raceLength: 2 }), 0);
+    onDeadline(g, env(COUNTDOWN_MS));
+    submit(g, env(5000), "a", "r0", undefined, { code: "x", report: { passed: 0, total: 1, failures: [] } });
+    expect(g.race!.pos.a ?? 0).toBe(0);
+    expect(g.locks.a).toBeUndefined(); // за код блок не ставим
+    submit(g, env(6000), "a", "r0", undefined, { code: "y", report: { passed: 1, total: 1, failures: [] } });
+    expect(g.race!.pos.a).toBe(1);
+  });
+
+  it("переподключение возвращает своё задание", () => {
+    const { g, e } = raced();
+    solve(g, e(5000), "a");
+    const msgs = resumeFor(g, e(6000), "a");
+    expect(msgs.map((m) => m.type)).toEqual(["game_started", "task", "state"]);
+    expect(msgs[1]).toMatchObject({ taskId: "r1", index: 1 });
+  });
+});

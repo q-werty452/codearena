@@ -62,6 +62,8 @@ interface UiState {
   draftTug?: TaskSet;
   draftCode?: TaskSet;
   draftBug?: TaskSet;
+  draftRace?: TaskSet;
+  raceLength?: number;
   questionSec?: number;
   roundSec?: number;
   wrongLockSec?: number;

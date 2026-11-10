@@ -3,7 +3,7 @@
  * никакого Cloudflare, только «состояние + время → новое состояние + сообщения».
  * Durable Object комнаты хранит GameData и рассылает эффекты.
  *
- * Игры: викторина (quiz), «Найди баг» (bug), перетягивание каната (tug), Codewars (codewars).
+ * Игры: викторина (quiz), «Найди баг» (bug), перетягивание каната (tug), Codewars (codewars), гонка (race).
  */
 import {
   LIMITS,
@@ -68,6 +68,15 @@ export interface GameData {
   locks: Record<string, number>;
   lastPull: GameState["lastPull"];
   winner: TeamIndex | null;
+  /** Гонка: у каждого своя очередь задач. pos — сколько решено, finishedAt — когда дошёл до финиша. */
+  race?: RaceData;
+}
+
+export interface RaceData {
+  length: number;
+  pos: Record<string, number>;
+  finishedAt: Record<string, number>;
+  teamFinishedAt: Record<string, number>;
 }
 
 export interface EnginePlayer {
@@ -117,6 +126,13 @@ export function startGame(game: GameKind, tasks: Task[], settings: GameSettings,
     if (tasks.some((t) => t.type !== "code" || !hasChecks(t))) {
       throw new GameError("invalid_tasks", "В Codewars нужны задачи с тестами (JS/Python) или правилами (HTML/CSS)");
     }
+  } else if (game === "race") {
+    for (const t of tasks) {
+      if (t.type !== "short_answer" && t.type !== "choice" && t.type !== "code") {
+        throw new GameError("invalid_tasks", "В гонке задания: короткий ответ, вариант ответа или код");
+      }
+      if (t.type === "code" && !hasChecks(t)) throw new GameError("invalid_tasks", "У задачи с кодом нужны тесты или правила");
+    }
   } else if (game === "tug") {
     if (mode !== "teams2") throw new GameError("need_two_teams", "Для каната нужно ровно 2 команды");
     if (tasks.some((t) => t.type !== "short_answer")) throw new GameError("invalid_tasks", "В канате только задания с коротким ответом");
@@ -142,6 +158,7 @@ export function startGame(game: GameKind, tasks: Task[], settings: GameSettings,
     locks: {},
     lastPull: null,
     winner: null,
+    race: game === "race" ? { length: settings.raceLength, pos: {}, finishedAt: {}, teamFinishedAt: {} } : undefined,
   };
 }
 
@@ -162,19 +179,20 @@ export function startEffects(g: GameData, env: EngineEnv): Effect[] {
 export function onDeadline(g: GameData, env: EngineEnv): Effect[] {
   if (g.deadline === null || env.now < g.deadline) return [];
   if (g.phase === "countdown") return begin(g, env);
-  if (g.phase === "playing") return g.game === "tug" ? finish(g, env) : reveal(g, env);
+  if (g.phase === "playing") return g.game === "tug" || g.game === "race" ? finish(g, env) : reveal(g, env);
   return [];
 }
 
 /** Конец отсчёта: первое задание (в канате заодно стартует общий таймер раунда). */
 function begin(g: GameData, env: EngineEnv): Effect[] {
+  if (g.game === "race") return raceBegin(g, env);
   if (g.game === "tug") g.deadline = env.now + g.settings.roundSec * 1000;
   return showTask(g, 0, env);
 }
 
 function limitMs(g: GameData): number {
   const task = g.tasks[g.index];
-  if (g.game === "tug") return g.settings.roundSec * 1000;
+  if (g.game === "tug" || g.game === "race") return g.settings.roundSec * 1000;
   if (g.game === "codewars" || task?.type === "fix_bug") return (task?.timeLimitSec ?? 300) * 1000;
   return g.settings.questionSec * 1000;
 }
@@ -214,6 +232,11 @@ export function submit(
   answer: unknown,
   extra: { code?: string; report?: TestReport } = {},
 ): Effect[] {
+  if (g.game === "race") {
+    if (g.phase !== "playing") throw new GameError("locked", "Сейчас нельзя отвечать");
+    if (env.now > (g.deadline ?? 0)) throw new GameError("locked", "Время вышло");
+    return submitRace(g, env, playerId, taskId, answer, extra);
+  }
   const task = g.tasks[g.index];
   if (g.phase !== "playing" || !task) throw new GameError("locked", "Сейчас нельзя отвечать");
   if (g.taskKey !== taskId) throw new GameError("unknown_task", "Это задание уже закончилось");
@@ -352,6 +375,108 @@ function feed(playerId: string, taskId: string, correct: boolean, answer: unknow
   return { to: "teacher", msg: { type: "teacher_feed", event: { kind: "submission", playerId, taskId, correct, answer, at } } };
 }
 
+/* ───────────────────────── Гонка ───────────────────────── */
+
+const raceKey = (pos: number) => `r${pos}`;
+
+/** Задание игрока: своя очередь, задания идут по кругу, если их меньше длины трассы. */
+function raceTaskMsg(g: GameData, playerId: string): ServerMessage {
+  const pos = g.race!.pos[playerId] ?? 0;
+  const task = g.tasks[pos % g.tasks.length]!;
+  return { type: "task", taskId: raceKey(pos), index: pos, task: toPublicTask(task) as Record<string, unknown>, deadline: g.deadline, limitMs: limitMs(g) };
+}
+
+function raceBegin(g: GameData, env: EngineEnv): Effect[] {
+  g.phase = "playing";
+  g.index = 0;
+  g.shownAt = env.now;
+  g.deadline = env.now + g.settings.roundSec * 1000;
+  const out: Effect[] = env.players.map((p) => ({ to: { player: p.id }, msg: raceTaskMsg(g, p.id) }));
+  return [...out, stateEffect(g, env)];
+}
+
+/** Позиция команды — среднее по участникам: каждый правильный ответ двигает её на 1/N шага. */
+function teamPositions(g: GameData, env: EngineEnv): number[] {
+  const n = env.mode === "teams2" ? 2 : env.mode === "teams3" ? 3 : 0;
+  return Array.from({ length: n }, (_, t) => {
+    const members = env.players.filter((p) => p.team === t);
+    if (!members.length) return 0;
+    const sum = members.reduce((a, p) => a + (g.race!.pos[p.id] ?? 0), 0);
+    return Math.round((sum / members.length) * 10) / 10;
+  });
+}
+
+function submitRace(
+  g: GameData,
+  env: EngineEnv,
+  playerId: string,
+  taskId: string,
+  answer: unknown,
+  extra: { code?: string; report?: TestReport },
+): Effect[] {
+  const race = g.race!;
+  const pos = race.pos[playerId] ?? 0;
+  if (race.finishedAt[playerId] !== undefined) throw new GameError("already_answered", "Ты уже на финише");
+  if (taskId !== raceKey(pos)) throw new GameError("unknown_task", "Это задание уже решено");
+  const lockedUntil = g.locks[playerId] ?? 0;
+  if (env.now < lockedUntil) throw new GameError("locked", "Подожди пару секунд");
+  const task = g.tasks[pos % g.tasks.length]!;
+
+  let correct = false;
+  if (task.type === "choice") {
+    if (typeof answer !== "number" || answer < 0 || answer >= task.options.length) throw new GameError("unknown_task", "Неверный вариант");
+    correct = answer === task.correct;
+  } else if (task.type === "short_answer") {
+    if (typeof answer !== "string" || !answer.trim()) throw new GameError("unknown_task", "Напиши ответ");
+    correct = checkShortAnswer(answer, task.answers, task.caseSensitive);
+  } else if (task.type === "code") {
+    if (typeof extra.code !== "string" || !extra.report) throw new GameError("unknown_task", "Нет кода или результатов проверки");
+    correct = extra.report.total > 0 && extra.report.passed === extra.report.total;
+  }
+
+  const out: Effect[] = [
+    { to: "teacher", msg: { type: "teacher_feed", event: { kind: "submission", playerId, taskId, correct, answer, code: extra.code, report: extra.report, at: env.now } } },
+  ];
+
+  if (!correct) {
+    // Ошибка ничего не даёт; на вопросах с ответом — короткий блок, чтобы не перебирали варианты.
+    const lock = task.type !== "code" && g.settings.wrongLockSec > 0 ? env.now + g.settings.wrongLockSec * 1000 : null;
+    if (lock) g.locks[playerId] = lock;
+    out.push({ to: { player: playerId }, msg: { type: "result", taskId, correct: false, points: 0, lockedUntil: lock, place: null } });
+    return out;
+  }
+
+  race.pos[playerId] = pos + 1;
+  g.scores[playerId] = pos + 1;
+  let place: number | null = null;
+  if (pos + 1 >= race.length) {
+    race.finishedAt[playerId] = env.now;
+    place = Object.keys(race.finishedAt).length;
+  }
+  // Командный финиш: средняя позиция команды дошла до конца трассы.
+  teamPositions(g, env).forEach((v, t) => {
+    if (v >= race.length && race.teamFinishedAt[t] === undefined) race.teamFinishedAt[t] = env.now;
+  });
+
+  out.push({ to: { player: playerId }, msg: { type: "result", taskId, correct: true, points: 1, lockedUntil: null, place } });
+  if (place === null) out.push({ to: { player: playerId }, msg: raceTaskMsg(g, playerId) });
+
+  if (raceOver(g, env)) return [...out, ...finish(g, env)];
+  return [...out, stateEffect(g, env)];
+}
+
+/** Конец гонки: финишировали все, кто в сети (или все команды). */
+function raceOver(g: GameData, env: EngineEnv): boolean {
+  const race = g.race!;
+  const n = env.mode === "teams2" ? 2 : env.mode === "teams3" ? 3 : 0;
+  if (n > 0) {
+    const teamsWithPlayers = Array.from({ length: n }, (_, t) => t).filter((t) => env.players.some((p) => p.team === t));
+    if (teamsWithPlayers.length > 0) return teamsWithPlayers.every((t) => race.teamFinishedAt[t] !== undefined);
+  }
+  const online = [...env.online];
+  return online.length > 0 && online.every((id) => race.finishedAt[id] !== undefined);
+}
+
 /* ───────────────────────── Показ ответа (викторина) ───────────────────────── */
 
 function revealMessages(g: GameData, task: IdTask, env: EngineEnv): ServerMessage[] {
@@ -407,6 +532,7 @@ function reveal(g: GameData, env: EngineEnv): Effect[] {
 /** «Дальше»: в викторине — показать ответ / следующий вопрос, в канате — пропустить задание. */
 export function next(g: GameData, env: EngineEnv): Effect[] {
   if (g.phase === "countdown") return begin(g, env);
+  if (g.game === "race") return [];
   if (g.game === "tug") {
     if (g.phase === "playing") return showTask(g, (g.index + 1) % g.tasks.length, env);
     return [];
@@ -442,7 +568,9 @@ export function resume(g: GameData, env: EngineEnv): Effect[] {
   g.pausedLeftMs = null;
   g.pausedAt = null;
   const out: Effect[] = [stateEffect(g, env)];
-  if (g.phase === "playing" && g.tasks[g.index]) out.unshift({ to: "all", msg: taskMessage(g) });
+  if (g.phase === "playing" && g.game === "race") {
+    for (const p of env.players) if (g.race!.finishedAt[p.id] === undefined) out.unshift({ to: { player: p.id }, msg: raceTaskMsg(g, p.id) });
+  } else if (g.phase === "playing" && g.tasks[g.index]) out.unshift({ to: "all", msg: taskMessage(g) });
   return out;
 }
 
@@ -454,6 +582,16 @@ export function finish(g: GameData, env: EngineEnv): Effect[] {
     for (const [pid, a] of Object.entries(bucket)) g.scores[pid] = (g.scores[pid] ?? 0) + a.points;
   }
   if (g.game === "tug") g.winner = ropeWinner(g.rope, LIMITS.ropeLimit, true);
+  if (g.game === "race" && env.mode !== "solo") {
+    // Команда, первой дошедшая до финиша; иначе — с наибольшей средней позицией (ничья — null).
+    const fin = Object.entries(g.race!.teamFinishedAt).sort((a, b) => a[1] - b[1]);
+    if (fin.length) g.winner = Number(fin[0]![0]) as TeamIndex;
+    else {
+      const tp = teamPositions(g, env);
+      const best = Math.max(...tp);
+      g.winner = tp.filter((v) => v === best).length === 1 && best > 0 ? (tp.indexOf(best) as TeamIndex) : null;
+    }
+  }
   g.phase = "over";
   g.deadline = null;
   g.pausedFrom = null;
@@ -466,6 +604,15 @@ export function finish(g: GameData, env: EngineEnv): Effect[] {
 /* ───────────────────────── Состояние ───────────────────────── */
 
 export function standings(g: GameData, env: EngineEnv): { leaders: LeaderRow[]; teamScores: number[] } {
+  if (g.game === "race") {
+    // Места: сначала финишировавшие по времени финиша, потом по позиции на трассе.
+    const r = g.race!;
+    const fin = (id: string) => r.finishedAt[id] ?? Infinity;
+    const leaders: LeaderRow[] = env.players
+      .map((p) => ({ id: p.id, name: p.name, team: p.team, score: r.pos[p.id] ?? 0, progress: r.pos[p.id] ?? 0 }))
+      .sort((a, b) => fin(a.id) - fin(b.id) || b.progress - a.progress || a.name.localeCompare(b.name));
+    return { leaders, teamScores: teamPositions(g, env) };
+  }
   const correctCount = (pid: string) => Object.values(g.answers).filter((b) => b[pid]?.correct).length;
   const leaders: LeaderRow[] = env.players
     .map((p) => ({ id: p.id, name: p.name, team: p.team, score: g.scores[p.id] ?? 0, progress: correctCount(p.id) }))
@@ -490,12 +637,12 @@ export function gameState(g: GameData, env: EngineEnv): GameState {
     game: g.game,
     phase: g.phase,
     taskIndex: g.index,
-    taskCount: g.tasks.length,
+    taskCount: g.race ? g.race.length : g.tasks.length,
     deadline: g.deadline,
     rope: g.rope,
     teamScores,
     leaders,
-    answered: Object.keys(bucket).length,
+    answered: g.race ? Object.keys(g.race.finishedAt).length : Object.keys(bucket).length,
     total: env.online.size,
     pausedLeftMs: g.pausedLeftMs,
     serverNow: env.now,
@@ -518,7 +665,17 @@ export function resumeFor(g: GameData, env: EngineEnv, playerId: string | null):
   if (g.phase === "over") {
     const { leaders, teamScores } = standings(g, env);
     out.push({ type: "game_over", leaders, teamScores });
-  } else if (task && (g.phase === "playing" || g.phase === "reveal" || (g.phase === "paused" && g.pausedFrom === "playing"))) {
+  } else if (g.game === "race" && playerId && (g.phase === "playing" || (g.phase === "paused" && g.pausedFrom === "playing"))) {
+    const r = g.race!;
+    if (r.finishedAt[playerId] !== undefined) {
+      const place = Object.entries(r.finishedAt).sort((a, b) => a[1] - b[1]).findIndex(([id]) => id === playerId) + 1;
+      out.push({ type: "result", taskId: raceKey(r.pos[playerId] ?? 0), correct: true, points: 1, lockedUntil: null, place });
+    } else {
+      out.push(raceTaskMsg(g, playerId));
+      const lock = g.locks[playerId];
+      if (lock && lock > env.now) out.push({ type: "result", taskId: raceKey(r.pos[playerId] ?? 0), correct: false, points: 0, lockedUntil: lock, place: null });
+    }
+  } else if (g.game !== "race" && task && (g.phase === "playing" || g.phase === "reveal" || (g.phase === "paused" && g.pausedFrom === "playing"))) {
     out.push(taskMessage(g));
     const bucket = g.answers[g.taskKey] ?? {};
     const mine = playerId ? bucket[playerId] : undefined;

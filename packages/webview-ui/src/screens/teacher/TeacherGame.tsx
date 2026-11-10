@@ -13,6 +13,7 @@ import { TeamIcon } from "../../ui/Shapes.tsx";
 import { formatClock } from "../StudentTug.tsx";
 import { SolutionsList } from "../StudentCodewars.tsx";
 import { TeacherBug } from "./TeacherBug.tsx";
+import { TeacherRace } from "./TeacherRace.tsx";
 import { CodeBlock } from "../../ui/Code.tsx";
 import { Avatar } from "../../ui/Avatar.tsx";
 import { cn } from "../../lib/cn.ts";
@@ -28,6 +29,7 @@ export function TeacherGame({ session, tasks, onAgain }: { session: SessionSnaps
   if (g.kind === "tug") return <TeacherTug session={session} g={g} tasks={tasks} teamNames={teamNames} />;
   if (g.kind === "codewars") return <TeacherCodewars session={session} g={g} teamNames={teamNames} />;
   if (g.kind === "bug") return <TeacherBug session={session} g={g} teamNames={teamNames} />;
+  if (g.kind === "race") return <TeacherRace session={session} g={g} />;
   return <TeacherRound session={session} g={g} tasks={tasks} teamNames={teamNames} />;
 }
 
@@ -187,7 +189,7 @@ function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames:
     <div className="flex min-h-full flex-col">
       <div className="mx-auto flex w-full max-w-[900px] flex-1 flex-col gap-6 px-6 py-6">
         <h1 className="text-center text-[28px] font-bold">{t("game.results")}</h1>
-        {g.kind === "tug" && <WinnerBanner winner={g.winner} names={teamNames} />}
+        {(g.kind === "tug" || (g.kind === "race" && g.teamScores.length > 0)) && <WinnerBanner winner={g.winner} names={teamNames} />}
         <Podium rows={g.leaders} />
         {g.teamScores.length > 0 && (
           <Card className="p-4">
@@ -198,8 +200,8 @@ function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames:
         <Card className="p-4">
           <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
             <span>{t("game.top")}</span>
-            {g.kind === "tug" ? (
-              <span>{t("tug.pullsTitle")}</span>
+            {g.kind === "tug" || g.kind === "race" ? (
+              <span>{g.kind === "race" ? t("race.length") : t("tug.pullsTitle")}</span>
             ) : (
               <span className="flex gap-6">
                 <span>{t("game.correctCount")}</span>
@@ -212,7 +214,7 @@ function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames:
               <li key={r.id} className="flex h-10 items-center gap-3 border-b border-border last:border-0">
                 <span className="w-6 text-center font-bold tabular text-muted">{i + 1}</span>
                 <span className="min-w-0 flex-1 truncate font-medium">{r.name}</span>
-                {g.kind !== "tug" && <span className="w-16 text-right tabular text-muted">{r.progress}/{g.count}</span>}
+                {g.kind !== "tug" && g.kind !== "race" && <span className="w-16 text-right tabular text-muted">{r.progress}/{g.count}</span>}
                 <span className="w-16 text-right font-bold tabular">{r.score}</span>
               </li>
             ))}

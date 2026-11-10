@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { HostToUi, Task, TaskSet, TestResult } from "@codearena/shared";
+import type { HostToUi, Language, Task, TaskSet, TestResult } from "@codearena/shared";
+import { RulesEditor } from "./BugEditor.tsx";
 import { Button } from "../../ui/Button.tsx";
 import { Card } from "../../ui/Card.tsx";
 import { Segmented } from "../../ui/Controls.tsx";
@@ -11,9 +12,17 @@ import { host } from "../../lib/session.ts";
 import { onHostMessage } from "../../lib/vscode.ts";
 
 export type CodeTaskDraft = Extract<Task, { type: "code" }>;
-type Lang = "python" | "javascript";
+/** Языки Codewars: фронтенд первым (HTML/CSS проверяются правилами), потом JS и Python. */
+type Lang = Extract<Language, "html" | "css" | "javascript" | "python">;
+const isRules = (l: Language) => l === "html" || l === "css";
+const STARTERS: Record<Lang, string> = {
+  html: "<!-- твоя разметка -->",
+  css: ".selector {\n  \n}",
+  javascript: "function solve(x) {\n  \n}",
+  python: "def solve(x):\n    pass",
+};
 
-export function blankCode(language: Lang = "python"): CodeTaskDraft {
+export function blankCode(language: Lang = "html"): CodeTaskDraft {
   return {
     type: "code",
     topic: "",
@@ -21,8 +30,8 @@ export function blankCode(language: Lang = "python"): CodeTaskDraft {
     timeLimitSec: 300,
     language,
     prompt: "",
-    starter: language === "python" ? "def solve(x):\n    pass" : "function solve(x) {\n  \n}",
-    tests: [{ call: "", expected: "" }],
+    starter: STARTERS[language],
+    tests: isRules(language) ? [] : [{ call: "", expected: "" }],
     rules: [],
   };
 }
@@ -30,11 +39,12 @@ export function blankCode(language: Lang = "python"): CodeTaskDraft {
 export function codeError(q: CodeTaskDraft): "edit.errPrompt" | "cw.errStarter" | "cw.errTests" | null {
   if (!q.prompt.trim()) return "edit.errPrompt";
   if (!q.starter.trim()) return "cw.errStarter";
-  if (!q.tests.some((x) => x.call.trim() && x.expected.trim())) return "cw.errTests";
+  const has = isRules(q.language) ? q.rules.some((r) => r.selector.trim() && r.label.trim()) : q.tests.some((x) => x.call.trim() && x.expected.trim());
+  if (!has) return "cw.errTests";
   return null;
 }
 
-function cleanCode(q: CodeTaskDraft, topic: string): CodeTaskDraft {
+export function cleanCode(q: CodeTaskDraft, topic: string): CodeTaskDraft {
   return {
     ...q,
     topic: q.topic || topic || "Codewars",
@@ -141,7 +151,7 @@ export function CodeEditor({
                 />
               ))}
             </AnimatePresence>
-            <Button icon={<Plus size={14} />} onClick={() => update([...tasks, blankCode(tasks[tasks.length - 1]?.language === "javascript" ? "javascript" : "python")])} className="self-start">
+            <Button icon={<Plus size={14} />} onClick={() => update([...tasks, blankCode((tasks[tasks.length - 1]?.language as Lang | undefined) ?? "html")])} className="self-start">
               {t("cw.add")}
             </Button>
           </div>
@@ -167,7 +177,7 @@ export function CodeEditor({
 const textarea =
   "w-full resize-y rounded-btn border border-border bg-input px-3 py-2 font-mono text-[13px] leading-[1.5] outline-none focus:border-[var(--ca-focus)]";
 
-function CodeCard({
+export function CodeCard({
   n,
   q,
   error,
@@ -198,7 +208,7 @@ function CodeCard({
     reqId.current = Math.random().toString(36).slice(2);
     setCheck({ running: true, results: [], error: null });
     const tests = q.tests.filter((x) => x.call.trim() && x.expected.trim());
-    host.post({ type: "check_code", requestId: reqId.current, language: q.language, code: q.solution ?? "", tests, rules: q.rules });
+    host.post({ type: "check_code", requestId: reqId.current, language: q.language, code: q.solution ?? "", tests: isRules(q.language) ? [] : tests, rules: isRules(q.language) ? q.rules : [] });
   };
   const failed = check?.results.filter((r) => !r.ok).length ?? 0;
 
@@ -208,10 +218,12 @@ function CodeCard({
         <span className="rounded-[6px] bg-surface-2 px-2 py-0.5 text-[12px] font-semibold tabular text-muted">{t("tug.task", { n })}</span>
         <Segmented<Lang>
           value={q.language as Lang}
-          onChange={(language) => onChange({ language, starter: q.starter.trim() && q.starter !== blankCode(q.language as Lang).starter ? q.starter : blankCode(language).starter })}
+          onChange={(language) => onChange({ language, starter: q.starter.trim() && q.starter !== STARTERS[q.language as Lang] ? q.starter : STARTERS[language] })}
           options={[
+            { value: "html", label: "HTML" },
+            { value: "css", label: "CSS" },
+            { value: "javascript", label: "JS" },
             { value: "python", label: "Python" },
-            { value: "javascript", label: "JavaScript" },
           ]}
         />
         <Segmented<string>
@@ -246,7 +258,10 @@ function CodeCard({
           <textarea rows={4} value={q.starter} onChange={(e) => onChange({ starter: e.target.value })} spellCheck={false} className={cn(textarea, "mt-1")} />
         </div>
         <div>
-          <label className="text-[12px] font-medium text-muted">{t("cw.tests")}</label>
+          <label className="text-[12px] font-medium text-muted">{isRules(q.language) ? t("bug.rules") : t("cw.tests")}</label>
+          {isRules(q.language) ? (
+            <RulesEditor rules={q.rules} css={q.language === "css"} onChange={(rules) => onChange({ rules })} results={check && !check.running ? check.results : undefined} />
+          ) : (
           <div className="mt-1 flex flex-col gap-1.5">
             {q.tests.map((test, i) => {
               const r = check && !check.running ? check.results[i] : undefined;
@@ -285,6 +300,7 @@ function CodeCard({
               <Plus size={13} /> {t("cw.addTest")}
             </button>
           </div>
+          )}
         </div>
       </div>
 

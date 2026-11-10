@@ -18,4 +18,8 @@ export const BANK: BankSet[] = Object.entries(modules)
   })
   .sort((a, b) => a.id.localeCompare(b.id));
 
-export const bankFor = (game: GameKind) => BANK.filter((b) => b.set.game === game);
+/** Наборы для игры. Гонка берёт задания из викторины, каната и Codewars. */
+export const bankFor = (game: GameKind) => {
+  const games: GameKind[] = game === "race" ? ["quiz", "tug", "codewars"] : [game];
+  return BANK.filter((b) => b.set.game !== undefined && games.includes(b.set.game));
+};

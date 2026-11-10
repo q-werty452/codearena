@@ -399,7 +399,7 @@ function FixFields({ q, onChange }: { q: FixT; onChange: (p: Partial<FixT>) => v
   );
 }
 
-function RulesEditor({ rules, css, onChange, results }: { rules: HtmlRule[]; css: boolean; onChange: (r: HtmlRule[]) => void; results?: TestResult[] }) {
+export function RulesEditor({ rules, css, onChange, results }: { rules: HtmlRule[]; css: boolean; onChange: (r: HtmlRule[]) => void; results?: TestResult[] }) {
   const t = useT();
   const kinds: RuleKind[] = css ? ["css", "cssAbsent"] : ["exists", "absent", "attr", "count", "text", "css", "cssAbsent"];
   const set = (i: number, r: HtmlRule) => onChange(rules.map((x, k) => (k === i ? r : x)));

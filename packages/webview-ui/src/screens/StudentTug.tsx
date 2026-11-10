@@ -28,6 +28,7 @@ export function TugTaskView({
   disabled,
   shake,
   autoFocus,
+  submitLabel,
 }: {
   prompt: string;
   value: string;
@@ -38,6 +39,8 @@ export function TugTaskView({
   disabled?: boolean;
   shake?: number;
   autoFocus?: boolean;
+  /** Подпись кнопки: «Тянуть!» в канате, «Ответить» в гонке. */
+  submitLabel?: string;
 }) {
   const t = useT();
   const ref = useRef<HTMLInputElement>(null);
@@ -99,7 +102,7 @@ export function TugTaskView({
           )}
         </motion.div>
         <Button type="submit" variant="primary" size="lg" className="h-14 px-6" disabled={disabled || locked || !value.trim()} icon={locked ? <Lock size={18} /> : <Zap size={18} />}>
-          {locked ? t("tug.locked", { n: Math.ceil(lockedLeft) }) : t("tug.send")}
+          {locked ? t("tug.locked", { n: Math.ceil(lockedLeft) }) : (submitLabel ?? t("tug.send"))}
         </Button>
       </form>
     </div>

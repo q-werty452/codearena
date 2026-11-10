@@ -218,7 +218,7 @@ export function QuizEditor({
   );
 }
 
-function QuestionCard({
+export function QuestionCard({
   n,
   q,
   error,

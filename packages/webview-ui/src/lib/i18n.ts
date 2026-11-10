@@ -276,6 +276,23 @@ const en = {
   "lesson.status.writing": "writing",
   "lesson.status.done": "done",
   "lesson.status.lost": "lost",
+  "race.editTitle": "Race tasks",
+  "race.length": "Track",
+  "race.steps": "{n} steps",
+  "race.time": "Time",
+  "race.addShort": "Short answer",
+  "race.addChoice": "Options",
+  "race.addCode": "Code",
+  "race.step": "Step {n} of {total}",
+  "race.finished": "Finish! You're #{n}",
+  "race.finishedHint": "Watch the others cross the line…",
+  "race.plusOne": "+1 step",
+  "race.finishedCount": "Finished: {n} of {total}",
+  "race.you": "you",
+  "race.loops": "If the track is longer than the list, tasks repeat",
+  "race.ready": "{n} tasks ready",
+  "race.answer": "Answer",
+
 
 
 
@@ -556,6 +573,23 @@ const ru: Dict = {
   "lesson.status.writing": "пишет",
   "lesson.status.done": "готово",
   "lesson.status.lost": "не понял",
+  "race.editTitle": "Задания для гонки",
+  "race.length": "Трасса",
+  "race.steps": "{n} шагов",
+  "race.time": "Время",
+  "race.addShort": "Короткий ответ",
+  "race.addChoice": "Варианты",
+  "race.addCode": "Код",
+  "race.step": "Шаг {n} из {total}",
+  "race.finished": "Финиш! Ты {n}-й",
+  "race.finishedHint": "Смотри, как финишируют остальные…",
+  "race.plusOne": "+1 шаг",
+  "race.finishedCount": "Финишировали: {n} из {total}",
+  "race.you": "ты",
+  "race.loops": "Если трасса длиннее списка, задания повторяются",
+  "race.ready": "Заданий готово: {n}",
+  "race.answer": "Ответить",
+
 
 
 

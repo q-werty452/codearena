@@ -44,7 +44,9 @@ function Gallery() {
               ? { autoCode: sampleCodewars(locale).tasks }
               : tab === "bug"
                 ? { autoBug: [0, 7, 14, 1, 8].map((i) => bankFor("bug")[0]!.set.tasks[i]!) }
-                : {},
+                : tab === "race"
+                  ? { autoRace: [...bankFor("tug")[0]!.set.tasks.slice(0, 4), ...bankFor("quiz")[0]!.set.tasks.slice(0, 4)] }
+                  : {},
       );
       setMount((m) => m + 1);
     }
@@ -80,6 +82,7 @@ function Gallery() {
                 { value: "tug", label: "Канат" },
                 { value: "codewars", label: "Codewars" },
                 { value: "bug", label: "Баг" },
+                { value: "race", label: "Гонка" },
               ]}
             />
             <Segmented

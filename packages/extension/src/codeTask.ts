@@ -66,6 +66,7 @@ export class CodeTasks implements vscode.Disposable {
     if (this.session.snapshot.role !== "student" || !g?.task) return null;
     if (g.kind === "codewars" && g.task.type === "code") return g.task as FileTask;
     if (g.kind === "bug" && g.task.type === "fix_bug") return g.task as FileTask;
+    if (g.kind === "race" && g.task.type === "code") return g.task as FileTask;
     return null;
   }
 

@@ -18,7 +18,7 @@ import {
   type UiToHost,
 } from "@codearena/shared";
 
-export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars" | "bug";
+export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars" | "bug" | "race";
 
 const NAMES = [
   "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
@@ -61,6 +61,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
     case "tug":
     case "codewars":
     case "bug":
+    case "race":
       return { ...EMPTY_SESSION, role: "student", status: "online", code: "482913", me: { playerId: "p0", name: "Айбек Касымов", team: 0 }, lobby };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
@@ -71,7 +72,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
 
 let stopGame: (() => void) | null = null;
 
-export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList; autoCode?: TaskList; autoBug?: TaskList } = {}): void {
+export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList; autoCode?: TaskList; autoBug?: TaskList; autoRace?: TaskList } = {}): void {
   stopGame?.();
   let s = initial;
   const emit = (m: HostToUi) => setTimeout(() => window.postMessage(m, "*"), 0);
@@ -177,7 +178,29 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
     clearInterval(tick);
     timers.forEach(clearTimeout);
   };
-  const startGame = (kind: "quiz" | "tug" | "codewars" | "bug", tasks: TaskList, settings = GameSettings.parse({})) => {
+  /** Гонка: каждый бот бежит в своём темпе, иногда ошибается. */
+  const raceBot = (pid: string) => {
+    timers.push(
+      setTimeout(() => {
+        const g = game;
+        if (!g || g.game !== "race" || g.phase === "over") return;
+        if (g.phase !== "playing" || g.race!.finishedAt[pid] !== undefined) return g.phase === "paused" ? raceBot(pid) : undefined;
+        const pos = g.race!.pos[pid] ?? 0;
+        const task = g.tasks[pos % g.tasks.length]!;
+        const ok = Math.random() < 0.75;
+        const answer = task.type === "choice" ? (ok ? task.correct : (task.correct + 1) % task.options.length) : task.type === "short_answer" ? (ok ? task.answers[0] : "?") : undefined;
+        const n = task.type === "code" ? task.tests.length + task.rules.length : 0;
+        try {
+          deliver(engine.submit(g, env(), pid, `r${pos}`, answer, task.type === "code" ? { code: task.solution ?? "x", report: { passed: ok ? n : 0, total: n, failures: [] } } : {}));
+        } catch {
+          /* заблокирован — попробует позже */
+        }
+        raceBot(pid);
+      }, 2500 + Math.random() * 6000),
+    );
+  };
+
+  const startGame = (kind: "quiz" | "tug" | "codewars" | "bug" | "race", tasks: TaskList, settings = GameSettings.parse({})) => {
     try {
       game = engine.startGame(kind, tasks, settings, Date.now(), s.lobby!.mode);
     } catch (e) {
@@ -185,11 +208,13 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
       return;
     }
     deliver(engine.startEffects(game, env()));
+    if (kind === "race") for (const p of s.lobby!.players) if (p.id !== me && p.connected) raceBot(p.id);
   };
   if (opts.autoQuiz) setTimeout(() => startGame("quiz", opts.autoQuiz!), 300);
   if (opts.autoTug) setTimeout(() => startGame("tug", opts.autoTug!), 300);
   if (opts.autoCode) setTimeout(() => startGame("codewars", opts.autoCode!), 300);
   if (opts.autoBug) setTimeout(() => startGame("bug", opts.autoBug!), 300);
+  if (opts.autoRace) setTimeout(() => startGame("race", opts.autoRace!, GameSettings.parse({ raceLength: 8, roundSec: 300 })), 300);
 
   // Codewars у «меня»: в браузере нет запускалки — первый прогон падает, второй проходит.
   let runs = 0;
@@ -236,7 +261,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
       s = { ...s, lesson: { ...s.lesson, checkpoint: s.lesson.checkpoint + 1, statuses: {}, confused: 0, myStatus: "writing", iConfused: false } };
       return push();
     }
-    if (m.type === "start_game") return startGame(m.game === "race" ? "quiz" : m.game, m.tasks, m.settings);
+    if (m.type === "start_game") return startGame(m.game, m.tasks, m.settings);
     switch (m.type) {
       case "set_teams": {
         const n = m.mode === "teams2" ? 2 : m.mode === "teams3" ? 3 : 0;

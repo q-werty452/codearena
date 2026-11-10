@@ -12,6 +12,7 @@ import { useT, type MessageKey } from "../lib/i18n.ts";
 import { StudentTugBody } from "./StudentTug.tsx";
 import { StudentCodewarsBody } from "./StudentCodewars.tsx";
 import { StudentBugBody } from "./StudentBug.tsx";
+import { StudentRaceBody } from "./StudentRace.tsx";
 import { WinnerBanner } from "./teacher/TeacherGame.tsx";
 import { host } from "../lib/session.ts";
 
@@ -55,6 +56,7 @@ function Body({ g, meId, session }: { g: GameSnapshot; meId?: string; session: S
   if (g.kind === "tug") return <StudentTugBody session={session} g={g} />;
   if (g.kind === "codewars") return <StudentCodewarsBody session={session} g={g} />;
   if (g.kind === "bug") return <StudentBugBody session={session} g={g} />;
+  if (g.kind === "race") return <StudentRaceBody session={session} g={g} />;
   if (!g.task || g.task.type !== "choice") return <Waiting />;
   if (g.phase === "reveal") return <Reveal g={g} meId={meId} />;
   return <Question g={g} left={left} />;
@@ -191,7 +193,7 @@ function StudentResults({ g, meId, teamNames }: { g: GameSnapshot; meId?: string
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-center text-[26px] font-bold">{t("game.results")}</h1>
-      {g.kind === "tug" && <WinnerBanner winner={g.winner} names={teamNames} />}
+      {(g.kind === "tug" || (g.kind === "race" && g.teamScores.length > 0)) && <WinnerBanner winner={g.winner} names={teamNames} />}
       <Podium rows={g.leaders} />
       {me && (
         <Card className="flex items-center gap-4 p-4">
