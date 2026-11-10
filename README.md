@@ -6,7 +6,13 @@ Open source (MIT), zero cost: students' code runs on their own machines, the gam
 
 Made by [**q-werty452**](https://github.com/q-werty452).
 
-> 🚧 Work in progress. Ready: **Lesson mode** (the default: students mark Done / Still writing / Lost / Explain again from the status bar), **Quiz**, **Find the bug**, **Tug of war**, **Codewars**, **Race**, task bank. The server is online; anti-cheat, live student table and CSV export are in. Next: live teacher code in lessons, AI task generation, publishing. See the [roadmap](docs/ROADMAP.md) and the [spec](docs/TZ.pdf).
+![Lesson mode](docs/images/lesson.png)
+
+**Install:** search for **CodeArena** in the VS Code Extensions view (Visual Studio Marketplace, or Open VSX for VSCodium / Cursor),
+or download the `.vsix` from [Releases](https://github.com/q-werty452/codearena/releases) → *Extensions: Install from VSIX…*
+
+Everything from the [spec](docs/TZ.pdf) is in: **Lesson mode** (the default), **Quiz**, **Tug of war**, **Codewars**, **Race**,
+**Find the bug**, task bank, your own tasks and AI generation, anti-cheat, live teacher table and CSV export. See the [roadmap](docs/ROADMAP.md).
 
 Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CSS are checked with selector rules (“there is a `<footer>`”, “every `img` has `alt`”, “`.card` has `display: flex`”), JavaScript and Python with test calls — all on the student's computer. Django/DRF and Flutter snippets are supported in Quiz and Find the bug (no code execution).
 
@@ -22,7 +28,7 @@ Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CS
 
 ## Development
 
-Requires Node.js 20+ and VS Code.
+Requires Node.js 22+ and VS Code.
 
 ```sh
 npm install
@@ -86,6 +92,12 @@ count — or paste lesson notes. A file that isn't in a known format can be **re
 Every code task is verified locally: the reference solution must pass all tests/rules and the starter
 (or buggy code) must fail; broken tasks get one repair round, the rest are dropped.
 The model is the newest stable `gemini-*-flash` available to the key (`codearena.ai.model` to override).
+
+## Releases
+
+`git tag v0.1.0 && git push --tags` runs [`.github/workflows/release.yml`](.github/workflows/release.yml): tests, `.vsix`,
+publishing to the Visual Studio Marketplace (Trusted Publishing, no stored token), Open VSX (`OVSX_PAT` secret) and a GitHub Release.
+The version in `packages/extension/package.json` must match the tag.
 
 ## Server
 

@@ -1,7 +1,7 @@
 {
   "name": "codearena",
-  "displayName": "CodeArena — coding games for class",
-  "description": "Kahoot + Codewars inside VS Code: tug of war, quiz, Codewars, race and find-the-bug games for programming lessons.",
+  "displayName": "%displayName%",
+  "description": "%description%",
   "version": "0.1.0",
   "publisher": "q-werty452",
   "author": {
@@ -32,12 +32,19 @@
   "keywords": [
     "classroom",
     "education",
+    "teacher",
+    "lesson",
     "kahoot",
     "codewars",
     "quiz",
     "game",
-    "teacher",
-    "school"
+    "school",
+    "html",
+    "css",
+    "javascript",
+    "python",
+    "урок",
+    "учитель"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
@@ -66,118 +73,118 @@
     "commands": [
       {
         "command": "codearena.openPanel",
-        "title": "Open game panel",
+        "title": "%command.openPanel%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.join",
-        "title": "Join a room",
+        "title": "%command.join%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.createRoom",
-        "title": "Create a room (teacher)",
+        "title": "%command.createRoom%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.leave",
-        "title": "Leave the room",
+        "title": "%command.leave%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.runTests",
-        "title": "Run tests",
+        "title": "%command.runTests%",
         "category": "CodeArena",
         "icon": "$(play)"
       },
       {
         "command": "codearena.submitCode",
-        "title": "Submit solution",
+        "title": "%command.submitCode%",
         "category": "CodeArena",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "codearena.openTaskFile",
-        "title": "Open task file",
+        "title": "%command.openTaskFile%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.setStatus",
-        "title": "Lesson: set my status",
+        "title": "%command.setStatus%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.status.done",
-        "title": "Lesson: Done",
+        "title": "%command.status.done%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.status.writing",
-        "title": "Lesson: Still writing",
+        "title": "%command.status.writing%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.status.lost",
-        "title": "Lesson: Lost",
+        "title": "%command.status.lost%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.status.confused",
-        "title": "Lesson: Explain again (anonymous)",
+        "title": "%command.status.confused%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.paste",
-        "title": "Paste (game guard)",
+        "title": "%command.paste%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.shareFile",
-        "title": "Lesson: show this file to the class",
+        "title": "%command.shareFile%",
         "category": "CodeArena",
         "icon": "$(broadcast)"
       },
       {
         "command": "codearena.stopShare",
-        "title": "Lesson: stop showing the file",
+        "title": "%command.stopShare%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.checkpoint",
-        "title": "Lesson: checkpoint (current code is the reference)",
+        "title": "%command.checkpoint%",
         "category": "CodeArena",
         "icon": "$(milestone)"
       },
       {
         "command": "codearena.openTeacherCode",
-        "title": "Lesson: open the teacher's code",
+        "title": "%command.openTeacherCode%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.toggleFollow",
-        "title": "Lesson: follow the teacher's cursor",
+        "title": "%command.toggleFollow%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.chooseLessonFile",
-        "title": "Lesson: choose my lesson file",
+        "title": "%command.chooseLessonFile%",
         "category": "CodeArena"
       },
       {
         "command": "codearena.importTasks",
-        "title": "Import my tasks (JSON, text, Word)",
+        "title": "%command.importTasks%",
         "category": "CodeArena",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "codearena.setAiKey",
-        "title": "Set Gemini API key",
+        "title": "%command.setAiKey%",
         "category": "CodeArena",
         "icon": "$(key)"
       },
       {
         "command": "codearena.clearAiKey",
-        "title": "Remove Gemini API key",
+        "title": "%command.clearAiKey%",
         "category": "CodeArena"
       }
     ],
@@ -187,17 +194,17 @@
         "codearena.serverUrl": {
           "type": "string",
           "default": "https://codearena.codearena-server.workers.dev",
-          "markdownDescription": "Game server URL. The default is the free public CodeArena server. Change it only if your school runs its own server (see the [README](https://github.com/q-werty452/codearena#self-hosting))."
+          "markdownDescription": "%config.serverUrl%"
         },
         "codearena.ai.model": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Gemini model for task generation, e.g. `gemini-3.6-flash`. Empty — pick the newest stable *flash* model available to your key automatically."
+          "markdownDescription": "%config.ai.model%"
         },
         "codearena.ai.endpoint": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Gemini API base URL. Empty — `https://generativelanguage.googleapis.com`. Change only for a proxy."
+          "markdownDescription": "%config.ai.endpoint%"
         }
       }
     },
@@ -348,5 +355,7 @@
     "@codearena/shared": "*",
     "node-html-parser": "^9.0.7",
     "ws": "^8.21.0"
-  }
+  },
+  "preview": true,
+  "pricing": "Free"
 }

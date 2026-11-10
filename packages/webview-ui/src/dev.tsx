@@ -23,7 +23,10 @@ import { bankFor } from "./lib/bank.ts";
 
 function Gallery() {
   const [dark, setDark] = useState(() => new URLSearchParams(location.search).get("theme") !== "light");
-  const [locale, setLocale] = useState<Locale>("ru");
+  const params = new URLSearchParams(location.search);
+  // ?shot — только боковая панель и панель игры на весь экран (скриншоты для Marketplace).
+  const shot = params.has("shot");
+  const [locale, setLocale] = useState<Locale>(() => (params.get("lang") === "en" ? "en" : "ru"));
   const [mode, setMode] = useState<"solo" | "teams2" | "teams3">("teams2");
   const [sound, setSound] = useState(false);
   const [code, setCode] = useState("4829");
@@ -65,7 +68,17 @@ function Gallery() {
   return (
     <LocaleContext.Provider value={locale}>
       <ConnectionBanner show={lost} text="Соединение потеряно, переподключаемся…" />
-      <div className="mx-auto flex max-w-[1180px] flex-col gap-8 p-6">
+      {shot && tab !== "ds" && (
+        <div className="grid h-screen grid-cols-[300px_1fr] overflow-hidden">
+          <div className="relative overflow-auto border-r border-border bg-bg">
+            <App key={`s${mount}`} view="sidebar" />
+          </div>
+          <div className="relative overflow-auto bg-[var(--vscode-editor-background)]">
+            <App key={`p${mount}`} view="panel" />
+          </div>
+        </div>
+      )}
+      <div className={shot && tab !== "ds" ? "hidden" : "mx-auto flex max-w-[1180px] flex-col gap-8 p-6"}>
         <header className="flex flex-wrap items-center justify-between gap-3">
           <Logo />
           <div className="flex flex-wrap items-center gap-2">
@@ -102,7 +115,7 @@ function Gallery() {
           </div>
         </header>
 
-        {tab !== "ds" ? (
+        {shot && tab !== "ds" ? null : tab !== "ds" ? (
           <div className="grid items-start gap-6 lg:grid-cols-[300px_1fr]">
             <div>
               <SectionTitle>Боковая панель · 300 px</SectionTitle>

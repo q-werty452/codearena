@@ -25,11 +25,15 @@ import { bankFor } from "./lib/bank.ts";
 
 export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars" | "bug" | "race";
 
-const NAMES = [
-  "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
-  "Бэтмен", "Алина К.", "Арсен Ж.", "Мээрим О.", "Бексултан А.", "Жанара Т.",
-];
-const TEAM_NAMES = ["Красные", "Синие", "Зелёные"];
+// Витрина на английском (?lang=en) — английские имена, для скриншотов Marketplace.
+const EN = typeof location !== "undefined" && new URLSearchParams(location.search).get("lang") === "en";
+const NAMES = EN
+  ? ["Alex Morgan", "Sofia Petrova", "Tim B.", "Emma T.", "Aisha S.", "Daniel M.", "Batman", "Alina K.", "Arsen Z.", "Maya O.", "Ben A.", "Jane T."]
+  : [
+      "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
+      "Бэтмен", "Алина К.", "Арсен Ж.", "Мээрим О.", "Бексултан А.", "Жанара Т.",
+    ];
+const TEAM_NAMES = EN ? ["Red", "Blue", "Green"] : ["Красные", "Синие", "Зелёные"];
 type TaskList = Task[];
 
 function players(n: number): PlayerInfo[] {
@@ -79,14 +83,14 @@ export function scenario(s: DevScenario): SessionSnapshot {
         role: "student",
         status: "online",
         code: "482913",
-        me: { playerId: "p0", name: "Айбек Касымов", team: 0 },
+        me: { playerId: "p0", name: NAMES[0]!, team: 0 },
         lobby,
         lesson: { ...EMPTY_LESSON, checkpoint: 2, share: { fileName: "index.html", line: 12, version: 41 }, refFile: "index.html", myFile: "site/index.html", myProgress: 64 },
       };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
     case "join":
-      return { ...EMPTY_SESSION, savedName: "Айбек Касымов" };
+      return { ...EMPTY_SESSION, savedName: NAMES[0]! };
   }
 }
 

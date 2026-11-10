@@ -6,3 +6,4 @@ esbuild.mjs
 **/*.ts
 e2e/**
 **/*.test.ts
+media/icon.svg
