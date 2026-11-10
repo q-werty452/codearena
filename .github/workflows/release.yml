@@ -1,5 +1,6 @@
 # Публикация: git tag v0.1.0 && git push --tags
-#   Visual Studio Marketplace — Trusted Publishing (OIDC), без токенов в репозитории.
+#   Visual Studio Marketplace — Trusted Publishing (OIDC), без токенов в репозитории;
+#     включается переменной PUBLISH_MARKETPLACE=true (когда готов publisher).
 #   Open VSX — секрет OVSX_PAT (первая публикация), потом можно Trusted Publishing.
 #   GitHub Releases — .vsix для установки вручную.
 name: Release
@@ -34,6 +35,8 @@ jobs:
 
   marketplace:
     needs: build
+    # Включается переменной репозитория: gh variable set PUBLISH_MARKETPLACE --body true
+    if: vars.PUBLISH_MARKETPLACE == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
