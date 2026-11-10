@@ -30,7 +30,7 @@ export function Avatar({
         width: size,
         height: size,
         fontSize: Math.round(size * 0.38),
-        background: hasTeam ? teamColor(team) : "var(--ca-surface-2)",
+        background: hasTeam ? teamColor(team) : "color-mix(in srgb, var(--ca-fg) 18%, var(--ca-bg))",
         color: hasTeam ? "#fff" : "var(--ca-fg)",
         boxShadow: hasTeam ? "inset 0 0 0 1px rgb(255 255 255 / 0.15)" : "inset 0 0 0 1px var(--ca-border)",
       }}

@@ -28,3 +28,6 @@ export const LIMITS = {
   roomIdleMs: 6 * 60 * 60 * 1000,
   maxPlayers: 60,
 } as const;
+
+/** ID расширения в Marketplace: <publisher>.<name>. */
+export const EXTENSION_ID = "q-werty452.codearena";

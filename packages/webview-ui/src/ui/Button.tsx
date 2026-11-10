@@ -41,18 +41,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       transition={{ duration: 0.12 }}
       disabled={disabled || loading}
       className={cn(
-        "relative inline-flex select-none items-center justify-center whitespace-nowrap font-medium",
+        "relative inline-flex select-none items-center justify-center font-medium",
         "transition-colors duration-150 ease-out",
         variants[variant],
-        sizes[size],
-        block && "w-full",
+        // Во всю ширину узкой боковой панели текст переносится, а не обрезается.
+        block ? "w-full text-center leading-tight" : "whitespace-nowrap",
+        block && size === "lg" ? sizes.lg.replace("h-12", "min-h-12 py-2") : sizes[size],
         className,
       )}
       {...rest}
     >
-      {loading ? <Spinner /> : icon}
+      {loading ? <Spinner className="shrink-0" /> : icon && <span className="shrink-0">{icon}</span>}
       {children && <span className={cn(loading && "opacity-80")}>{children}</span>}
-      {!loading && iconRight}
+      {!loading && iconRight && <span className="shrink-0">{iconRight}</span>}
     </motion.button>
   );
 });

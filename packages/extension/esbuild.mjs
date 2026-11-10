@@ -8,7 +8,7 @@ const ctx = await esbuild.context({
   platform: "node",
   format: "cjs",
   target: "node20",
-  external: ["vscode"],
+  external: ["vscode", "bufferutil", "utf-8-validate"],
   sourcemap: watch,
   minify: !watch,
   logLevel: "info",

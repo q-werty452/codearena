@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
-import { ArrowRight, GraduationCap, User } from "lucide-react";
-import { useState } from "react";
+import { ArrowRight, GraduationCap, User, WifiOff } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/Button.tsx";
 import { CodeCells } from "../ui/CodeCells.tsx";
 import { Field } from "../ui/Input.tsx";
@@ -13,17 +13,23 @@ export interface JoinProps {
   busy?: boolean;
   codeError?: string | null;
   nameError?: string | null;
+  generalError?: string | null;
   onJoin: (code: string, name: string) => void;
   onTeacher: () => void;
 }
 
 /** Экран входа ученика: логотип, 6 ячеек кода, имя, одна большая кнопка. */
-export function JoinScreen({ initialCode = "", initialName = "", busy, codeError, nameError, onJoin, onTeacher }: JoinProps) {
+export function JoinScreen({ initialCode = "", initialName = "", busy, codeError, nameError, generalError, onJoin, onTeacher }: JoinProps) {
   const t = useT();
   const [code, setCode] = useState(initialCode);
   const [name, setName] = useState(initialName);
   const [localNameErr, setLocalNameErr] = useState<string | null>(null);
   const ready = code.length === 6 && name.trim().length >= 2;
+
+  // Сохранённое имя приходит от расширения чуть позже первого рендера.
+  useEffect(() => {
+    if (initialName) setName((n) => n || initialName);
+  }, [initialName]);
 
   const submit = () => {
     if (name.trim().length < 2) return setLocalNameErr(t("join.nameShort"));
@@ -78,6 +84,13 @@ export function JoinScreen({ initialCode = "", initialName = "", busy, codeError
           setLocalNameErr(null);
         }}
       />
+
+      {generalError && (
+        <div role="alert" className="flex items-start gap-2 rounded-btn border border-warning/40 bg-warning/10 px-3 py-2 text-[12px]">
+          <WifiOff size={14} className="mt-0.5 shrink-0 text-warning" />
+          <span>{generalError}</span>
+        </div>
+      )}
 
       <Button type="submit" variant="primary" size="lg" block disabled={!ready} loading={busy} iconRight={<ArrowRight size={18} />}>
         {t("join.submit")}

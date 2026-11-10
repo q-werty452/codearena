@@ -11,7 +11,12 @@ export const vscode: VsCodeApi =
   typeof acquireVsCodeApi === "function"
     ? acquireVsCodeApi()
     : {
-        postMessage: (m) => console.log("[webview → ext]", m),
+        // В браузере (dev) сообщения уходят в поддельное расширение, если оно есть.
+        postMessage: (m) => {
+          const dev = (window as { __caDevHost?: (m: unknown) => void }).__caDevHost;
+          if (dev) dev(m);
+          else console.log("[webview → ext]", m);
+        },
         getState: () => undefined,
         setState: () => {},
       };

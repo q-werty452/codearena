@@ -1,4 +1,5 @@
 import type { CreateRoomResponse } from "@codearena/shared";
+import { joinPage } from "./joinPage.ts";
 export { Room } from "./room.ts";
 
 export interface Env {
@@ -31,6 +32,10 @@ export default {
     if (url.pathname === "/" || url.pathname === "/health") {
       return json({ ok: true, name: "codearena", repo: "https://github.com/q-werty452/codearena" });
     }
+
+    // Страница-приглашение для мессенджеров.
+    const jp = url.pathname.match(/^\/j\/(\d{6})$/);
+    if (jp && request.method === "GET") return joinPage(jp[1]!);
 
     // Создать комнату: вернуть 6-значный код и токен учителя.
     if (url.pathname === "/rooms" && request.method === "POST") {

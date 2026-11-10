@@ -16,6 +16,8 @@ import { Avatar, TeamBadge } from "./ui/Avatar.tsx";
 import { ConnectionBanner, Logo, Segmented, TimerRing, Toggle } from "./ui/Controls.tsx";
 import { OptionTile } from "./ui/OptionTile.tsx";
 import { JoinScreen } from "./screens/Join.tsx";
+import { App } from "./App.tsx";
+import { installDevHost, scenario, type DevScenario } from "./devHost.ts";
 
 function Gallery() {
   const [dark, setDark] = useState(() => new URLSearchParams(location.search).get("theme") !== "light");
@@ -26,6 +28,14 @@ function Gallery() {
   const [left, setLeft] = useState(20);
   const [picked, setPicked] = useState<number | null>(null);
   const [lost, setLost] = useState(false);
+  const [tab, setTab] = useState<"ds" | DevScenario>(() => (new URLSearchParams(location.search).get("tab") as "ds" | DevScenario) ?? "ds");
+  const [mount, setMount] = useState(0);
+  useEffect(() => {
+    if (tab !== "ds") {
+      installDevHost(scenario(tab));
+      setMount((m) => m + 1);
+    }
+  }, [tab]);
 
   useEffect(() => {
     document.body.className = dark ? "vscode-dark" : "vscode-light";
@@ -45,6 +55,17 @@ function Gallery() {
           <Logo />
           <div className="flex flex-wrap items-center gap-2">
             <Segmented
+              value={tab}
+              onChange={setTab}
+              options={[
+                { value: "ds", label: "Дизайн" },
+                { value: "teacher", label: "Учитель" },
+                { value: "student", label: "Ученик" },
+                { value: "join", label: "Вход" },
+                { value: "ended", label: "Выгнали" },
+              ]}
+            />
+            <Segmented
               value={locale}
               onChange={setLocale}
               options={[
@@ -62,6 +83,22 @@ function Gallery() {
           </div>
         </header>
 
+        {tab !== "ds" ? (
+          <div className="grid items-start gap-6 lg:grid-cols-[300px_1fr]">
+            <div>
+              <SectionTitle>Боковая панель · 300 px</SectionTitle>
+              <div className="relative h-[640px] overflow-auto rounded-card border border-border bg-bg">
+                <App key={`s${mount}`} view="sidebar" />
+              </div>
+            </div>
+            <div>
+              <SectionTitle>Панель игры</SectionTitle>
+              <div className="relative h-[760px] overflow-auto rounded-card border border-border bg-[var(--vscode-editor-background)]">
+                <App key={`p${mount}`} view="panel" />
+              </div>
+            </div>
+          </div>
+        ) : (
         <div className="grid gap-8 lg:grid-cols-[300px_1fr]">
           {/* Боковая панель VS Code, 280–300 px */}
           <div>
@@ -180,6 +217,7 @@ function Gallery() {
             </section>
           </div>
         </div>
+        )}
       </div>
     </LocaleContext.Provider>
   );

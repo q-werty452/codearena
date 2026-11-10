@@ -72,6 +72,16 @@
         "command": "codearena.join",
         "title": "Join a room",
         "category": "CodeArena"
+      },
+      {
+        "command": "codearena.createRoom",
+        "title": "Create a room (teacher)",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.leave",
+        "title": "Leave the room",
+        "category": "CodeArena"
       }
     ],
     "configuration": {
@@ -94,8 +104,13 @@
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@types/vscode": "~1.100.0",
+    "@types/ws": "^8.18.2",
     "@vscode/vsce": "^4.1.0",
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@codearena/shared": "*",
+    "ws": "^8.21.0"
   }
 }
