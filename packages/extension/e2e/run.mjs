@@ -13,15 +13,24 @@ const server = "127.0.0.1:8787";
 
 // Сценарии: codewars (Python) и fixbug («Найди баг» → «Исправь баг» на HTML).
 const SCENARIO = process.argv[2] ?? "codewars";
+// Сценарии вставляют решение целиком — анти-чит вставок в них выключен (кроме сценария anticheat).
+const NO_PASTE_GUARD = { antiCheat: { pasteBlock: false, bigInsertDetect: false } };
 const GAMES = {
+  anticheat: {
+    game: "codewars",
+    tasks: [{ type: "code", topic: "t", language: "python", prompt: "Верни список только чётных чисел из nums.",
+      starter: "def evens(nums):\n    pass", tests: [{ call: "evens([2])", expected: "[2]" }] }],
+  },
   codewars: {
     game: "codewars",
+    settings: NO_PASTE_GUARD,
     tasks: [{ type: "code", topic: "t", language: "python", prompt: "Верни список только чётных чисел из nums.",
       starter: "def evens(nums):\n    pass", tests: [{ call: "evens([1, 2, 3, 4])", expected: "[2, 4]" }, { call: "evens([])", expected: "[]" }] }],
   },
   lesson: { game: "quiz", tasks: [] },
   fixbug: {
     game: "bug",
+    settings: NO_PASTE_GUARD,
     tasks: [{ type: "fix_bug", topic: "HTML", language: "html", timeLimitSec: 120, prompt: "Замени div на семантический тег.",
       code: '<div class="footer">© 2026</div>', rules: [{ selector: "footer", label: "есть footer" }, { selector: "div.footer", exists: false, label: "нет div.footer" }] }],
   },
@@ -31,6 +40,7 @@ console.log("scenario", SCENARIO, "room", code);
 const feed = [];
 const t = new WebSocket(`ws://${server}/rooms/${code}/ws?teacher=${teacherToken}`);
 let started = false;
+let lastFlags = {};
 const teacherSaw = [];
 t.on("message", (d) => {
   const m = JSON.parse(d);
@@ -54,6 +64,7 @@ t.on("message", (d) => {
     t.send(JSON.stringify({ type: "start_game", settings: {}, ...GAMES[SCENARIO] }));
     setTimeout(() => t.send(JSON.stringify({ type: "next" })), 500); // без отсчёта
   }
+  if (m.type === "flags") lastFlags = m.flags;
   if (m.type === "teacher_feed" && m.event.kind === "submission") feed.push({ correct: m.event.correct, code: m.event.code, report: m.event.report });
 });
 
@@ -77,6 +88,7 @@ try {
 const res = JSON.parse(readFileSync(out, "utf8"));
 console.log(res.log.map((l) => "  · " + l).join("\n"));
 if (SCENARIO === "lesson") console.log("teacher saw:", teacherSaw.join(", "));
+else if (SCENARIO === "anticheat") console.log("teacher saw flags:", JSON.stringify(Object.values(lastFlags)[0] ?? {}));
 else console.log("teacher saw:", feed.map((f) => `${f.correct ? "✓" : "✗"} ${f.report?.passed}/${f.report?.total}`).join(", "));
 t.close();
 process.exit(failed || !res.ok ? 1 : 0);

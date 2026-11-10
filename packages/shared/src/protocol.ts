@@ -25,6 +25,16 @@ export type LessonStatus = z.infer<typeof LessonStatus>;
 export const FlagKind = z.enum(["paste", "big_insert", "focus_lost", "ai_extension"]);
 export type FlagKind = z.infer<typeof FlagKind>;
 
+/**
+ * Сводка флагов анти-чита по игроку (видит только учитель).
+ * count — сколько раз; value — максимум символов (вставки) или всего секунд (уход из окна);
+ * detail — последняя подробность (например, названия ИИ-расширений).
+ */
+export const FlagAgg = z.object({ count: z.number().int(), value: z.number(), detail: z.string() });
+export type FlagAgg = z.infer<typeof FlagAgg>;
+export const PlayerFlags = z.partialRecord(FlagKind, FlagAgg);
+export type PlayerFlags = z.infer<typeof PlayerFlags>;
+
 export const AntiCheatSettings = z.object({
   pasteBlock: z.boolean().default(true),
   bigInsertDetect: z.boolean().default(true),
@@ -231,6 +241,8 @@ export const ServerMessage = z.discriminatedUnion("type", [
   }),
   z.object({ type: z.literal("game_over"), leaders: z.array(LeaderRow), teamScores: z.array(z.number()) }),
   z.object({ type: z.literal("kicked") }),
+  /** Учителю: флаги анти-чита всех игроков текущей игры. */
+  z.object({ type: z.literal("flags"), flags: z.record(z.string(), PlayerFlags) }),
   z.object({ type: z.literal("room_closed") }),
   /** Учителю: сводка урока (статусы всех, анонимное число «объясните ещё раз»). */
   z.object({

@@ -209,6 +209,14 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
     }
     deliver(engine.startEffects(game, env()));
     if (kind === "race") for (const p of s.lobby!.players) if (p.id !== me && p.connected) raceBot(p.id);
+    // Пара ботов «списывает» — чтобы были видны флаги у учителя.
+    const cheat = (ms: number, pid: string, kind: "paste" | "big_insert" | "focus_lost" | "ai_extension", detail: string) =>
+      timers.push(setTimeout(() => game && game.phase !== "over" && deliver(engine.flag(game, pid, kind, detail)), ms));
+    cheat(3000, "p6", "ai_extension", "GitHub Copilot, Codeium (Windsurf)");
+    cheat(5000, "p6", "paste", "120");
+    cheat(7000, "p2", "focus_lost", "14.2");
+    cheat(9000, "p2", "focus_lost", "6");
+    cheat(11000, "p6", "big_insert", "312");
   };
   if (opts.autoQuiz) setTimeout(() => startGame("quiz", opts.autoQuiz!), 300);
   if (opts.autoTug) setTimeout(() => startGame("tug", opts.autoTug!), 300);
@@ -295,6 +303,9 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         break;
       case "send":
         onSend(m.msg);
+        break;
+      case "export_csv":
+        console.log("[dev host] export_csv", m.fileName, "\n" + m.content);
         break;
       case "lesson_status":
         s = { ...s, lesson: { ...s.lesson, myStatus: m.status } };

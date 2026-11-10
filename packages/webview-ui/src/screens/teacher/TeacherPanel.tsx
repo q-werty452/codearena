@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { GameSettings, type GameKind, type HostToUi, type SessionSnapshot, type Task, type TaskSet } from "@codearena/shared";
+import { AntiCheatSettings, GameSettings, type GameKind, type HostToUi, type SessionSnapshot, type Task, type TaskSet } from "@codearena/shared";
 import { TeacherLobby } from "../TeacherLobby.tsx";
 import { GamePicker } from "./GamePicker.tsx";
 import { QuizEditor } from "./QuizEditor.tsx";
@@ -33,6 +33,7 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
   const [draftBug, setDraftBug] = useState<TaskSet>(() => readUiState().draftBug ?? EMPTY);
   const [draftRace, setDraftRace] = useState<TaskSet>(() => readUiState().draftRace ?? EMPTY);
   const [raceLength, setRaceLength] = useState(() => readUiState().raceLength ?? 10);
+  const [antiCheat, setAntiCheat] = useState<AntiCheatSettings>(() => readUiState().antiCheat ?? AntiCheatSettings.parse({}));
   const [bankOpen, setBankOpen] = useState(false);
   const [questionSec, setQuestionSec] = useState(() => readUiState().questionSec ?? 20);
   const [roundSec, setRoundSec] = useState(() => readUiState().roundSec ?? 180);
@@ -44,9 +45,10 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
   useEffect(() => writeState({ draftCode }), [draftCode]);
   useEffect(() => writeState({ draftBug }), [draftBug]);
   useEffect(() => writeState({ draftRace, raceLength }), [draftRace, raceLength]);
+  useEffect(() => writeState({ antiCheat }), [antiCheat]);
   useEffect(() => writeState({ questionSec, roundSec, wrongLockSec }), [questionSec, roundSec, wrongLockSec]);
   const settings = (game?: GameKind) =>
-    GameSettings.parse({ questionSec, roundSec: game === "race" ? Math.max(roundSec, 180) : roundSec, wrongLockSec, raceLength });
+    GameSettings.parse({ questionSec, roundSec: game === "race" ? Math.max(roundSec, 180) : roundSec, wrongLockSec, raceLength, antiCheat });
 
   // Набор заданий загружен из файла.
   useEffect(
@@ -89,6 +91,8 @@ export function TeacherPanel({ session }: { session: SessionSnapshot }) {
         mode={session.lobby?.mode ?? "solo"}
         onBack={() => setView("lobby")}
         onPick={(g) => setView(`edit-${g}`)}
+        antiCheat={antiCheat}
+        onAntiCheat={setAntiCheat}
       />
     );
   }

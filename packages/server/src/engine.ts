@@ -26,6 +26,8 @@ import {
   type TeamIndex,
   type TeamMode,
   type TestReport,
+  type FlagKind,
+  type PlayerFlags,
 } from "@codearena/shared";
 
 export const COUNTDOWN_MS = 3500;
@@ -70,6 +72,8 @@ export interface GameData {
   winner: TeamIndex | null;
   /** Гонка: у каждого своя очередь задач. pos — сколько решено, finishedAt — когда дошёл до финиша. */
   race?: RaceData;
+  /** Флаги анти-чита по игрокам — только для учителя. */
+  flags?: Record<string, PlayerFlags>;
 }
 
 export interface RaceData {
@@ -601,6 +605,30 @@ export function finish(g: GameData, env: EngineEnv): Effect[] {
   return [{ to: "all", msg: { type: "game_over", leaders, teamScores } }, stateEffect(g, env)];
 }
 
+/* ───────────────────────── Анти-чит ───────────────────────── */
+
+/**
+ * Флаг от расширения ученика. Сервер не наказывает автоматически —
+ * только копит сводку для учителя. Флаг выключенной защиты игнорируется.
+ */
+export function flag(g: GameData, playerId: string, kind: FlagKind, detail: string): Effect[] {
+  if (g.phase === "over") return [];
+  const ac = g.settings.antiCheat;
+  const enabled = { paste: ac.pasteBlock, big_insert: ac.bigInsertDetect, focus_lost: ac.focusTracking, ai_extension: ac.aiExtensions }[kind];
+  if (!enabled) return [];
+  const flags = (g.flags ??= {});
+  const mine = (flags[playerId] ??= {});
+  const prev = mine[kind] ?? { count: 0, value: 0, detail: "" };
+  const n = Math.max(0, Number.parseFloat(detail) || 0);
+  mine[kind] =
+    kind === "focus_lost"
+      ? { count: prev.count + 1, value: Math.round(prev.value + n), detail } // value — всего секунд
+      : kind === "ai_extension"
+        ? { count: 1, value: 0, detail: detail.slice(0, 200) } // список расширений, один раз
+        : { count: prev.count + 1, value: Math.max(prev.value, n), detail }; // value — самая большая вставка
+  return [{ to: "teacher", msg: { type: "flags", flags } }];
+}
+
 /* ───────────────────────── Состояние ───────────────────────── */
 
 export function standings(g: GameData, env: EngineEnv): { leaders: LeaderRow[]; teamScores: number[] } {
@@ -701,6 +729,8 @@ export function resumeFor(g: GameData, env: EngineEnv, playerId: string | null):
       }
     }
   }
+  // Учителю после переподключения — сводка флагов.
+  if (playerId === null && g.flags) out.push({ type: "flags", flags: g.flags });
   out.push({ type: "state", state: gameState(g, env) });
   return out;
 }

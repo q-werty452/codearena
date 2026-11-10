@@ -5,6 +5,7 @@ import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
 import { CodeTasks } from "./codeTask.ts";
 import { LessonBar } from "./lessonBar.ts";
+import { AntiCheat } from "./antiCheat.ts";
 import { runChecks } from "./runner.ts";
 
 /**
@@ -63,7 +64,9 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
     if (session.snapshot.role === "student") GamePanel.close();
   };
   // Codewars: файл задачи в редакторе, панель игры — рядом.
-  context.subscriptions.push(new CodeTasks(context, session, () => GamePanel.show(context, vscode.ViewColumn.Two, true)));
+  const codeTasks = new CodeTasks(context, session, () => GamePanel.show(context, vscode.ViewColumn.Two, true));
+  // Анти-чит: только во время игры, только в файлах задач (вставки), флаги — учителю.
+  context.subscriptions.push(codeTasks, new AntiCheat(session, (uri) => codeTasks.isTaskFile(uri)));
 
   void session.restore();
   return { session };
@@ -173,6 +176,15 @@ class WebviewHost implements vscode.WebviewViewProvider {
       case "submit_code":
         await vscode.commands.executeCommand("codearena.submitCode");
         break;
+      case "export_csv": {
+        const uri = await vscode.window.showSaveDialog({
+          defaultUri: vscode.Uri.joinPath(vscode.workspace.workspaceFolders?.[0]?.uri ?? vscode.Uri.file(homedir()), msg.fileName),
+          filters: { CSV: ["csv"] },
+        });
+        // BOM — чтобы Excel открыл кириллицу без кракозябр.
+        if (uri) await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode("\uFEFF" + msg.content));
+        break;
+      }
       case "check_code": {
         const o = await runChecks(msg.language, msg.code, { tests: msg.tests, rules: msg.rules ?? [] });
         this.post({ type: "check_result", requestId: msg.requestId, results: o.results, error: o.error, message: o.message });

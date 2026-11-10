@@ -1,6 +1,8 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Bug, Flag, MessageCircleQuestion, MoveHorizontal, SquareCode, type LucideIcon } from "lucide-react";
-import type { GameKind, TeamMode } from "@codearena/shared";
+import { ArrowLeft, Bug, Flag, MessageCircleQuestion, MoveHorizontal, ShieldCheck, SquareCode, type LucideIcon } from "lucide-react";
+import type { AntiCheatSettings, GameKind, TeamMode } from "@codearena/shared";
+import { Card } from "../../ui/Card.tsx";
+import { Segmented, Toggle } from "../../ui/Controls.tsx";
 import { Button } from "../../ui/Button.tsx";
 import { cn } from "../../lib/cn.ts";
 import { useT, type MessageKey } from "../../lib/i18n.ts";
@@ -14,7 +16,19 @@ const GAMES: { kind: GameKind; icon: LucideIcon; color: string; ready: boolean }
 ];
 
 /** Выбор игры: 5 крупных карточек. Недоступные — с пометкой и причиной. */
-export function GamePicker({ mode, onPick, onBack }: { mode: TeamMode; onPick: (g: GameKind) => void; onBack: () => void }) {
+export function GamePicker({
+  mode,
+  onPick,
+  onBack,
+  antiCheat,
+  onAntiCheat,
+}: {
+  mode: TeamMode;
+  onPick: (g: GameKind) => void;
+  onBack: () => void;
+  antiCheat: AntiCheatSettings;
+  onAntiCheat: (a: AntiCheatSettings) => void;
+}) {
   const t = useT();
   return (
     <div className="mx-auto flex max-w-[1100px] flex-col gap-6 px-6 py-5">
@@ -62,6 +76,36 @@ export function GamePicker({ mode, onPick, onBack }: { mode: TeamMode; onPick: (
           );
         })}
       </div>
+      <AntiCheatCard value={antiCheat} onChange={onAntiCheat} />
     </div>
+  );
+}
+
+/** Защита от списывания: каждая включается отдельно, работает только во время игры. */
+function AntiCheatCard({ value, onChange }: { value: AntiCheatSettings; onChange: (a: AntiCheatSettings) => void }) {
+  const t = useT();
+  const set = (p: Partial<AntiCheatSettings>) => onChange({ ...value, ...p });
+  return (
+    <Card className="p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <ShieldCheck size={18} className="text-accent" />
+        <h2 className="text-[15px] font-bold">{t("ac.title")}</h2>
+      </div>
+      <p className="mb-4 text-[12px] text-muted">{t("ac.hint")}</p>
+      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
+        <Toggle checked={value.pasteBlock} onChange={(v) => set({ pasteBlock: v })} label={t("ac.paste")} />
+        <Toggle checked={value.bigInsertDetect} onChange={(v) => set({ bigInsertDetect: v })} label={t("ac.bigInsert")} />
+        <Toggle checked={value.focusTracking} onChange={(v) => set({ focusTracking: v })} label={t("ac.focus")} />
+        <Toggle checked={value.aiExtensions} onChange={(v) => set({ aiExtensions: v })} label={t("ac.ai")} />
+      </div>
+      <label className="mt-4 flex items-center gap-2">
+        <span className="text-[12px] text-muted">{t("ac.limit")}</span>
+        <Segmented<string>
+          value={String(value.pasteLimit)}
+          onChange={(v) => set({ pasteLimit: Number(v) })}
+          options={[10, 30, 100].map((n) => ({ value: String(n), label: t("ac.chars", { n }) }))}
+        />
+      </label>
+    </Card>
   );
 }

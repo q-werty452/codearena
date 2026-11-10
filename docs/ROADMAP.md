@@ -23,8 +23,8 @@ sees everyone's progress.
 | 8 | **Lesson, base**: room starts in Lesson, status bar «Join lesson» → status picker, «Start game», back to lesson after results | ✅ |
 | 9 | Race | ✅ |
 | 9½ | **Server online**: https://codearena.codearena-server.workers.dev, per-IP rate limits | ✅ |
-| 10 | Anti-cheat (off in Lesson), live teacher table, CSV export | ⏳ next |
-| 11 | **Lesson, part 2**: read-only teacher file (`codearena:` FileSystemProvider, follow cursor, batched 300–500 ms), checkpoints with line-diff progress, lesson panel, anonymous «Explain again» counter | |
+| 10 | Anti-cheat (off in Lesson), live teacher table, CSV export | ✅ |
+| 11 | ⏳ next — **Lesson, part 2**: read-only teacher file (`codearena:` FileSystemProvider, follow cursor, batched 300–500 ms), checkpoints with line-diff progress, lesson panel, anonymous «Explain again» counter | |
 | 12 | AI task generation | |
 | 13 | Localization polish, publishing (Marketplace + Open VSX) | |
 | 14 | Projector page, Docker server | |

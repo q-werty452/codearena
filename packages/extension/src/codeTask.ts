@@ -70,7 +70,7 @@ export class CodeTasks implements vscode.Disposable {
     return null;
   }
 
-  private isTaskFile(uri: vscode.Uri | undefined): boolean {
+  isTaskFile(uri: vscode.Uri | undefined): boolean {
     return !!uri && [...this.files.values()].some((f) => f.toString() === uri.toString());
   }
 

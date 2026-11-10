@@ -4,6 +4,7 @@ import {
   COUNTDOWN_MS,
   GameError,
   finish,
+  flag,
   gameState,
   next,
   onDeadline,
@@ -453,5 +454,33 @@ describe("Гонка", () => {
     const msgs = resumeFor(g, e(6000), "a");
     expect(msgs.map((m) => m.type)).toEqual(["game_started", "task", "state"]);
     expect(msgs[1]).toMatchObject({ taskId: "r1", index: 1 });
+  });
+});
+
+describe("анти-чит: флаги", () => {
+  it("копятся по видам, видит только учитель; выключенная защита игнорируется", () => {
+    const g = startGame("quiz", [q(1)], GameSettings.parse({ antiCheat: { focusTracking: false } }), 0);
+    const fx = flag(g, "a", "paste", "120");
+    expect(fx).toHaveLength(1);
+    expect(fx[0]!.to).toBe("teacher");
+    flag(g, "a", "paste", "45");
+    flag(g, "a", "big_insert", "300");
+    flag(g, "a", "ai_extension", "GitHub Copilot");
+    flag(g, "a", "ai_extension", "GitHub Copilot");
+    expect(g.flags!.a).toEqual({
+      paste: { count: 2, value: 120, detail: "45" },
+      big_insert: { count: 1, value: 300, detail: "300" },
+      ai_extension: { count: 1, value: 0, detail: "GitHub Copilot" },
+    });
+    expect(flag(g, "a", "focus_lost", "12")).toEqual([]); // защита выключена
+  });
+
+  it("уход из окна: число раз и сумма секунд; учитель получает сводку при переподключении", () => {
+    const g = startGame("quiz", [q(1)], settings, 0);
+    flag(g, "b", "focus_lost", "12.4");
+    flag(g, "b", "focus_lost", "3");
+    expect(g.flags!.b!.focus_lost).toMatchObject({ count: 2, value: 15 });
+    expect(resumeFor(g, env(1000), null).some((m) => m.type === "flags")).toBe(true);
+    expect(resumeFor(g, env(1000), "b").some((m) => m.type === "flags")).toBe(false); // ученику — нет
   });
 });

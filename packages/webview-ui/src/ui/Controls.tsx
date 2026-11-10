@@ -63,7 +63,7 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-2 text-[13px] text-fg"
+      className="inline-flex items-center gap-2 text-left text-[13px] text-fg"
     >
       <span
         className={cn(

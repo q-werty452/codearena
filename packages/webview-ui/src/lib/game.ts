@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
-import type { GameSnapshot, TaskSet } from "@codearena/shared";
+import type { AntiCheatSettings, GameSnapshot, TaskSet } from "@codearena/shared";
 import type { Locale } from "./i18n.ts";
 import { vscode } from "./vscode.ts";
 
@@ -63,6 +63,7 @@ interface UiState {
   draftCode?: TaskSet;
   draftBug?: TaskSet;
   draftRace?: TaskSet;
+  antiCheat?: AntiCheatSettings;
   raceLength?: number;
   questionSec?: number;
   roundSec?: number;

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Check, ChevronDown, ChevronRight, CircleDashed, Clock, Eye, Flag, Pause, Play, RotateCcw, SkipForward, Square, Users, X, Zap } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Check, Download, ChevronDown, ChevronRight, CircleDashed, Clock, Eye, Flag, Pause, Play, RotateCcw, SkipForward, Square, Users, X, Zap } from "lucide-react";
+import { useContext, useEffect, useRef, useState } from "react";
 import type { GameSnapshot, SessionSnapshot, Task } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
 import { Card, SectionTitle } from "../../ui/Card.tsx";
@@ -18,19 +18,30 @@ import { CodeBlock } from "../../ui/Code.tsx";
 import { Avatar } from "../../ui/Avatar.tsx";
 import { cn } from "../../lib/cn.ts";
 import { celebrate, play, secondsLeft, useNow } from "../../lib/game.ts";
-import { prettyCode, useT } from "../../lib/i18n.ts";
+import { LocaleContext, prettyCode, useT } from "../../lib/i18n.ts";
+import { resultsCsv } from "../../lib/csv.ts";
+import { FlagBadges } from "../../ui/Flags.tsx";
+import { LiveTable } from "./LiveTable.tsx";
 import { host } from "../../lib/session.ts";
 
 /** Экран учителя во время игры: та же картинка, что у учеников, плюс управление. */
 export function TeacherGame({ session, tasks, onAgain }: { session: SessionSnapshot; tasks: Task[]; onAgain: () => void }) {
   const g = session.game!;
   const teamNames = session.lobby?.teams.map((x) => x.name) ?? [];
-  if (g.phase === "over") return <TeacherResults g={g} teamNames={teamNames} onAgain={onAgain} />;
-  if (g.kind === "tug") return <TeacherTug session={session} g={g} tasks={tasks} teamNames={teamNames} />;
-  if (g.kind === "codewars") return <TeacherCodewars session={session} g={g} teamNames={teamNames} />;
-  if (g.kind === "bug") return <TeacherBug session={session} g={g} teamNames={teamNames} />;
-  if (g.kind === "race") return <TeacherRace session={session} g={g} />;
-  return <TeacherRound session={session} g={g} tasks={tasks} teamNames={teamNames} />;
+  if (g.phase === "over") return <TeacherResults g={g} session={session} teamNames={teamNames} onAgain={onAgain} />;
+  const screen =
+    g.kind === "tug" ? <TeacherTug session={session} g={g} tasks={tasks} teamNames={teamNames} />
+    : g.kind === "codewars" ? <TeacherCodewars session={session} g={g} teamNames={teamNames} />
+    : g.kind === "bug" ? <TeacherBug session={session} g={g} teamNames={teamNames} />
+    : g.kind === "race" ? <TeacherRace session={session} g={g} />
+    : <TeacherRound session={session} g={g} tasks={tasks} teamNames={teamNames} />;
+  // Живая таблица учеников (статусы, флаги, последний ответ) — в любой игре.
+  return (
+    <>
+      {screen}
+      <LiveTable session={session} g={g} />
+    </>
+  );
 }
 
 function TeacherRound({ session, g, tasks, teamNames }: { session: SessionSnapshot; g: GameSnapshot; tasks: Task[]; teamNames: string[] }) {
@@ -179,8 +190,9 @@ function AnsweredBar({ n, total, label }: { n: number; total: number; label?: st
   );
 }
 
-function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames: string[]; onAgain: () => void }) {
+function TeacherResults({ g, session, teamNames, onAgain }: { g: GameSnapshot; session: SessionSnapshot; teamNames: string[]; onAgain: () => void }) {
   const t = useT();
+  const locale = useContext(LocaleContext);
   useEffect(() => {
     celebrate();
     play("win");
@@ -214,6 +226,7 @@ function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames:
               <li key={r.id} className="flex h-10 items-center gap-3 border-b border-border last:border-0">
                 <span className="w-6 text-center font-bold tabular text-muted">{i + 1}</span>
                 <span className="min-w-0 flex-1 truncate font-medium">{r.name}</span>
+                <FlagBadges flags={g.flags[r.id]} />
                 {g.kind !== "tug" && g.kind !== "race" && <span className="w-16 text-right tabular text-muted">{r.progress}/{g.count}</span>}
                 <span className="w-16 text-right font-bold tabular">{r.score}</span>
               </li>
@@ -223,6 +236,9 @@ function TeacherResults({ g, teamNames, onAgain }: { g: GameSnapshot; teamNames:
       </div>
       <footer className="sticky bottom-0 z-20 mt-auto border-t border-border bg-[color-mix(in_srgb,var(--vscode-editor-background,var(--ca-bg))_88%,transparent)] backdrop-blur">
         <div className="mx-auto flex max-w-[900px] items-center justify-end gap-3 px-6 py-3">
+          <Button icon={<Download size={14} />} onClick={() => host.post({ type: "export_csv", ...resultsCsv(g, session, locale, t) })}>
+            {t("csv.export")}
+          </Button>
           <Button icon={<RotateCcw size={14} />} onClick={onAgain}>
             {t("game.again")}
           </Button>

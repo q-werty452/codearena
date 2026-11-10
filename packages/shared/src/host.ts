@@ -7,6 +7,7 @@
 import type {
   ClientMessage,
   LessonStatus,
+  PlayerFlags,
   GameKind,
   GameSettings,
   GameState,
@@ -96,6 +97,8 @@ export interface GameSnapshot {
   submissions: Record<string, Submission>;
   /** Ученик: локальный прогон тестов по текущему заданию. */
   localRun: LocalRun | null;
+  /** Учитель: флаги анти-чита по игрокам (за всю игру). */
+  flags: Record<string, PlayerFlags>;
 }
 
 /** Урок глазами клиента. У учителя — статусы всех, у ученика — свой. */
@@ -168,6 +171,8 @@ export type UiToHost =
   | { type: "open_task_file" }
   | { type: "run_tests" }
   | { type: "submit_code" }
+  /** Учитель: сохранить итоги в CSV (для журнала). */
+  | { type: "export_csv"; fileName: string; content: string }
   /** Учитель проверяет эталонное решение своей задачи. */
   | { type: "check_code"; requestId: string; language: Language; code: string; tests: { call: string; expected: string }[]; rules: HtmlRule[] };
 
@@ -206,6 +211,7 @@ export function emptyGame(kind: GameKind, settings: GameSettings): GameSnapshot 
     lockedUntil: null,
     submissions: {},
     localRun: null,
+    flags: {},
   };
 }
 
@@ -224,7 +230,7 @@ export function applyGameMessage(
   switch (msg.type) {
     case "game_started": {
       const fresh = !game || game.phase === "over";
-      return { ...emptyGame(msg.game, msg.settings), ...(fresh ? {} : { leaders: game.leaders, teamScores: game.teamScores }) };
+      return { ...emptyGame(msg.game, msg.settings), ...(fresh ? {} : { leaders: game.leaders, teamScores: game.teamScores, flags: game.flags }) };
     }
     case "task":
       return patch({
@@ -279,6 +285,8 @@ export function applyGameMessage(
     }
     case "game_over":
       return patch({ phase: "over", deadline: null, leaders: msg.leaders, teamScores: msg.teamScores });
+    case "flags":
+      return patch({ flags: msg.flags });
     case "game_reset":
       return null;
     default:

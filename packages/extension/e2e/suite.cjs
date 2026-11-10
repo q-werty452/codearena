@@ -15,6 +15,29 @@ async function waitFor(what, fn, ms = 20000) {
 
 const SCENARIO = process.env.CODEARENA_E2E_SCENARIO || "codewars";
 const FILE_RE = SCENARIO === "fixbug" ? /task-1\.html$/ : /task-1\.py$/;
+
+async function antiCheatScenario(session, editor, step) {
+  const doc = editor.document;
+  const before = doc.getText();
+  // 1) Большая вставка одной правкой (как меню «Вставить» или ИИ-автодополнение) — откат.
+  const big = "\ndef evens(nums):\n    return [n for n in nums if n % 2 == 0]  # скопировано целиком\n";
+  await editor.edit((b) => b.insert(new vscode.Position(doc.lineCount, 0), big));
+  await waitFor("big insert reverted", () => doc.getText() === before, 5000);
+  step("big insert (" + big.length + " chars) was reverted");
+  // 2) Ctrl+V с длинным текстом — не вставляется.
+  await vscode.env.clipboard.writeText("x".repeat(80));
+  editor.selection = new vscode.Selection(doc.lineCount - 1, 0, doc.lineCount - 1, 0);
+  await vscode.commands.executeCommand("codearena.paste");
+  await sleep(500);
+  step("Ctrl+V with 80 chars: " + (doc.getText() === before ? "blocked" : "PASTED (bug)"));
+  if (doc.getText() !== before) throw new Error("long paste went through");
+  // 3) Короткий Ctrl+V — проходит.
+  await vscode.env.clipboard.writeText("nums");
+  await vscode.window.showTextDocument(doc, { viewColumn: editor.viewColumn });
+  await vscode.commands.executeCommand("codearena.paste");
+  await waitFor("short paste", () => doc.getText().includes("nums") && doc.getText().length === before.length + 4, 5000);
+  step("Ctrl+V with 4 chars: pasted");
+}
 const MARK = "─── CodeArena ───";
 
 async function lessonScenario(session, step) {
@@ -73,6 +96,13 @@ exports.run = async function run() {
       return panelGroup && fileGroup && panelGroup !== fileGroup;
     }, 10000);
     step("game panel opened beside the editor (" + vscode.window.tabGroups.all.length + " editor groups)");
+
+    if (SCENARIO === "anticheat") {
+      await antiCheatScenario(session, editor, step);
+      await sleep(800); // флаги долетают до учителя
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
 
     // Кнопки над кодом.
     const lenses = await vscode.commands.executeCommand("vscode.executeCodeLensProvider", doc.uri);

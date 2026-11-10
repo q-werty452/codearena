@@ -316,6 +316,13 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
+    if (msg.type === "flag") {
+      if (!d.game) return; // в уроке анти-чит выключен
+      this.dispatch(engine.flag(d.game, att.playerId, msg.kind, msg.detail));
+      await this.save();
+      return;
+    }
+
     if (msg.type === "submit") {
       if (!d.game) return this.error(ws, "no_game", "Игра не идёт");
       try {
