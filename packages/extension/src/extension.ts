@@ -94,6 +94,12 @@ async function saveTasks(set: TaskSet): Promise<void> {
   void vscode.window.showInformationMessage(vscode.l10n.t("Saved: {0}", uri.fsPath));
 }
 
+let log: vscode.OutputChannel | undefined;
+/** Канал «CodeArena» в «Выводе»: ошибки интерфейса, чтобы учитель мог прислать их автору. */
+function uiLog(): vscode.OutputChannel {
+  return (log ??= vscode.window.createOutputChannel("CodeArena"));
+}
+
 export function deactivate(): void {}
 
 /** Общая логика webview: ready-рукопожатие, очередь сообщений, команды от UI. */
@@ -220,6 +226,9 @@ class WebviewHost implements vscode.WebviewViewProvider {
         break;
       case "ai_generate":
         await myTasks.generate(msg.req);
+        break;
+      case "ui_error":
+        uiLog().appendLine(`[${new Date().toISOString()}] ${this.view}: ${msg.message}`);
         break;
       case "ai_cancel":
         myTasks.cancel();

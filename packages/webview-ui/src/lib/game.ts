@@ -73,7 +73,10 @@ interface UiState {
 }
 
 const readState = (): UiState => vscode.getState<UiState>() ?? {};
-export const writeState = (patch: Partial<UiState>) => vscode.setState({ ...readState(), ...patch });
+/** Ничего не возвращает: setState в VS Code возвращает объект, а из useEffect(() => writeState(...)) он ушёл бы в React как «функция очистки». */
+export const writeState = (patch: Partial<UiState>): void => {
+  vscode.setState({ ...readState(), ...patch });
+};
 export const readUiState = readState;
 
 let soundDefault = false;

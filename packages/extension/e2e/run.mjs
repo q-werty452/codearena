@@ -38,7 +38,7 @@ const GAMES = {
 // Эталон урока для сценариев livestudent / liveteacher.
 const REF = "<!doctype html>\n<html>\n<head>\n  <title>Урок</title>\n</head>\n<body>\n  <h1>Привет</h1>\n  <p>Абзац</p>\n  <ul>\n    <li>Один</li>\n    <li>Два</li>\n  </ul>\n</body>\n</html>\n";
 const LIVE = SCENARIO === "livestudent" || SCENARIO === "liveteacher";
-const OFFLINE = SCENARIO === "mytasks"; // без игрового сервера
+const OFFLINE = SCENARIO === "mytasks" || SCENARIO === "teacherui"; // без бота-учителя
 const { code, teacherToken } = OFFLINE ? { code: "", teacherToken: "" } : await (await fetch(`http://${server}/rooms`, { method: "POST" })).json();
 console.log("scenario", SCENARIO, "room", code);
 const feed = [];
@@ -140,6 +140,19 @@ const wsDir = join(tmp, "ws");
 mkdirSync(join(wsDir, "site"), { recursive: true });
 writeFileSync(join(wsDir, "site", "index.html"), SCENARIO === "liveteacher" ? REF : "<!doctype html>\n<html>\n<head>\n  <title>Урок</title>\n</head>\n<body>\n</body>\n</html>\n");
 const handoff = join(tmp, "room.txt");
+// teacherui: VS Code с портом отладки, клики в webview делает e2e/ui-driver.mjs.
+const debugPort = 9300 + Math.floor(Math.random() * 600);
+let uiResult = null;
+if (SCENARIO === "teacherui") {
+  const { drive } = await import("./ui-driver.mjs");
+  const { existsSync } = await import("node:fs");
+  void (async () => {
+    while (!existsSync(handoff)) await new Promise((r) => setTimeout(r, 300));
+    await new Promise((r) => setTimeout(r, 2500));
+    uiResult = await drive(debugPort).catch((e) => ({ ok: false, results: [String(e)] }));
+    writeFileSync(handoff + ".done", "x");
+  })();
+}
 // liveteacher: комнату создаёт VS Code, бот-ученик подключается по коду из handoff-файла.
 let bot = null;
 if (SCENARIO === "liveteacher") {
@@ -173,7 +186,7 @@ try {
     vscodeExecutablePath: process.env.VSCODE_PATH ?? "/usr/share/code/code",
     extensionDevelopmentPath: resolve(here, ".."),
     extensionTestsPath: resolve(here, "suite.cjs"),
-    launchArgs: [...(LIVE ? [wsDir] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
+    launchArgs: [...(LIVE ? [wsDir] : []), ...(SCENARIO === "teacherui" ? [`--remote-debugging-port=${debugPort}`] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
     extensionTestsEnv: { CODEARENA_E2E_TMP: tmp, CODEARENA_E2E_FIXTURES: resolve(here, "..", "src", "__fixtures__"), CODEARENA_E2E_CODE: code, CODEARENA_E2E_OUT: out, CODEARENA_E2E_SCENARIO: SCENARIO, CODEARENA_E2E_HANDOFF: handoff },
   });
 } catch {
@@ -190,6 +203,9 @@ if (SCENARIO === "livestudent") {
   console.log(`bot student got ${live.shares} lesson_share message(s) for 10 keystrokes; last has all edits: ${last.includes("<!-- 0123456789 -->")}; checkpoint: ${JSON.stringify(live.checkpoint)}; share stopped: ${live.off}`);
   liveOk = live.shares >= 2 && live.shares <= 6 && last.includes("<!-- 0123456789 -->") && live.checkpoint?.n === 1 && live.checkpoint.sameAsShare && live.off;
   bot?.close();
+} else if (SCENARIO === "teacherui") {
+  console.log((uiResult?.results ?? ["driver did not run"]).map((r) => "  ▸ " + r).join("\n"));
+  liveOk = uiResult?.ok === true;
 } else if (SCENARIO === "mytasks") {
   console.log("gemini calls:", gemini.calls.map((c) => `${c.path} (key ${c.key})`).join(", "), "| key in URL:", gemini.keyInUrl);
   liveOk = !gemini.keyInUrl && gemini.calls.some((c) => c.path.includes("gemini-3.6-flash:generateContent"));
@@ -197,5 +213,15 @@ if (SCENARIO === "livestudent") {
 else if (SCENARIO === "anticheat") console.log("teacher saw flags:", JSON.stringify(Object.values(lastFlags)[0] ?? {}));
 else console.log("teacher saw:", feed.map((f) => `${f.correct ? "✓" : "✗"} ${f.report?.passed}/${f.report?.total}`).join(", "));
 t.close();
+// VS Code оставляет «dconf watch» с унаследованным портом отладки — убираем только его.
+if (SCENARIO === "teacherui") {
+  const { execSync } = await import("node:child_process");
+  try {
+    for (const m of execSync("ss -ltnp", { encoding: "utf8" }).matchAll(new RegExp(`:${debugPort}\\s.*"dconf",pid=(\\d+)`, "g"))) {
+      const pid = Number(m[1]);
+      if (execSync(`ps -o args= -p ${pid}`, { encoding: "utf8" }).startsWith("dconf watch")) process.kill(pid);
+    }
+  } catch {}
+}
 if (!liveOk) console.log("LIVE CHECK FAILED");
 process.exit(failed || !res.ok || !liveOk ? 1 : 0);

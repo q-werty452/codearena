@@ -187,6 +187,17 @@ exports.run = async function run() {
     const api = await ext.activate();
     const session = api.session;
 
+    if (SCENARIO === "teacherui") {
+      // Учитель создаёт комнату и открывает панель; кликами в webview управляет внешний скрипт по CDP.
+      await session.createRoom();
+      await waitFor("room", () => session.snapshot.code && session.snapshot.status === "online");
+      await vscode.commands.executeCommand("codearena.openPanel");
+      fs.writeFileSync(process.env.CODEARENA_E2E_HANDOFF, session.snapshot.code);
+      step("room " + session.snapshot.code + ", panel open; waiting for the CDP driver");
+      await waitFor("driver done", () => fs.existsSync(process.env.CODEARENA_E2E_HANDOFF + ".done"), 170000);
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
     if (SCENARIO === "mytasks") {
       await myTasksScenario(api, step);
       fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));

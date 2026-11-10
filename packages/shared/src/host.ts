@@ -210,6 +210,8 @@ export type UiToHost =
   | { type: "my_tasks_delete"; id: string }
   | { type: "ai_generate"; req: AiRequest }
   | { type: "ai_cancel" }
+  /** Ошибка в интерфейсе — в канал вывода расширения. */
+  | { type: "ui_error"; message: string }
   | { type: "ai_set_key" }
   | { type: "ai_clear_key" }
   /** Codewars у ученика: открыть файл задачи, прогнать тесты, отправить. */

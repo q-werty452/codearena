@@ -427,6 +427,9 @@ const en = {
   "ai.err.cancelled": "Stopped.",
   "ai.noRun": "Dart code is not run — only quiz, tug of war and Find the bug (find the line, best variant)",
   "ai.short": "AI",
+  "err.title": "Something went wrong",
+  "err.hint": "The room keeps working. Press «Back» to return to the lesson; the error is saved in Output → CodeArena.",
+  "err.back": "Back",
 } as const;
 
 export type MessageKey = keyof typeof en;
@@ -855,6 +858,9 @@ const ru: Dict = {
   "ai.err.cancelled": "Остановлено.",
   "ai.noRun": "Код на Dart не запускается — только викторина, канат и «Найди баг» (найди строку, лучший вариант)",
   "ai.short": "ИИ",
+  "err.title": "Что-то пошло не так",
+  "err.hint": "Комната продолжает работать. Нажмите «Назад», чтобы вернуться к уроку; ошибка записана в «Вывод» → CodeArena.",
+  "err.back": "Назад",
 };
 
 export const DICTS = { en, ru } as const;

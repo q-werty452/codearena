@@ -2,10 +2,13 @@
 interface VsCodeApi {
   postMessage(msg: unknown): void;
   getState<T>(): T | undefined;
-  setState<T>(s: T): void;
+  /** В VS Code возвращает новое состояние. */
+  setState<T>(s: T): T;
 }
 
 declare function acquireVsCodeApi(): VsCodeApi;
+
+let devState: unknown;
 
 export const vscode: VsCodeApi =
   typeof acquireVsCodeApi === "function"
@@ -17,8 +20,9 @@ export const vscode: VsCodeApi =
           if (dev) dev(m);
           else console.log("[webview → ext]", m);
         },
-        getState: () => undefined,
-        setState: () => {},
+        // Как в VS Code: состояние хранится, setState возвращает его (иначе витрина не ловит ошибки вида «useEffect вернул объект»).
+        getState: <T,>() => devState as T | undefined,
+        setState: <T,>(st: T) => ((devState = st), st),
       };
 
 export function onHostMessage<T = unknown>(fn: (msg: T) => void): () => void {

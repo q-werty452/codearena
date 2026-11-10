@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Fixed: the teacher panel went blank after choosing a game (also when editing tasks) in VS Code.
+- A UI error now shows a message with a «Back» button instead of an empty screen, and is logged to Output → CodeArena.
+
 ## 0.1.0 — first public preview
 
 - **Lesson mode** (default): students mark «Done / Still writing / Lost», anonymous «Explain again»;

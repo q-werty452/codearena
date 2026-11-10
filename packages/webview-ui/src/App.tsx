@@ -9,6 +9,7 @@ import { ConnectionBanner } from "./ui/Controls.tsx";
 import { Skeleton } from "./ui/Card.tsx";
 import { Toast } from "./ui/Status.tsx";
 import { useT } from "./lib/i18n.ts";
+import { ErrorBoundary } from "./ui/ErrorBoundary.tsx";
 import { host, useHostSession } from "./lib/session.ts";
 
 /** Корень webview: выбирает экран по снимку сессии от расширения. */
@@ -19,7 +20,9 @@ export function App({ view }: { view: "sidebar" | "panel" }) {
   return (
     <>
       <ConnectionBanner show={session.status === "reconnecting"} text={t("net.lost")} />
-      <Screen view={view} session={session} prefill={prefill} />
+      <ErrorBoundary labels={{ title: t("err.title"), hint: t("err.hint"), back: t("err.back") }}>
+        <Screen view={view} session={session} prefill={prefill} />
+      </ErrorBoundary>
       <Toast toast={toast} onDone={dismissToast} />
     </>
   );
