@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { extractSolution, taskFileContent, type CodeTask } from "./taskFile.ts";
-import { runTests } from "./runner.ts";
+import { extractSolution, taskFileContent, type CodeTask, type FixTask } from "./taskFile.ts";
+import { runChecks, runTests } from "./runner.ts";
 
 const task: CodeTask = {
   id: "t0",
@@ -33,5 +33,30 @@ describe("файл задачи", () => {
     const text = taskFileContent({ ...task, language: "javascript", prompt: "a ".repeat(60).trim() }, 2, false);
     expect(text.split("\n")[0]).toBe("// CodeArena · Task 3");
     expect(text.split("\n").every((l) => l.length <= 90)).toBe(true);
+  });
+});
+
+describe("файл задачи HTML/CSS и «Исправь баг»", () => {
+  const rules = [{ selector: "footer", exists: true, label: "есть footer" }];
+  it("HTML: шапка в <!-- -->, сломанный код ниже, проверка правилами", async () => {
+    const fix: FixTask = {
+      id: "t1", type: "fix_bug", topic: "HTML", difficulty: "easy", timeLimitSec: 120, language: "html",
+      prompt: "Замени div на семантический тег.", code: '<div class="footer">© 2026</div>', tests: [], rules,
+    };
+    const text = taskFileContent(fix, 0, true);
+    expect(text.startsWith("<!-- CodeArena · Исправь баг 1")).toBe(true);
+    expect(text).toContain("•  есть footer".replace("•  ", "• "));
+    expect(text).toMatch(/─── CodeArena ─── пиши решение ниже -->/);
+    const broken = extractSolution(text);
+    expect(broken.trim()).toBe('<div class="footer">© 2026</div>');
+    expect((await runChecks("html", broken, { tests: [], rules })).results[0]!.ok).toBe(false);
+    expect((await runChecks("html", "<footer>© 2026</footer>", { tests: [], rules })).results[0]!.ok).toBe(true);
+  });
+
+  it("CSS: шапка в /* */", () => {
+    const text = taskFileContent({ ...task, language: "css", starter: ".card {}", rules: [{ selector: ".card", exists: true, label: "flex", css: { property: "display", value: "flex" } }] }, 0, false);
+    expect(text.split("\n")[0]).toBe("/* CodeArena · Task 1");
+    expect(text).toMatch(/\*\/\n\n\.card \{\}/);
+    expect(extractSolution(text)).toBe(".card {}\n");
   });
 });

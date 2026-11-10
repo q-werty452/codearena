@@ -1,0 +1,294 @@
+{
+  "version": 1,
+  "game": "quiz",
+  "title": "Викторина: HTML и CSS",
+  "author": "q-werty452",
+  "description": "Теги, атрибуты, подключение стилей, селекторы, flex, box-model, единицы. 19 вопросов.",
+  "tasks": [
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой тег делает ссылку?",
+      "options": [
+        "<href>",
+        "<url>",
+        "<link>",
+        "<a>"
+      ],
+      "correct": 3,
+      "explanation": "<a href=\"…\"> — ссылка. <link> подключает файлы в <head>, например CSS."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Зачем у <img> атрибут alt?",
+      "options": [
+        "Текст вместо картинки и для экранных чтецов",
+        "Рамка вокруг картинки",
+        "Подсказка при наведении",
+        "Задаёт размер картинки"
+      ],
+      "correct": 0,
+      "explanation": "alt читают экранные чтецы и показывает браузер, если картинка не загрузилась. Подсказка при наведении — это title."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой тег — главный заголовок страницы?",
+      "options": [
+        "<h1>",
+        "<h6>",
+        "<head>",
+        "<header>"
+      ],
+      "correct": 0,
+      "explanation": "<h1> — самый важный заголовок. <head> — служебная часть документа, <header> — шапка."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Как правильно подключить CSS-файл?",
+      "options": [
+        "<css href=\"style.css\">",
+        "<script src=\"style.css\">",
+        "<link rel=\"stylesheet\" href=\"style.css\"> в <head>",
+        "<style src=\"style.css\"> в <body>"
+      ],
+      "correct": 2,
+      "explanation": "Внешние стили подключают тегом <link rel=\"stylesheet\"> внутри <head>."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой тег для нумерованного списка?",
+      "options": [
+        "<li>",
+        "<dl>",
+        "<ul>",
+        "<ol>"
+      ],
+      "correct": 3,
+      "explanation": "ol — ordered list, нумерованный. ul — маркированный, li — пункт списка."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой тег семантически подходит для меню навигации?",
+      "options": [
+        "<menu-bar>",
+        "<div class=\"nav\">",
+        "<nav>",
+        "<navigation>"
+      ],
+      "correct": 2,
+      "explanation": "<nav> — блок навигации. Тегов <menu-bar> и <navigation> в HTML нет."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Как открыть ссылку в новой вкладке?",
+      "options": [
+        "open=\"tab\"",
+        "new=\"tab\"",
+        "target=\"_blank\"",
+        "href=\"_new\""
+      ],
+      "correct": 2,
+      "explanation": "target=\"_blank\" открывает ссылку в новой вкладке."
+    },
+    {
+      "type": "choice",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что связывает <label> с полем <input>?",
+      "options": [
+        "for у label и id у input",
+        "value у input",
+        "name у обоих",
+        "href у label"
+      ],
+      "correct": 0,
+      "explanation": "for=\"email\" у label и id=\"email\" у поля — тогда клик по подписи ставит курсор в поле."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой селектор выберет элемент с class=\"card\"?",
+      "options": [
+        "#card",
+        ".card",
+        "card",
+        "*card"
+      ],
+      "correct": 1,
+      "explanation": "Точка — класс, решётка — id, просто слово — тег."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой селектор выберет элемент с id=\"main\"?",
+      "options": [
+        "@main",
+        ".main",
+        "#main",
+        "main"
+      ],
+      "correct": 2,
+      "explanation": "Решётка выбирает по id."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что делает display: flex?",
+      "options": [
+        "Растягивает картинку",
+        "Делает элемент flex-контейнером для детей",
+        "Скрывает элемент",
+        "Делает текст жирным"
+      ],
+      "correct": 1,
+      "explanation": "Дети flex-контейнера встают в ряд, их удобно выравнивать и распределять."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какое свойство меняет цвет текста?",
+      "options": [
+        "background",
+        "font-color",
+        "color",
+        "text-color"
+      ],
+      "correct": 2,
+      "explanation": "Цвет текста — color. Свойств font-color и text-color в CSS нет."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "margin: 10px 20px 30px 40px — в каком порядке стороны?",
+      "options": [
+        "верх, право, низ, лево",
+        "право, лево, верх, низ",
+        "лево, верх, право, низ",
+        "верх, низ, лево, право"
+      ],
+      "correct": 0,
+      "explanation": "По часовой стрелке, начиная сверху: top, right, bottom, left."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что делает box-sizing: border-box?",
+      "options": [
+        "Добавляет тень",
+        "Делает элемент квадратным",
+        "Убирает рамку",
+        "width включает padding и border"
+      ],
+      "correct": 3,
+      "explanation": "С border-box ширина 200px — это вся коробка вместе с отступами и рамкой. Так проще считать размеры."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой селектор самый специфичный?",
+      "options": [
+        "*",
+        "h1",
+        ".title",
+        "#title"
+      ],
+      "correct": 3,
+      "explanation": "Порядок силы: id > класс > тег > *."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Во flex-контейнере justify-content: center по умолчанию центрирует…",
+      "options": [
+        "по горизонтали (главная ось)",
+        "по вертикали",
+        "только текст",
+        "только картинки"
+      ],
+      "correct": 0,
+      "explanation": "justify-content работает по главной оси — при flex-direction: row это горизонталь. По вертикали — align-items."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какая единица считается от размера шрифта корня страницы?",
+      "options": [
+        "rem",
+        "em",
+        "px",
+        "%"
+      ],
+      "correct": 0,
+      "explanation": "rem — root em, от размера шрифта <html>. em — от шрифта родителя."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что делает position: absolute?",
+      "options": [
+        "Закрепляет элемент при прокрутке",
+        "Растягивает на весь экран",
+        "Ничего не меняет",
+        "Позиционирует относительно ближайшего позиционированного предка"
+      ],
+      "correct": 3,
+      "explanation": "absolute отсчитывает top/left от ближайшего предка с position не static. Закрепление при прокрутке — это fixed."
+    },
+    {
+      "type": "choice",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какое значение display полностью убирает элемент?",
+      "options": [
+        "block",
+        "invisible",
+        "none",
+        "hidden"
+      ],
+      "correct": 2,
+      "explanation": "display: none убирает элемент и его место. visibility: hidden прячет, но место остаётся."
+    }
+  ]
+}

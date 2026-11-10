@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "game": "tug",
+  "title": "Канат: HTML и CSS",
+  "author": "q-werty452",
+  "description": "Быстрые вопросы-разминка: теги, атрибуты, свойства CSS. 19 заданий.",
+  "tasks": [
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Тег самого главного заголовка",
+      "answers": [
+        "h1",
+        "<h1>"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Тег ссылки",
+      "answers": [
+        "a",
+        "<a>"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут ссылки с адресом",
+      "answers": [
+        "href"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут картинки с описанием",
+      "answers": [
+        "alt"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Сколько уровней заголовков (h1…h?)",
+      "answers": [
+        "6"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Тег нумерованного списка",
+      "answers": [
+        "ol",
+        "<ol>"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Тег пункта списка",
+      "answers": [
+        "li",
+        "<li>"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Тег однострочного поля ввода",
+      "answers": [
+        "input",
+        "<input>"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Тег, где подключают CSS и пишут <title>",
+      "answers": [
+        "head",
+        "<head>"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Символ селектора класса",
+      "answers": [
+        ".",
+        "точка"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Символ селектора id",
+      "answers": [
+        "#",
+        "решётка",
+        "решетка"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Свойство цвета текста",
+      "answers": [
+        "color"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "display для flex-контейнера",
+      "answers": [
+        "flex"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Внутренний отступ — свойство",
+      "answers": [
+        "padding"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Внешний отступ — свойство",
+      "answers": [
+        "margin"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Свойство, скругляющее углы",
+      "answers": [
+        "border-radius"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "display, который прячет элемент",
+      "answers": [
+        "none"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Сколько px в 1rem по умолчанию",
+      "answers": [
+        "16",
+        "16px"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Свойство размера шрифта",
+      "answers": [
+        "font-size"
+      ],
+      "caseSensitive": false
+    }
+  ]
+}

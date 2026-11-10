@@ -272,3 +272,93 @@ describe("Codewars", () => {
     expect(msgs[2]).toMatchObject({ correct: true, place: 1 });
   });
 });
+
+describe("Найди баг", () => {
+  const findLine = Task.parse({
+    type: "find_line", topic: "HTML", language: "html", explanation: "Тег не закрыт",
+    code: "<ul>\n  <li>Один</li>\n  <li>Два\n</ul>", line: 3,
+  });
+  const best = Task.parse({
+    type: "best_variant", topic: "HTML", language: "html", explanation: "footer — семантика",
+    variants: ['<div class="footer">…</div>', "<footer>…</footer>"], correct: 1,
+  });
+  const fix = Task.parse({
+    type: "fix_bug", topic: "HTML", language: "html", timeLimitSec: 120, code: '<div class="footer">© 2026</div>',
+    rules: [{ selector: "footer", label: "есть footer" }],
+  });
+  const flutter = Task.parse({ type: "find_line", topic: "Flutter", language: "dart", code: "Text('a')\nText(b)", line: 2 });
+  const ok = { passed: 1, total: 1, failures: [] };
+  const no = { passed: 0, total: 1, failures: [{ name: "есть footer", expected: "", got: "не найдено: footer" }] };
+
+  function started(tasks: Task[]): GameData {
+    const g = startGame("bug", tasks, GameSettings.parse({ questionSec: 20 }), 0);
+    onDeadline(g, env(COUNTDOWN_MS));
+    return g;
+  }
+
+  it("принимает три вида заданий (в т.ч. Dart для показа), отвергает остальное", () => {
+    expect(() => startGame("bug", [findLine, best, fix, flutter], settings, 0)).not.toThrow();
+    expect(() => startGame("bug", [q(1)], settings, 0)).toThrow(GameError);
+    const dartFix = Task.parse({ type: "fix_bug", topic: "t", language: "dart", code: "x", tests: [{ call: "f()", expected: "1" }] });
+    expect(() => startGame("bug", [dartFix], settings, 0)).toThrow(/проверкой/);
+    const noRules = Task.parse({ type: "fix_bug", topic: "t", language: "html", code: "<div></div>" });
+    expect(() => startGame("bug", [noRules], settings, 0)).toThrow(GameError);
+  });
+
+  it("найди строку: клик по строке, очки за скорость, статистика по строкам", () => {
+    const g = started([findLine]);
+    expect(() => submit(g, env(4000), "a", "t0", 0)).toThrow(GameError); // строк с нулевым номером нет
+    expect(() => submit(g, env(4000), "a", "t0", 5)).toThrow(GameError);
+    submit(g, env(COUNTDOWN_MS), "a", "t0", 3);
+    submit(g, env(COUNTDOWN_MS + 10_000), "b", "t0", 2);
+    const fx = submit(g, env(COUNTDOWN_MS + 10_000), "c", "t0", 3);
+    expect(g.phase).toBe("reveal");
+    const rv = fx.find((e) => e.msg.type === "reveal")!.msg as { answer: number; stats: number[]; explanation: string };
+    expect(rv).toMatchObject({ answer: 3, stats: [0, 1, 2, 0], explanation: "Тег не закрыт" });
+    expect(g.scores).toEqual({ a: 1000, b: 0, c: 750 });
+  });
+
+  it("выбери лучший вариант — как викторина", () => {
+    const g = started([best]);
+    submit(g, env(COUNTDOWN_MS), "a", "t0", 1);
+    expect(() => submit(g, env(COUNTDOWN_MS), "a", "t0", 0)).toThrow(/принят/);
+    expect(() => submit(g, env(COUNTDOWN_MS), "b", "t0", 2)).toThrow(GameError);
+  });
+
+  it("исправь баг: свой таймер, попытки до правильного, очки за скорость", () => {
+    const g = started([fix]);
+    expect(g.deadline).toBe(COUNTDOWN_MS + 120_000);
+    const wrong = submit(g, env(COUNTDOWN_MS + 1000), "a", "t0", undefined, { code: "<div></div>", report: no });
+    expect(wrong.find((e) => e.to === "teacher")!.msg).toMatchObject({ event: { correct: false } });
+    submit(g, env(COUNTDOWN_MS + 60_000), "a", "t0", undefined, { code: "<footer></footer>", report: ok });
+    expect(g.answers.t0!.a!.points).toBe(750);
+    expect(() => submit(g, env(COUNTDOWN_MS + 61_000), "a", "t0", undefined, { code: "<footer/>", report: ok })).toThrow(/исправлен/);
+    // Переподключение: «исправлено» возвращается.
+    expect(resumeFor(g, env(COUNTDOWN_MS + 62_000), "a").map((m) => m.type)).toEqual(["game_started", "task", "result", "state"]);
+    submit(g, env(COUNTDOWN_MS + 70_000), "b", "t0", undefined, { code: "<footer></footer>", report: ok });
+    const fx = submit(g, env(COUNTDOWN_MS + 80_000), "c", "t0", undefined, { code: "<footer></footer>", report: ok });
+    expect(g.phase).toBe("reveal");
+    expect(fx.find((e) => e.msg.type === "reveal")!.msg).toMatchObject({ stats: [3] });
+  });
+
+  it("задания разных видов идут подряд", () => {
+    const g = started([findLine, fix, best]);
+    next(g, env(5000)); // показ
+    next(g, env(6000));
+    expect(g.tasks[g.index]!.type).toBe("fix_bug");
+    expect(g.deadline).toBe(6000 + 120_000);
+    next(g, env(7000));
+    next(g, env(8000));
+    expect(g.tasks[g.index]!.type).toBe("best_variant");
+    expect(g.deadline).toBe(8000 + 20_000);
+  });
+});
+
+describe("Codewars на HTML/CSS", () => {
+  it("задача на HTML с правилами вместо тестов", () => {
+    const html = Task.parse({ type: "code", topic: "HTML", language: "html", prompt: "Сверстай меню", starter: "<nav></nav>", rules: [{ selector: "nav li", minCount: 3, label: "3 пункта" }] });
+    expect(() => startGame("codewars", [html], settings, 0)).not.toThrow();
+    const noRules = Task.parse({ type: "code", topic: "HTML", language: "css", prompt: "p", starter: "" });
+    expect(() => startGame("codewars", [noRules], settings, 0)).toThrow(GameError);
+  });
+});

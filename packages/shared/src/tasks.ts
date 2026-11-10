@@ -1,8 +1,16 @@
 import { z } from "zod";
 
-/** Языки заданий в первой версии. */
-export const Language = z.enum(["python", "javascript", "html", "css"]);
+/**
+ * Языки заданий. Приоритет — фронтенд: HTML/CSS → JavaScript → Python.
+ * Dart (Flutter) — только для показа кода (найди строку, выбери лучший), без запуска.
+ */
+export const Language = z.enum(["html", "css", "javascript", "python", "dart"]);
 export type Language = z.infer<typeof Language>;
+
+/** Языки, код на которых проверяется у ученика (есть раннер). */
+export const RUNNABLE_LANGUAGES: ReadonlySet<Language> = new Set(["html", "css", "javascript", "python"]);
+/** Языки, где проверка — правила по селекторам, а не тесты-вызовы. */
+export const RULE_LANGUAGES: ReadonlySet<Language> = new Set(["html", "css"]);
 
 export const Difficulty = z.enum(["easy", "medium", "hard"]);
 export type Difficulty = z.infer<typeof Difficulty>;
@@ -23,14 +31,25 @@ export const CodeTest = z.object({
 });
 export type CodeTest = z.infer<typeof CodeTest>;
 
-/** Правило для HTML/CSS: селектор должен (или не должен) находиться. */
+/**
+ * Правило для HTML/CSS. Без `css` — проверка разметки по CSS-селектору
+ * («есть footer», «у каждого img есть alt», «нет div.footer»).
+ * С `css` — проверка таблицы стилей: в правиле с этим селектором есть
+ * (или нет, если exists: false) свойство с нужным значением.
+ */
 export const HtmlRule = z.object({
   selector: z.string().min(1),
-  /** true — элемент обязан быть; false — элемента быть не должно. */
+  /** true — элемент/свойство обязано быть; false — быть не должно. */
   exists: z.boolean().default(true),
   /** Каждый найденный элемент обязан иметь этот атрибут (например, alt у img). */
   everyHasAttr: z.string().optional(),
-  /** Человеческое описание: «есть footer», «у каждого img есть alt». */
+  /** Минимальное количество найденных элементов. */
+  minCount: z.number().int().min(1).optional(),
+  /** Текст элемента должен содержать эту строку (без учёта регистра). */
+  text: z.string().optional(),
+  /** Проверка CSS: свойство (и, если задано, значение) в правиле с этим селектором. */
+  css: z.object({ property: z.string().min(1), value: z.string().optional() }).optional(),
+  /** Человеческое описание: «есть footer», «у .card display: flex». */
   label: z.string().min(1),
 });
 export type HtmlRule = z.infer<typeof HtmlRule>;
@@ -118,6 +137,11 @@ export type TaskType = Task["type"];
 export const TaskSet = z.object({
   version: z.literal(1).default(1),
   title: z.string().default(""),
+  /** Для какой игры набор (банк задач показывает подходящие). */
+  game: z.enum(["quiz", "tug", "codewars", "race", "bug"]).optional(),
+  description: z.string().optional(),
+  /** Автор набора — GitHub-ник, чтобы учителя видели, кто прислал задания. */
+  author: z.string().optional(),
   tasks: z.array(Task),
 });
 export type TaskSet = z.infer<typeof TaskSet>;

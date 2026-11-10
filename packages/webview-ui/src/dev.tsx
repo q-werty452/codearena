@@ -19,6 +19,7 @@ import { JoinScreen } from "./screens/Join.tsx";
 import { App } from "./App.tsx";
 import { installDevHost, scenario, type DevScenario } from "./devHost.ts";
 import { sampleCodewars, sampleQuiz, sampleTug } from "./lib/game.ts";
+import { bankFor } from "./lib/bank.ts";
 
 function Gallery() {
   const [dark, setDark] = useState(() => new URLSearchParams(location.search).get("theme") !== "light");
@@ -41,7 +42,9 @@ function Gallery() {
             ? { autoTug: sampleTug(locale).tasks }
             : tab === "codewars"
               ? { autoCode: sampleCodewars(locale).tasks }
-              : {},
+              : tab === "bug"
+                ? { autoBug: [0, 7, 14, 1, 8].map((i) => bankFor("bug")[0]!.set.tasks[i]!) }
+                : {},
       );
       setMount((m) => m + 1);
     }
@@ -76,6 +79,7 @@ function Gallery() {
                 { value: "quiz", label: "Викторина" },
                 { value: "tug", label: "Канат" },
                 { value: "codewars", label: "Codewars" },
+                { value: "bug", label: "Баг" },
               ]}
             />
             <Segmented

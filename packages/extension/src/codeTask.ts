@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import type { CodeTest, GameSnapshot, LocalRun } from "@codearena/shared";
-import { runTests, toReport } from "./runner.ts";
+import type { GameSnapshot, LocalRun } from "@codearena/shared";
+import { runChecks, toReport, type Checks } from "./runner.ts";
 import type { Session } from "./session.ts";
-import { MARKER, extractSolution, fileExtension, taskFileContent, type CodeTask } from "./taskFile.ts";
+import { MARKER, extractSolution, fileExtension, taskFileContent, type FileTask } from "./taskFile.ts";
 
 /**
  * Задачи с кодом у ученика: файл с условием и заготовкой в обычном редакторе,
@@ -47,7 +47,7 @@ export class CodeTasks implements vscode.Disposable {
       vscode.commands.registerCommand("codearena.runTests", () => this.run(false)),
       vscode.commands.registerCommand("codearena.submitCode", () => this.run(true)),
       vscode.commands.registerCommand("codearena.openTaskFile", () => this.openCurrent()),
-      vscode.languages.registerCodeLensProvider([{ language: "python" }, { language: "javascript" }], {
+      vscode.languages.registerCodeLensProvider([{ language: "html" }, { language: "css" }, { language: "javascript" }, { language: "python" }], {
         onDidChangeCodeLenses: this.lensEmitter.event,
         provideCodeLenses: (doc) => this.lenses(doc),
       }),
@@ -60,9 +60,13 @@ export class CodeTasks implements vscode.Disposable {
     return this.session.snapshot.game;
   }
 
-  private currentTask(): CodeTask | null {
+  /** Задача, которую ученик решает в редакторе: Codewars или «Исправь баг». */
+  private currentTask(): FileTask | null {
     const g = this.game;
-    return this.session.snapshot.role === "student" && g?.kind === "codewars" && g.task?.type === "code" ? (g.task as CodeTask) : null;
+    if (this.session.snapshot.role !== "student" || !g?.task) return null;
+    if (g.kind === "codewars" && g.task.type === "code") return g.task as FileTask;
+    if (g.kind === "bug" && g.task.type === "fix_bug") return g.task as FileTask;
+    return null;
   }
 
   private isTaskFile(uri: vscode.Uri | undefined): boolean {
@@ -84,7 +88,7 @@ export class CodeTasks implements vscode.Disposable {
     this.refreshUi();
   }
 
-  private async openTask(task: CodeTask, index: number): Promise<void> {
+  private async openTask(task: FileTask, index: number): Promise<void> {
     const dir = vscode.Uri.joinPath(this.ctx.globalStorageUri, "tasks", this.session.snapshot.code ?? "room", String(this.gameStamp || Date.now()));
     const file = vscode.Uri.joinPath(dir, `task-${index + 1}.${fileExtension(task.language)}`);
     this.files.set(task.id, file);
@@ -121,15 +125,15 @@ export class CodeTasks implements vscode.Disposable {
 
     const doc = await vscode.workspace.openTextDocument(file);
     const code = extractSolution(doc.getText());
-    const tests: CodeTest[] = task.tests;
+    const checks: Checks = { tests: task.tests, rules: task.rules ?? [] };
     this.running = true;
     this.setRun({ taskId: task.id, running: true, results: [], error: null, submitted: submit });
     this.refreshUi();
     try {
-      const outcome = await runTests(task.language === "python" ? "python" : "javascript", code, tests);
+      const outcome = await runChecks(task.language, code, checks);
       this.setRun({ taskId: task.id, running: false, results: outcome.results, error: outcome.error, message: outcome.message, submitted: submit });
-      if (outcome.error === "no_python") return;
-      if (submit) this.session.send({ type: "submit", taskId: task.id, code, report: toReport(outcome, tests) });
+      if (outcome.error === "no_python" || outcome.error === "no_runtime") return;
+      if (submit) this.session.send({ type: "submit", taskId: task.id, code, report: toReport(outcome, checks) });
     } finally {
       this.running = false;
       this.refreshUi();

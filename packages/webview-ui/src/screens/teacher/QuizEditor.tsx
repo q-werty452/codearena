@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowDown, ArrowLeft, ArrowUp, Check, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, Check, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { OPTION_SHAPES, type Task, type TaskSet } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -47,6 +47,7 @@ export function QuizEditor({
   onBack,
   onStart,
   onSample,
+  onBank,
   onLoad,
   onSave,
 }: {
@@ -57,6 +58,7 @@ export function QuizEditor({
   onBack: () => void;
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
+  onBank?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -92,6 +94,11 @@ export function QuizEditor({
             {t("pick.title")}
           </Button>
           <div className="flex flex-wrap items-center gap-2">
+            {onBank && (
+              <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
+                {t("bank.open")}
+              </Button>
+            )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
               {t("edit.sample")}
             </Button>

@@ -11,14 +11,14 @@ describe("Python", () => {
     const r = await runTests("python", "def evens(nums):\n    return [n for n in nums if n % 2 == 0]", evensTests);
     expect(r.error).toBeNull();
     expect(r.results.map((x) => x.ok)).toEqual([true, true]);
-    expect(toReport(r, evensTests)).toEqual({ passed: 2, total: 2, failures: [] });
+    expect(toReport(r, { tests: evensTests, rules: [] })).toEqual({ passed: 2, total: 2, failures: [] });
   });
 
   it("неправильное: видно, какой тест упал и что вернулось", async () => {
     const r = await runTests("python", "def evens(nums):\n    print('debug')\n    return nums", evensTests);
     expect(r.results[0]).toMatchObject({ ok: false, got: "[1, 2, 3, 4]" });
     expect(r.results[1]!.ok).toBe(true);
-    expect(toReport(r, evensTests).failures[0]).toMatchObject({ name: "evens([1, 2, 3, 4])", expected: "[2, 4]" });
+    expect(toReport(r, { tests: evensTests, rules: [] }).failures[0]).toMatchObject({ name: "evens([1, 2, 3, 4])", expected: "[2, 4]" });
   });
 
   it("ошибка синтаксиса и исключение в тесте", async () => {

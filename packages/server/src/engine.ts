@@ -3,10 +3,12 @@
  * никакого Cloudflare, только «состояние + время → новое состояние + сообщения».
  * Durable Object комнаты хранит GameData и рассылает эффекты.
  *
- * Игры: викторина (quiz), перетягивание каната (tug), Codewars (codewars).
+ * Игры: викторина (quiz), «Найди баг» (bug), перетягивание каната (tug), Codewars (codewars).
  */
 import {
   LIMITS,
+  RULE_LANGUAGES,
+  RUNNABLE_LANGUAGES,
   checkShortAnswer,
   codewarsPoints,
   pullRope,
@@ -104,9 +106,17 @@ export function startGame(game: GameKind, tasks: Task[], settings: GameSettings,
   if (tasks.length === 0) throw new GameError("invalid_tasks", "Добавьте хотя бы одно задание");
   if (game === "quiz") {
     if (tasks.some((t) => t.type !== "choice")) throw new GameError("invalid_tasks", "В викторине только вопросы с вариантами ответа");
+  } else if (game === "bug") {
+    for (const t of tasks) {
+      if (t.type !== "find_line" && t.type !== "fix_bug" && t.type !== "best_variant") {
+        throw new GameError("invalid_tasks", "В «Найди баг» только задания: найди строку, исправь баг, выбери лучший");
+      }
+      if (t.type === "fix_bug" && !hasChecks(t)) throw new GameError("invalid_tasks", "«Исправь баг» нужен язык с проверкой и тесты или правила");
+    }
   } else if (game === "codewars") {
-    const bad = tasks.some((t) => t.type !== "code" || (t.language !== "python" && t.language !== "javascript") || t.tests.length === 0);
-    if (bad) throw new GameError("invalid_tasks", "В Codewars нужны задачи на Python или JavaScript с тестами");
+    if (tasks.some((t) => t.type !== "code" || !hasChecks(t))) {
+      throw new GameError("invalid_tasks", "В Codewars нужны задачи с тестами (JS/Python) или правилами (HTML/CSS)");
+    }
   } else if (game === "tug") {
     if (mode !== "teams2") throw new GameError("need_two_teams", "Для каната нужно ровно 2 команды");
     if (tasks.some((t) => t.type !== "short_answer")) throw new GameError("invalid_tasks", "В канате только задания с коротким ответом");
@@ -135,6 +145,13 @@ export function startGame(game: GameKind, tasks: Task[], settings: GameSettings,
   };
 }
 
+/** Код можно проверить у ученика: язык с раннером и есть тесты/правила. */
+function hasChecks(t: Task): boolean {
+  if (t.type !== "code" && t.type !== "fix_bug") return false;
+  if (!RUNNABLE_LANGUAGES.has(t.language)) return false;
+  return RULE_LANGUAGES.has(t.language) ? t.rules.length > 0 : t.tests.length > 0;
+}
+
 export function startEffects(g: GameData, env: EngineEnv): Effect[] {
   return [{ to: "all", msg: { type: "game_started", game: g.game, settings: g.settings } }, stateEffect(g, env)];
 }
@@ -156,8 +173,9 @@ function begin(g: GameData, env: EngineEnv): Effect[] {
 }
 
 function limitMs(g: GameData): number {
+  const task = g.tasks[g.index];
   if (g.game === "tug") return g.settings.roundSec * 1000;
-  if (g.game === "codewars") return (g.tasks[g.index]?.timeLimitSec ?? 300) * 1000;
+  if (g.game === "codewars" || task?.type === "fix_bug") return (task?.timeLimitSec ?? 300) * 1000;
   return g.settings.questionSec * 1000;
 }
 
@@ -202,6 +220,7 @@ export function submit(
   if (env.now > (g.deadline ?? 0)) throw new GameError("locked", "Время вышло");
   if (g.game === "tug") return submitTug(g, env, playerId, task, answer);
   if (g.game === "codewars") return submitCode(g, env, playerId, extra.code, extra.report);
+  if (task.type === "fix_bug") return submitFix(g, env, playerId, extra.code, extra.report);
   return submitQuiz(g, env, playerId, task, answer);
 }
 
@@ -214,6 +233,29 @@ function solutionsRanked(g: GameData, env: EngineEnv) {
       .filter(([, a]) => a.correct)
       .map(([playerId, a]) => ({ playerId, code: String(a.answer), at: a.at })),
   ).map((s) => ({ ...s, name: names.get(s.playerId) ?? "?" }));
+}
+
+/**
+ * «Исправь баг»: как Codewars, но очки — за скорость (500–1000), а не за длину.
+ * Пробовать можно до правильного ответа; неправильные попытки видит только учитель.
+ */
+function submitFix(g: GameData, env: EngineEnv, playerId: string, code: string | undefined, report: TestReport | undefined): Effect[] {
+  const bucket = (g.answers[g.taskKey] ??= {});
+  if (bucket[playerId]?.correct) throw new GameError("already_answered", "Баг уже исправлен");
+  if (typeof code !== "string" || !code.trim() || !report) throw new GameError("unknown_task", "Нет кода или результатов проверки");
+  const correct = report.total > 0 && report.passed === report.total;
+  const out: Effect[] = [
+    { to: "teacher", msg: { type: "teacher_feed", event: { kind: "submission", playerId, taskId: g.taskKey, correct, code, report, at: env.now } } },
+  ];
+  if (!correct) {
+    out.push({ to: { player: playerId }, msg: { type: "result", taskId: g.taskKey, correct: false, points: 0, lockedUntil: null, place: null } });
+    return out;
+  }
+  const points = quizPoints(env.now - g.shownAt, (g.deadline ?? env.now) - g.shownAt, true);
+  bucket[playerId] = { answer: code, at: env.now, correct: true, points };
+  out.push({ to: { player: playerId }, msg: { type: "result", taskId: g.taskKey, correct: true, points, lockedUntil: null, place: null } });
+  if ([...env.online].every((id) => bucket[id]?.correct)) return [...out, ...reveal(g, env)];
+  return [...out, stateEffect(g, env)];
 }
 
 /**
@@ -241,13 +283,21 @@ function submitCode(g: GameData, env: EngineEnv, playerId: string, code: string 
   return [...out, stateEffect(g, env)];
 }
 
+/** Вопрос с одним ответом: вариант викторины, строка с багом, лучший вариант кода. */
 function submitQuiz(g: GameData, env: EngineEnv, playerId: string, task: IdTask, answer: unknown): Effect[] {
   const bucket = (g.answers[g.taskKey] ??= {});
   if (bucket[playerId]) throw new GameError("already_answered", "Ответ уже принят");
-  if (task.type !== "choice" || typeof answer !== "number" || answer < 0 || answer >= task.options.length) {
+  const max =
+    task.type === "choice" ? task.options.length
+    : task.type === "best_variant" ? task.variants.length
+    : task.type === "find_line" ? task.code.split("\n").length + 1
+    : 0;
+  const min = task.type === "find_line" ? 1 : 0;
+  if (typeof answer !== "number" || !Number.isInteger(answer) || answer < min || answer >= max) {
     throw new GameError("unknown_task", "Неверный вариант");
   }
-  const correct = answer === task.correct;
+  const right = task.type === "find_line" ? task.line : task.type === "choice" || task.type === "best_variant" ? task.correct : -1;
+  const correct = answer === right;
   const points = quizPoints(env.now - g.shownAt, (g.deadline ?? env.now) - g.shownAt, correct);
   bucket[playerId] = { answer, at: env.now, correct, points };
 
@@ -310,9 +360,22 @@ function revealMessages(g: GameData, task: IdTask, env: EngineEnv): ServerMessag
     const solutions = solutionsRanked(g, env).map(({ playerId, name, code, length }) => ({ playerId, name, code, length }));
     return [{ type: "reveal", taskId: g.taskKey, answer: null, explanation: task.explanation, solutions }];
   }
-  if (task.type !== "choice") return [];
-  const stats = task.options.map((_, i) => Object.values(bucket).filter((a) => a.answer === i).length);
-  return [{ type: "reveal", taskId: g.taskKey, answer: task.correct, explanation: task.explanation, stats }];
+  const count = (v: number) => Object.values(bucket).filter((a) => a.answer === v).length;
+  switch (task.type) {
+    case "choice":
+      return [{ type: "reveal", taskId: g.taskKey, answer: task.correct, explanation: task.explanation, stats: task.options.map((_, i) => count(i)) }];
+    case "best_variant":
+      return [{ type: "reveal", taskId: g.taskKey, answer: task.correct, explanation: task.explanation, stats: task.variants.map((_, i) => count(i)) }];
+    case "find_line": {
+      // stats[i] — сколько человек выбрали строку i + 1.
+      const lines = task.code.split("\n").length;
+      return [{ type: "reveal", taskId: g.taskKey, answer: task.line, explanation: task.explanation, stats: Array.from({ length: lines }, (_, i) => count(i + 1)) }];
+    }
+    case "fix_bug":
+      return [{ type: "reveal", taskId: g.taskKey, answer: null, explanation: task.explanation, stats: [Object.values(bucket).filter((a) => a.correct).length] }];
+    default:
+      return [];
+  }
 }
 
 function reveal(g: GameData, env: EngineEnv): Effect[] {
@@ -459,7 +522,11 @@ export function resumeFor(g: GameData, env: EngineEnv, playerId: string | null):
     out.push(taskMessage(g));
     const bucket = g.answers[g.taskKey] ?? {};
     const mine = playerId ? bucket[playerId] : undefined;
-    if (g.game === "quiz" && mine && g.phase !== "reveal") out.push({ type: "answered", taskId: g.taskKey, answer: mine.answer });
+    const single = task.type === "choice" || task.type === "find_line" || task.type === "best_variant";
+    if (single && mine && g.phase !== "reveal") out.push({ type: "answered", taskId: g.taskKey, answer: mine.answer });
+    if (task.type === "fix_bug" && mine?.correct && g.phase !== "reveal") {
+      out.push({ type: "result", taskId: g.taskKey, correct: true, points: mine.points, lockedUntil: null, place: null });
+    }
     if (g.game === "codewars" && mine?.correct && g.phase !== "reveal") {
       const place = solutionsRanked(g, env).findIndex((s) => s.playerId === playerId) + 1;
       out.push({ type: "result", taskId: g.taskKey, correct: true, points: 0, lockedUntil: null, place });

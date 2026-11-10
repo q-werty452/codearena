@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, Copy, FlaskConical, FolderOpen, Play, Plus, Save, Sparkles, Trash2, X, Library } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { HostToUi, Task, TaskSet, TestResult } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -52,6 +52,7 @@ export function CodeEditor({
   onBack,
   onStart,
   onSample,
+  onBank,
   onLoad,
   onSave,
 }: {
@@ -60,6 +61,7 @@ export function CodeEditor({
   onBack: () => void;
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
+  onBank?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -78,6 +80,11 @@ export function CodeEditor({
             {t("pick.title")}
           </Button>
           <div className="flex flex-wrap items-center gap-2">
+            {onBank && (
+              <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
+                {t("bank.open")}
+              </Button>
+            )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
               {t("edit.sample")}
             </Button>
@@ -191,7 +198,7 @@ function CodeCard({
     reqId.current = Math.random().toString(36).slice(2);
     setCheck({ running: true, results: [], error: null });
     const tests = q.tests.filter((x) => x.call.trim() && x.expected.trim());
-    host.post({ type: "check_code", requestId: reqId.current, language: q.language as Lang, code: q.solution ?? "", tests });
+    host.post({ type: "check_code", requestId: reqId.current, language: q.language, code: q.solution ?? "", tests, rules: q.rules });
   };
   const failed = check?.results.filter((r) => !r.ok).length ?? 0;
 

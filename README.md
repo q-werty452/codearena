@@ -6,7 +6,9 @@ Open source (MIT), zero cost: students' code runs on their own machines, the gam
 
 Made by [**q-werty452**](https://github.com/q-werty452).
 
-> 🚧 Work in progress — stage 1 of 9 (skeleton + design system). See the [spec](docs/TZ.pdf) for the full plan.
+> 🚧 Work in progress. Ready: rooms & teams, **Quiz**, **Find the bug**, **Tug of war**, **Codewars**. Next: Race, anti-cheat & teacher table, AI task generation, publishing. See the [spec](docs/TZ.pdf).
+
+Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CSS are checked with selector rules (“there is a `<footer>`”, “every `img` has `alt`”, “`.card` has `display: flex`”), JavaScript and Python with test calls — all on the student's computer. Django/DRF and Flutter snippets are supported in Quiz and Find the bug (no code execution).
 
 ## Repository layout
 
@@ -16,7 +18,7 @@ Made by [**q-werty452**](https://github.com/q-werty452).
 | [`packages/webview-ui`](packages/webview-ui) | All game UI inside VS Code (student and teacher panels) | React, Vite, Tailwind CSS, Motion |
 | [`packages/server`](packages/server) | Rooms, players, teams, scores, timers, answer checking | Cloudflare Workers, Durable Objects (SQLite), WebSocket Hibernation |
 | [`packages/shared`](packages/shared) | Message protocol, task schemas, scoring logic | TypeScript, Zod |
-| [`tasks/`](tasks) | Open task bank — send your tasks as a pull request | JSON |
+| [`tasks/`](tasks) | Open task bank (HTML/CSS sets for every game), validated by tests — send yours as a pull request | JSON |
 
 ## Development
 
@@ -24,7 +26,8 @@ Requires Node.js 20+ and VS Code.
 
 ```sh
 npm install
-npm test                 # shared logic + server tests (server tests run inside workerd)
+npm test                 # shared logic, server (inside workerd), runners, task bank
+npm run e2e -w codearena # drives a real VS Code instance (needs npm run dev:server)
 npm run typecheck
 
 npm run dev:server       # local game server on http://127.0.0.1:8787

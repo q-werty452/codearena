@@ -7,6 +7,8 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: "./",
+  // Банк задач лежит в корне репозитория (tasks/) и встраивается в сборку.
+  server: { fs: { allow: ["../.."] } },
   build: {
     outDir: "../extension/media/webview",
     emptyOutDir: true,

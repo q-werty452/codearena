@@ -1,0 +1,377 @@
+{
+  "version": 1,
+  "game": "bug",
+  "title": "Найди баг: HTML и CSS",
+  "author": "q-werty452",
+  "description": "Незакрытые теги, href и src, точки с запятой, семантика, flex вместо float, доступность. 20 заданий: найди строку, исправь баг, выбери лучший.",
+  "tasks": [
+    {
+      "type": "find_line",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<ul class=\"menu\">\n  <li><a href=\"/\">Главная</a></li>\n  <li><a href=\"/about\">О нас</a>\n  <li><a href=\"/contacts\">Контакты</a></li>\n</ul>",
+      "line": 3,
+      "explanation": "Пункт «О нас» не закрыт тегом </li>. Браузер угадает, но вложенность станет неочевидной."
+    },
+    {
+      "type": "find_line",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<nav>\n  <a href=\"/\">Главная</a>\n  <a src=\"/about\">О нас</a>\n  <a href=\"/blog\">Блог</a>\n</nav>",
+      "line": 3,
+      "explanation": "Адрес ссылки пишется в атрибуте href. Атрибут src — у картинок, скриптов и видео."
+    },
+    {
+      "type": "find_line",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<header>\n  <h1>Мой блог</h2>\n  <p>Заметки о вёрстке</p>\n</header>",
+      "line": 2,
+      "explanation": "Открыли <h1>, а закрыли </h2>. Закрывающий тег должен совпадать с открывающим."
+    },
+    {
+      "type": "find_line",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".card {\n  padding: 16px\n  border-radius: 12px;\n  background: #fff;\n}",
+      "line": 2,
+      "explanation": "После padding: 16px нет точки с запятой — браузер склеит его со следующей строкой и проигнорирует оба свойства."
+    },
+    {
+      "type": "find_line",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".title {\n  font-size: 24px;\n  colour: #333;\n  margin-bottom: 8px;\n}",
+      "line": 3,
+      "explanation": "Свойство называется color — по-американски, без «u». Неизвестные свойства браузер просто пропускает."
+    },
+    {
+      "type": "find_line",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": "/* Для <div class=\"card\"> */\ncard {\n  display: flex;\n  gap: 12px;\n}",
+      "line": 2,
+      "explanation": "Без точки card — это селектор тега <card>. Для класса нужен .card."
+    },
+    {
+      "type": "find_line",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".box {\n  width: 200px;\n  margin: 16;\n  border: 1px solid #ccc;\n}",
+      "line": 3,
+      "explanation": "У ненулевых размеров нужна единица: 16px. Число без единицы браузер не примет (кроме 0)."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "html",
+      "prompt": "Замени div на семантический тег для подвала страницы.",
+      "code": "<body>\n  <header>Шапка</header>\n  <main>Контент</main>\n  <div class=\"footer\">© 2026</div>\n</body>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "footer",
+          "label": "есть тег <footer>",
+          "exists": true
+        },
+        {
+          "selector": "div.footer",
+          "label": "нет div.footer",
+          "exists": false
+        },
+        {
+          "selector": "footer",
+          "label": "в подвале остался текст «© 2026»",
+          "exists": true,
+          "text": "© 2026"
+        }
+      ],
+      "solution": "<body>\n  <header>Шапка</header>\n  <main>Контент</main>\n  <footer>© 2026</footer>\n</body>",
+      "explanation": "<footer> сообщает браузеру, поисковикам и экранным чтецам, что это подвал. div.footer — просто коробка без смысла."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "html",
+      "prompt": "Добавь описания картинкам, у которых их нет.",
+      "code": "<section class=\"gallery\">\n  <img src=\"cat.jpg\">\n  <img src=\"dog.jpg\">\n  <img src=\"parrot.jpg\" alt=\"Попугай\">\n</section>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "img",
+          "label": "у каждой картинки есть alt",
+          "exists": true,
+          "everyHasAttr": "alt"
+        },
+        {
+          "selector": ".gallery img",
+          "label": "все три картинки на месте",
+          "exists": true,
+          "minCount": 3
+        }
+      ],
+      "solution": "<section class=\"gallery\">\n  <img src=\"cat.jpg\" alt=\"Кот\">\n  <img src=\"dog.jpg\" alt=\"Собака\">\n  <img src=\"parrot.jpg\" alt=\"Попугай\">\n</section>",
+      "explanation": "alt читают экранные чтецы и показывает браузер, если картинка не загрузилась."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "html",
+      "prompt": "У поля нет подписи. Добавь <label>, связанный с полем.",
+      "code": "<form>\n  <input id=\"email\" type=\"email\" placeholder=\"Email\">\n  <button type=\"submit\">Подписаться</button>\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "label[for=\"email\"]",
+          "label": "есть label for=\"email\"",
+          "exists": true
+        },
+        {
+          "selector": "input#email",
+          "label": "поле с id=\"email\" на месте",
+          "exists": true
+        }
+      ],
+      "solution": "<form>\n  <label for=\"email\">Email</label>\n  <input id=\"email\" type=\"email\" placeholder=\"Email\">\n  <button type=\"submit\">Подписаться</button>\n</form>",
+      "explanation": "label с for, равным id поля, делает подпись кликабельной и понятной для экранных чтецов. placeholder подписью не считается."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "html",
+      "prompt": "Меню сделано через <br>. Переделай его в настоящий список.",
+      "code": "<div class=\"menu\">\n  Главная<br>\n  Каталог<br>\n  Контакты\n</div>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "ul",
+          "label": "есть список <ul>",
+          "exists": true
+        },
+        {
+          "selector": "ul > li",
+          "label": "в списке 3 пункта",
+          "exists": true,
+          "minCount": 3
+        },
+        {
+          "selector": "br",
+          "label": "нет <br>",
+          "exists": false
+        }
+      ],
+      "solution": "<ul class=\"menu\">\n  <li>Главная</li>\n  <li>Каталог</li>\n  <li>Контакты</li>\n</ul>",
+      "explanation": "Список пунктов — это <ul> и <li>. Так их проще стилизовать, а экранные чтецы скажут «список из 3 пунктов»."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "html",
+      "prompt": "Главный заголовок страницы сделан тегом <h3>. Исправь уровень.",
+      "code": "<main>\n  <h3>Курсы фронтенда</h3>\n  <p>Учим HTML, CSS и JavaScript.</p>\n</main>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "h1",
+          "label": "заголовок «Курсы фронтенда» — это <h1>",
+          "exists": true,
+          "text": "Курсы фронтенда"
+        },
+        {
+          "selector": "h3",
+          "label": "нет <h3>",
+          "exists": false
+        }
+      ],
+      "solution": "<main>\n  <h1>Курсы фронтенда</h1>\n  <p>Учим HTML, CSS и JavaScript.</p>\n</main>",
+      "explanation": "Уровень заголовка — это его важность, а не размер. Размер меняют в CSS."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "css",
+      "prompt": "Отцентрируй содержимое .center по горизонтали и вертикали через flex.",
+      "code": ".center {\n  text-align: center;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".center",
+          "label": "display: flex",
+          "exists": true,
+          "css": {
+            "property": "display",
+            "value": "flex"
+          }
+        },
+        {
+          "selector": ".center",
+          "label": "justify-content: center",
+          "exists": true,
+          "css": {
+            "property": "justify-content",
+            "value": "center"
+          }
+        },
+        {
+          "selector": ".center",
+          "label": "align-items: center",
+          "exists": true,
+          "css": {
+            "property": "align-items",
+            "value": "center"
+          }
+        }
+      ],
+      "solution": ".center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}",
+      "explanation": "text-align центрирует только текст. Flex с justify-content и align-items центрирует любые блоки по обеим осям."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 120,
+      "language": "css",
+      "prompt": "Карточки стоят через float. Переделай раскладку на flex.",
+      "code": ".cards {\n  overflow: hidden;\n}\n.card {\n  float: left;\n  width: 30%;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".cards",
+          "label": "у .cards display: flex",
+          "exists": true,
+          "css": {
+            "property": "display",
+            "value": "flex"
+          }
+        },
+        {
+          "selector": ".card",
+          "label": "у .card нет float",
+          "exists": false,
+          "css": {
+            "property": "float"
+          }
+        }
+      ],
+      "solution": ".cards {\n  display: flex;\n  gap: 16px;\n}\n.card {\n  width: 30%;\n}",
+      "explanation": "float придумали для обтекания картинок текстом. Для раскладки в ряд есть flex — без хаков с overflow."
+    },
+    {
+      "type": "best_variant",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "<div class=\"footer\">\n  © 2026 CodeArena\n</div>",
+        "<footer>\n  © 2026 CodeArena\n</footer>"
+      ],
+      "correct": 1,
+      "explanation": "<footer> — семантический тег: и людям, и поисковикам понятно, что это подвал страницы."
+    },
+    {
+      "type": "best_variant",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "<p>Сдать до <strong>пятницы</strong>!</p>",
+        "<p>Сдать до <b>пятницы</b>!</p>"
+      ],
+      "correct": 0,
+      "explanation": "<strong> означает «это важно» — экранные чтецы это передают. <b> только делает текст жирным."
+    },
+    {
+      "type": "best_variant",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "<div class=\"btn\" onclick=\"send()\">\n  Отправить\n</div>",
+        "<button type=\"button\" onclick=\"send()\">\n  Отправить\n</button>"
+      ],
+      "correct": 1,
+      "explanation": "<button> нажимается с клавиатуры (Tab + Enter), фокусируется и понятен экранным чтецам. div всему этому надо учить вручную."
+    },
+    {
+      "type": "best_variant",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        ".cards {\n  display: flex;\n  gap: 16px;\n}\n.card {\n  flex: 1;\n}",
+        ".cards {\n  overflow: hidden;\n}\n.card {\n  float: left;\n  width: 33%;\n}"
+      ],
+      "correct": 0,
+      "explanation": "Flex — современный способ поставить блоки в ряд: ровные промежутки через gap, без хаков с overflow."
+    },
+    {
+      "type": "best_variant",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        ".box {\n  margin: 10px 20px;\n}",
+        ".box {\n  margin-top: 10px;\n  margin-right: 20px;\n  margin-bottom: 10px;\n  margin-left: 20px;\n}"
+      ],
+      "correct": 0,
+      "explanation": "Сокращённая запись margin: верх/низ 10px, лево/право 20px. Короче и читается быстрее."
+    },
+    {
+      "type": "best_variant",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "<img src=\"logo.png\" alt=\"CodeArena — логотип\">",
+        "<img src=\"logo.png\">"
+      ],
+      "correct": 0,
+      "explanation": "Без alt экранный чтец прочитает имя файла, а при ошибке загрузки будет пустое место."
+    }
+  ]
+}

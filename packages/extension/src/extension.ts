@@ -4,7 +4,7 @@ import { TaskSet, type HostToUi, type UiToHost } from "@codearena/shared";
 import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
 import { CodeTasks } from "./codeTask.ts";
-import { runTests } from "./runner.ts";
+import { runChecks } from "./runner.ts";
 
 /**
  * CodeArena — точка входа расширения.
@@ -161,7 +161,7 @@ class WebviewHost implements vscode.WebviewViewProvider {
         await vscode.commands.executeCommand("codearena.submitCode");
         break;
       case "check_code": {
-        const o = await runTests(msg.language, msg.code, msg.tests);
+        const o = await runChecks(msg.language, msg.code, { tests: msg.tests, rules: msg.rules ?? [] });
         this.post({ type: "check_result", requestId: msg.requestId, results: o.results, error: o.error, message: o.message });
         break;
       }

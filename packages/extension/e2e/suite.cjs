@@ -13,6 +13,10 @@ async function waitFor(what, fn, ms = 20000) {
   }
 }
 
+const SCENARIO = process.env.CODEARENA_E2E_SCENARIO || "codewars";
+const FILE_RE = SCENARIO === "fixbug" ? /task-1\.html$/ : /task-1\.py$/;
+const MARK = "─── CodeArena ───";
+
 exports.run = async function run() {
   const log = [];
   const step = (s) => { log.push(s); console.log("[e2e] " + s); };
@@ -28,18 +32,19 @@ exports.run = async function run() {
 
     // Учитель запускает Codewars — расширение само открывает файл задачи.
     const editor = await waitFor("task file opened", () =>
-      vscode.window.visibleTextEditors.find((e) => /task-1\.py$/.test(e.document.fileName)), 30000);
+      vscode.window.visibleTextEditors.find((e) => FILE_RE.test(e.document.fileName)), 30000);
     const doc = editor.document;
     step("task file opened: " + doc.fileName.split("/").slice(-3).join("/"));
     if (!doc.getText().includes("─── CodeArena ───")) throw new Error("no marker in task file");
-    if (!doc.getText().includes("# Верни") && !doc.getText().includes("# Return")) throw new Error("no prompt in header");
+    if (SCENARIO === "codewars" && !doc.getText().includes("# Верни")) throw new Error("no prompt in header");
+    if (SCENARIO === "fixbug" && !doc.getText().startsWith("<!-- CodeArena")) throw new Error("no HTML comment header");
 
     // Панель игры открыта рядом.
     // Панель игры — во второй колонке, файл задачи — в первой.
     await waitFor("panel beside the file", () => {
       const groups = vscode.window.tabGroups.all;
       const panelGroup = groups.find((g) => g.tabs.some((t) => t.label === "CodeArena"));
-      const fileGroup = groups.find((g) => g.tabs.some((t) => /task-1\.py/.test(t.label)));
+      const fileGroup = groups.find((g) => g.tabs.some((t) => FILE_RE.test(t.label)));
       return panelGroup && fileGroup && panelGroup !== fileGroup;
     }, 10000);
     step("game panel opened beside the editor (" + vscode.window.tabGroups.all.length + " editor groups)");
@@ -50,26 +55,31 @@ exports.run = async function run() {
     step("code lenses: " + titles.join(" | "));
     if (!titles.some((t) => /Run tests|Запустить/.test(t))) throw new Error("no Run tests lens");
 
-    // Сначала неправильное решение — тесты должны упасть.
-    const fullRange = new vscode.Range(0, 0, doc.lineCount, 0);
-    const header = doc.getText().split("\n").filter((l, i, a) => i <= a.findIndex((x) => x.includes("─── CodeArena ───"))).join("\n");
-    await editor.edit((b) => b.replace(fullRange, header + "\n\ndef evens(nums):\n    return nums\n"));
+    // Сначала неправильное решение — проверки должны упасть.
+    const header = doc.getText().split("\n").filter((l, i, a) => i <= a.findIndex((x) => x.includes(MARK))).join("\n");
+    const WRONG = SCENARIO === "fixbug" ? '<div class="footer">© 2026</div>' : "def evens(nums):\n    return nums";
+    const RIGHT = SCENARIO === "fixbug" ? "<footer>© 2026</footer>" : "def evens(nums):\n    return [n for n in nums if n % 2 == 0]";
+    if (SCENARIO === "fixbug") {
+      // Без правок: в файле лежит сломанный код — проверки не проходят.
+      step("broken code in file: " + JSON.stringify(doc.getText().split(MARK)[1].split("\n").slice(2, 3).join("")));
+    }
+    await editor.edit((b) => b.replace(new vscode.Range(0, 0, doc.lineCount, 0), header + "\n\n" + WRONG + "\n"));
     await vscode.commands.executeCommand("codearena.runTests");
     const bad = await waitFor("failing run", () => {
       const r = session.snapshot.game && session.snapshot.game.localRun;
       return r && !r.running && r.results.length ? r : null;
     });
-    step("wrong solution: " + bad.results.filter((r) => r.ok).length + "/" + bad.results.length + " tests passed");
+    step("wrong solution: " + bad.results.filter((r) => r.ok).length + "/" + bad.results.length + " checks passed" + (SCENARIO === "fixbug" ? " (" + bad.results.filter((r) => !r.ok).map((r) => r.call + ": " + r.got).join("; ") + ")" : ""));
     if (bad.results.every((r) => r.ok)) throw new Error("wrong solution passed");
 
     // Правильное решение и отправка (как Ctrl+Enter).
-    await editor.edit((b) => b.replace(new vscode.Range(0, 0, doc.lineCount, 0), header + "\n\ndef evens(nums):\n    return [n for n in nums if n % 2 == 0]\n"));
+    await editor.edit((b) => b.replace(new vscode.Range(0, 0, doc.lineCount, 0), header + "\n\n" + RIGHT + "\n"));
     await vscode.commands.executeCommand("codearena.submitCode");
     const result = await waitFor("server result", () => {
       const g = session.snapshot.game;
       return g && g.result && g.result.correct ? g.result : null;
     });
-    step("submitted: server says correct, place #" + result.place);
+    step("submitted: server says correct" + (SCENARIO === "fixbug" ? ", +" + result.points + " points" : ", place #" + result.place));
 
     const solvedLens = await vscode.commands.executeCommand("vscode.executeCodeLensProvider", doc.uri);
     step("lens after solve: " + (solvedLens || []).map((l) => l.command && l.command.title).join(" | "));

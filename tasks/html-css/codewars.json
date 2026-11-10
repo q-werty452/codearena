@@ -1,0 +1,458 @@
+{
+  "version": 1,
+  "game": "codewars",
+  "title": "Codewars: HTML и CSS",
+  "author": "q-werty452",
+  "description": "Сверстай по условию — проверка правилами. Короче правильное решение — выше место. 16 задач: 10 HTML, 6 CSS.",
+  "tasks": [
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай ссылку на https://example.com с текстом «Пример».",
+      "starter": "<!-- ссылка здесь -->",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "a[href=\"https://example.com\"]",
+          "label": "есть ссылка на https://example.com",
+          "exists": true
+        },
+        {
+          "selector": "a",
+          "label": "текст ссылки — «Пример»",
+          "exists": true,
+          "text": "Пример"
+        }
+      ],
+      "solution": "<a href=\"https://example.com\">Пример</a>",
+      "explanation": "Ссылка — тег <a>, адрес в href, текст между тегами."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай маркированный список из трёх фруктов.",
+      "starter": "<ul>\n</ul>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "ul > li",
+          "label": "в списке 3 пункта",
+          "exists": true,
+          "minCount": 3
+        }
+      ],
+      "solution": "<ul>\n  <li>Яблоко</li>\n  <li>Груша</li>\n  <li>Слива</li>\n</ul>",
+      "explanation": "Пункты списка — теги <li> прямо внутри <ul>."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Вставь картинку cat.jpg с описанием «Рыжий кот».",
+      "starter": "",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "img[src=\"cat.jpg\"]",
+          "label": "есть картинка cat.jpg",
+          "exists": true
+        },
+        {
+          "selector": "img",
+          "label": "у картинки есть alt",
+          "exists": true,
+          "everyHasAttr": "alt"
+        }
+      ],
+      "solution": "<img src=\"cat.jpg\" alt=\"Рыжий кот\">",
+      "explanation": "<img> не закрывается; alt обязателен для доступности."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай форму подписки: поле для email и кнопка «Подписаться».",
+      "starter": "<form>\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "form input[type=\"email\"]",
+          "label": "в форме есть поле type=\"email\"",
+          "exists": true
+        },
+        {
+          "selector": "form button",
+          "label": "в форме есть кнопка",
+          "exists": true
+        },
+        {
+          "selector": "button",
+          "label": "кнопка «Подписаться»",
+          "exists": true,
+          "text": "Подписаться"
+        }
+      ],
+      "solution": "<form>\n  <input type=\"email\">\n  <button>Подписаться</button>\n</form>",
+      "explanation": "type=\"email\" включает проверку адреса и нужную клавиатуру на телефоне."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай таблицу 2×2: две строки по две ячейки.",
+      "starter": "<table>\n</table>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "table tr",
+          "label": "2 строки",
+          "exists": true,
+          "minCount": 2
+        },
+        {
+          "selector": "table td",
+          "label": "4 ячейки",
+          "exists": true,
+          "minCount": 4
+        }
+      ],
+      "solution": "<table>\n  <tr><td>1</td><td>2</td></tr>\n  <tr><td>3</td><td>4</td></tr>\n</table>",
+      "explanation": "Строка — <tr>, ячейка — <td>."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Собери семантический каркас страницы: шапка, основная часть, подвал.",
+      "starter": "<body>\n</body>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "header",
+          "label": "есть <header>",
+          "exists": true
+        },
+        {
+          "selector": "main",
+          "label": "есть <main>",
+          "exists": true
+        },
+        {
+          "selector": "footer",
+          "label": "есть <footer>",
+          "exists": true
+        }
+      ],
+      "solution": "<body>\n  <header></header>\n  <main></main>\n  <footer></footer>\n</body>",
+      "explanation": "header, main и footer описывают смысл частей страницы, а не только их вид."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай главный заголовок «Привет» и абзац под ним.",
+      "starter": "",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "h1",
+          "label": "заголовок <h1> с текстом «Привет»",
+          "exists": true,
+          "text": "Привет"
+        },
+        {
+          "selector": "p",
+          "label": "есть абзац <p>",
+          "exists": true
+        }
+      ],
+      "solution": "<h1>Привет</h1>\n<p>Это моя страница.</p>",
+      "explanation": "На странице один главный заголовок — <h1>."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай поле «Имя» с подписью, связанной через for и id.",
+      "starter": "",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "label[for=\"name\"]",
+          "label": "label for=\"name\"",
+          "exists": true
+        },
+        {
+          "selector": "input#name",
+          "label": "поле с id=\"name\"",
+          "exists": true
+        }
+      ],
+      "solution": "<label for=\"name\">Имя</label>\n<input id=\"name\">",
+      "explanation": "Клик по подписи ставит курсор в поле — если for совпадает с id."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай нумерованный список из трёх шагов рецепта.",
+      "starter": "",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "ol > li",
+          "label": "3 шага в нумерованном списке",
+          "exists": true,
+          "minCount": 3
+        }
+      ],
+      "solution": "<ol>\n  <li>Налить воду</li>\n  <li>Вскипятить</li>\n  <li>Заварить чай</li>\n</ol>",
+      "explanation": "Порядок важен — значит, нумерованный список <ol>."
+    },
+    {
+      "type": "code",
+      "topic": "HTML",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "html",
+      "prompt": "Сделай ссылку на https://developer.mozilla.org, которая открывается в новой вкладке.",
+      "starter": "",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "a[href=\"https://developer.mozilla.org\"]",
+          "label": "ссылка на MDN",
+          "exists": true
+        },
+        {
+          "selector": "a[target=\"_blank\"]",
+          "label": "открывается в новой вкладке",
+          "exists": true
+        }
+      ],
+      "solution": "<a href=\"https://developer.mozilla.org\" target=\"_blank\">MDN</a>",
+      "explanation": "target=\"_blank\" — новая вкладка."
+    },
+    {
+      "type": "code",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "css",
+      "prompt": "Сделай .card flex-контейнером с промежутком 16px между детьми.",
+      "starter": ".card {\n  \n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".card",
+          "label": "display: flex",
+          "exists": true,
+          "css": {
+            "property": "display",
+            "value": "flex"
+          }
+        },
+        {
+          "selector": ".card",
+          "label": "gap: 16px",
+          "exists": true,
+          "css": {
+            "property": "gap",
+            "value": "16px"
+          }
+        }
+      ],
+      "solution": ".card {\n  display: flex;\n  gap: 16px;\n}",
+      "explanation": "gap задаёт расстояние между детьми flex- и grid-контейнера без margin."
+    },
+    {
+      "type": "code",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "css",
+      "prompt": "Оформи кнопку .btn: background-color #3b82f6, цвет текста white, скругление 8px.",
+      "starter": ".btn {\n  \n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".btn",
+          "label": "background-color: #3b82f6",
+          "exists": true,
+          "css": {
+            "property": "background-color",
+            "value": "#3b82f6"
+          }
+        },
+        {
+          "selector": ".btn",
+          "label": "color: white",
+          "exists": true,
+          "css": {
+            "property": "color",
+            "value": "white"
+          }
+        },
+        {
+          "selector": ".btn",
+          "label": "border-radius: 8px",
+          "exists": true,
+          "css": {
+            "property": "border-radius",
+            "value": "8px"
+          }
+        }
+      ],
+      "solution": ".btn {\n  background-color: #3b82f6;\n  color: white;\n  border-radius: 8px;\n}",
+      "explanation": "Фон — background-color, текст — color, скругление — border-radius."
+    },
+    {
+      "type": "code",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "css",
+      "prompt": "Отцентрируй содержимое .center по обеим осям через flex.",
+      "starter": ".center {\n  \n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".center",
+          "label": "display: flex",
+          "exists": true,
+          "css": {
+            "property": "display",
+            "value": "flex"
+          }
+        },
+        {
+          "selector": ".center",
+          "label": "justify-content: center",
+          "exists": true,
+          "css": {
+            "property": "justify-content",
+            "value": "center"
+          }
+        },
+        {
+          "selector": ".center",
+          "label": "align-items: center",
+          "exists": true,
+          "css": {
+            "property": "align-items",
+            "value": "center"
+          }
+        }
+      ],
+      "solution": ".center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}",
+      "explanation": "justify-content — главная ось, align-items — поперечная."
+    },
+    {
+      "type": "code",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "css",
+      "prompt": "Спрячь рекламный блок .ad целиком, вместе с его местом.",
+      "starter": ".ad {\n  \n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".ad",
+          "label": "display: none",
+          "exists": true,
+          "css": {
+            "property": "display",
+            "value": "none"
+          }
+        }
+      ],
+      "solution": ".ad {\n  display: none;\n}",
+      "explanation": "display: none убирает и элемент, и место. visibility: hidden оставил бы пустое место."
+    },
+    {
+      "type": "code",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "css",
+      "prompt": "Сделай .grid сеткой из трёх равных колонок: grid-template-columns: repeat(3, 1fr).",
+      "starter": ".grid {\n  \n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".grid",
+          "label": "display: grid",
+          "exists": true,
+          "css": {
+            "property": "display",
+            "value": "grid"
+          }
+        },
+        {
+          "selector": ".grid",
+          "label": "три колонки repeat(3, 1fr)",
+          "exists": true,
+          "css": {
+            "property": "grid-template-columns",
+            "value": "repeat(3, 1fr)"
+          }
+        }
+      ],
+      "solution": ".grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}",
+      "explanation": "1fr — одна доля свободного места; repeat(3, 1fr) — три равные колонки."
+    },
+    {
+      "type": "code",
+      "topic": "CSS",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "css",
+      "prompt": "Заголовок .title: размер шрифта 32px, жирность 700.",
+      "starter": ".title {\n  \n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".title",
+          "label": "font-size: 32px",
+          "exists": true,
+          "css": {
+            "property": "font-size",
+            "value": "32px"
+          }
+        },
+        {
+          "selector": ".title",
+          "label": "font-weight: 700",
+          "exists": true,
+          "css": {
+            "property": "font-weight",
+            "value": "700"
+          }
+        }
+      ],
+      "solution": ".title {\n  font-size: 32px;\n  font-weight: 700;\n}",
+      "explanation": "700 — то же, что bold, но числом можно задать и промежуточные значения."
+    }
+  ]
+}

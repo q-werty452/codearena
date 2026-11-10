@@ -16,7 +16,7 @@ import type {
   TeamMode,
   TeamIndex,
 } from "./protocol.ts";
-import type { PublicTask, TaskSet } from "./tasks.ts";
+import type { HtmlRule, Language, PublicTask, TaskSet } from "./tasks.ts";
 import type { TestReport } from "./protocol.ts";
 
 /** Результат одного теста при локальном запуске (у ученика или учителя). */
@@ -32,8 +32,8 @@ export interface LocalRun {
   taskId: string;
   running: boolean;
   results: TestResult[];
-  /** no_python — Python не установлен; timeout — дольше 5 с; compile — ошибка в коде. */
-  error: null | "no_python" | "timeout" | "compile";
+  /** no_python / no_runtime — нет интерпретатора; timeout — дольше 5 с; compile — ошибка в коде. */
+  error: null | "no_python" | "no_runtime" | "timeout" | "compile";
   message?: string;
   /** Отправлен ли этот прогон на сервер (а не просто «Запустить тесты»). */
   submitted: boolean;
@@ -151,7 +151,7 @@ export type UiToHost =
   | { type: "run_tests" }
   | { type: "submit_code" }
   /** Учитель проверяет эталонное решение своей задачи. */
-  | { type: "check_code"; requestId: string; language: "python" | "javascript"; code: string; tests: { call: string; expected: string }[] };
+  | { type: "check_code"; requestId: string; language: Language; code: string; tests: { call: string; expected: string }[]; rules: HtmlRule[] };
 
 /** расширение → webview */
 export type HostToUi =

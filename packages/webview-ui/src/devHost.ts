@@ -17,7 +17,7 @@ import {
   type UiToHost,
 } from "@codearena/shared";
 
-export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars";
+export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz" | "tug" | "codewars" | "bug";
 
 const NAMES = [
   "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
@@ -57,6 +57,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
     case "quiz":
     case "tug":
     case "codewars":
+    case "bug":
       return { ...EMPTY_SESSION, role: "student", status: "online", code: "482913", me: { playerId: "p0", name: "Айбек Касымов", team: 0 }, lobby };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
@@ -67,7 +68,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
 
 let stopGame: (() => void) | null = null;
 
-export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList; autoCode?: TaskList } = {}): void {
+export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList; autoTug?: TaskList; autoCode?: TaskList; autoBug?: TaskList } = {}): void {
   stopGame?.();
   let s = initial;
   const emit = (m: HostToUi) => setTimeout(() => window.postMessage(m, "*"), 0);
@@ -113,6 +114,26 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         setTimeout(() => {
           const task = game?.tasks[game.index];
           if (!game || !task || game.taskKey !== taskId) return;
+          if (task.type === "fix_bug") {
+            const n = task.rules.length + task.tests.length;
+            const good = Math.random() < 0.7;
+            const report = good ? { passed: n, total: n, failures: [] } : { passed: 0, total: n, failures: [] };
+            try {
+              deliver(engine.submit(game, env(), p.id, taskId, undefined, { code: task.solution ?? "fixed", report }));
+            } catch {
+              /* уже исправил */
+            }
+            return;
+          }
+          if (task.type === "find_line") {
+            const lines = task.code.split("\n").length;
+            try {
+              deliver(engine.submit(game, env(), p.id, taskId, Math.random() < 0.6 ? task.line : 1 + Math.floor(Math.random() * lines)));
+            } catch {
+              /* уже ответил */
+            }
+            return;
+          }
           if (task.type === "code") {
             // Боты присылают решения разной длины; часть — с ошибкой.
             const good = Math.random() < 0.65;
@@ -134,6 +155,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
           }
           let answer: string | number;
           if (task.type === "choice") answer = Math.random() < 0.7 ? task.correct : Math.floor(Math.random() * task.options.length);
+          else if (task.type === "best_variant") answer = Math.random() < 0.7 ? task.correct : Math.floor(Math.random() * task.variants.length);
           else if (task.type === "short_answer") answer = Math.random() < 0.6 ? task.answers[0]! : "0";
           else return;
           try {
@@ -152,7 +174,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
     clearInterval(tick);
     timers.forEach(clearTimeout);
   };
-  const startGame = (kind: "quiz" | "tug" | "codewars", tasks: TaskList, settings = GameSettings.parse({})) => {
+  const startGame = (kind: "quiz" | "tug" | "codewars" | "bug", tasks: TaskList, settings = GameSettings.parse({})) => {
     try {
       game = engine.startGame(kind, tasks, settings, Date.now(), s.lobby!.mode);
     } catch (e) {
@@ -164,18 +186,20 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
   if (opts.autoQuiz) setTimeout(() => startGame("quiz", opts.autoQuiz!), 300);
   if (opts.autoTug) setTimeout(() => startGame("tug", opts.autoTug!), 300);
   if (opts.autoCode) setTimeout(() => startGame("codewars", opts.autoCode!), 300);
+  if (opts.autoBug) setTimeout(() => startGame("bug", opts.autoBug!), 300);
 
   // Codewars у «меня»: в браузере нет запускалки — первый прогон падает, второй проходит.
   let runs = 0;
   const fakeRun = (submit: boolean) => {
     const task = game?.tasks[game.index];
-    if (!game || !task || task.type !== "code" || !s.game) return;
+    if (!game || !task || (task.type !== "code" && task.type !== "fix_bug") || !s.game) return;
     const taskId = game.taskKey;
     s = { ...s, game: { ...s.game, localRun: { taskId, running: true, results: [], error: null, submitted: submit } } };
     push();
     setTimeout(() => {
       const pass = runs++ > 0;
-      const results = task.tests.map((t, i) => ({ call: t.call, expected: t.expected, ok: pass || i > 0, got: pass || i > 0 ? t.expected : "None" }));
+      const checks = [...task.tests.map((t) => ({ call: t.call, expected: t.expected })), ...task.rules.map((r) => ({ call: r.label, expected: "" }))];
+      const results = checks.map((t, i) => ({ call: t.call, expected: t.expected, ok: pass || i > 0, got: pass || i > 0 ? undefined : "не найдено" }));
       s = { ...s, game: { ...s.game!, localRun: { taskId, running: false, results, error: null, submitted: submit } } };
       push();
       if (submit && me) {
@@ -205,7 +229,7 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         return push();
       }
     }
-    if (m.type === "start_game") return startGame(m.game === "tug" || m.game === "codewars" ? m.game : "quiz", m.tasks, m.settings);
+    if (m.type === "start_game") return startGame(m.game === "race" ? "quiz" : m.game, m.tasks, m.settings);
     switch (m.type) {
       case "set_teams": {
         const n = m.mode === "teams2" ? 2 : m.mode === "teams3" ? 3 : 0;
@@ -247,7 +271,12 @@ export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: Task
         fakeRun(true);
         break;
       case "check_code":
-        setTimeout(() => emit({ type: "check_result", requestId: m.requestId, results: m.tests.map((t) => ({ ...t, ok: true, got: t.expected })), error: null }), 500);
+        // Имитация: «сломанный» код (без footer/flex и т.п.) не проходит, исправленный проходит.
+        setTimeout(() => {
+          const looksFixed = m.code.length > 0 && !/class="footer"|float|<br>/.test(m.code);
+          const checks = [...m.tests.map((t) => ({ call: t.call, expected: t.expected })), ...m.rules.map((r) => ({ call: r.label, expected: "" }))];
+          emit({ type: "check_result", requestId: m.requestId, results: checks.map((c) => ({ ...c, ok: looksFixed })), error: null });
+        }, 400);
         break;
       case "answer":
         if (game && me) {

@@ -112,7 +112,7 @@ export function StudentCodewarsBody({ session, g }: { session: SessionSnapshot; 
   );
 }
 
-function TestRow({ call, expected, result, running }: { call: string; expected: string; result?: TestResult; running: boolean }) {
+export function TestRow({ call, expected, result, running }: { call: string; expected: string; result?: TestResult; running: boolean }) {
   const t = useT();
   const state = running ? "running" : !result ? "idle" : result.ok ? "ok" : "fail";
   return (
@@ -134,8 +134,15 @@ function TestRow({ call, expected, result, running }: { call: string; expected: 
         )}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="break-all">
-          {call} <span className="text-muted">→</span> {expected}
+        {/* Правило HTML/CSS — только описание; тест — «вызов → ожидается». */}
+        <div className={cn("break-all", expected === "" && "font-sans")}>
+          {call}
+          {expected !== "" && (
+            <>
+              {" "}
+              <span className="text-muted">→</span> {expected}
+            </>
+          )}
         </div>
         {state === "fail" && result?.got !== undefined && (
           <div className="mt-0.5 break-all text-error">
@@ -168,7 +175,7 @@ function SolvedCard({ place }: { place: number | null }) {
   );
 }
 
-function NoPython() {
+export function NoPython() {
   const t = useT();
   return (
     <Card className="flex items-start gap-3 border-warning/50 p-4">

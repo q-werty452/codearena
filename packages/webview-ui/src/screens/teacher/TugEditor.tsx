@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, FolderOpen, Play, Plus, Save, Sparkles, Trash2, Library } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Task, TaskSet } from "@codearena/shared";
 import { Button } from "../../ui/Button.tsx";
@@ -39,6 +39,7 @@ export function TugEditor({
   onBack,
   onStart,
   onSample,
+  onBank,
   onLoad,
   onSave,
 }: {
@@ -52,6 +53,7 @@ export function TugEditor({
   onBack: () => void;
   onStart: (tasks: Task[]) => void;
   onSample: () => void;
+  onBank?: () => void;
   onLoad: () => void;
   onSave: () => void;
 }) {
@@ -79,6 +81,11 @@ export function TugEditor({
             {t("pick.title")}
           </Button>
           <div className="flex flex-wrap items-center gap-2">
+            {onBank && (
+              <Button size="sm" icon={<Library size={14} />} onClick={onBank}>
+                {t("bank.open")}
+              </Button>
+            )}
             <Button size="sm" icon={<Sparkles size={14} />} onClick={onSample}>
               {t("edit.sample")}
             </Button>

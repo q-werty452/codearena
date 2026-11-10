@@ -11,6 +11,7 @@ import { celebrate, play, secondsLeft, useNow } from "../lib/game.ts";
 import { useT, type MessageKey } from "../lib/i18n.ts";
 import { StudentTugBody } from "./StudentTug.tsx";
 import { StudentCodewarsBody } from "./StudentCodewars.tsx";
+import { StudentBugBody } from "./StudentBug.tsx";
 import { WinnerBanner } from "./teacher/TeacherGame.tsx";
 import { host } from "../lib/session.ts";
 
@@ -53,6 +54,7 @@ function Body({ g, meId, session }: { g: GameSnapshot; meId?: string; session: S
   if (g.phase === "paused") return <PausedCard />;
   if (g.kind === "tug") return <StudentTugBody session={session} g={g} />;
   if (g.kind === "codewars") return <StudentCodewarsBody session={session} g={g} />;
+  if (g.kind === "bug") return <StudentBugBody session={session} g={g} />;
   if (!g.task || g.task.type !== "choice") return <Waiting />;
   if (g.phase === "reveal") return <Reveal g={g} meId={meId} />;
   return <Question g={g} left={left} />;
