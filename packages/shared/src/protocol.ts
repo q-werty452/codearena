@@ -93,6 +93,8 @@ export const ClientMessage = z.discriminatedUnion("type", [
   z.object({ type: z.literal("next") }),
   z.object({ type: z.literal("end_game") }),
   z.object({ type: z.literal("close_room") }),
+  /** Вернуться в лобби после игры (те же команды, без пересоздания комнаты). */
+  z.object({ type: z.literal("reset_game") }),
   z.object({
     type: z.literal("submit"),
     taskId: z.string(),
@@ -132,6 +134,13 @@ export const GameState = z.object({
   rope: z.number().default(0),
   teamScores: z.array(z.number()).default([]),
   leaders: z.array(LeaderRow).default([]),
+  /** Сколько ответили на текущее задание и сколько всего игроков в сети. */
+  answered: z.number().int().default(0),
+  total: z.number().int().default(0),
+  /** Сколько оставалось до дедлайна, когда учитель нажал паузу. */
+  pausedLeftMs: z.number().nullable().default(null),
+  /** Время сервера (ms) — клиент по нему поправляет свои часы. */
+  serverNow: z.number(),
 });
 export type GameState = z.infer<typeof GameState>;
 
@@ -157,6 +166,7 @@ export const ServerMessage = z.discriminatedUnion("type", [
     /** Задание без правильного ответа (см. toPublicTask). */
     task: z.record(z.string(), z.unknown()),
     deadline: z.number().nullable(),
+    limitMs: z.number().nullable().default(null),
   }),
   z.object({
     type: z.literal("result"),
@@ -207,6 +217,9 @@ export const ServerMessage = z.discriminatedUnion("type", [
   z.object({ type: z.literal("game_over"), leaders: z.array(LeaderRow), teamScores: z.array(z.number()) }),
   z.object({ type: z.literal("kicked") }),
   z.object({ type: z.literal("room_closed") }),
+  z.object({ type: z.literal("game_reset") }),
+  /** Сервер принял ответ ученика (правильность станет известна при показе). */
+  z.object({ type: z.literal("answered"), taskId: z.string(), answer: z.union([z.string(), z.number()]) }),
   z.object({ type: z.literal("error"), code: ErrorCodeSchema(), message: z.string() }),
   z.object({ type: z.literal("pong"), t: z.number() }),
 ]);
@@ -224,6 +237,8 @@ function ErrorCodeSchema() {
     "locked",
     "unknown_task",
     "invalid_settings",
+    "invalid_tasks",
+    "already_answered",
   ]);
 }
 export type ErrorCode = z.infer<ReturnType<typeof ErrorCodeSchema>>;

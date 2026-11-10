@@ -4,6 +4,7 @@ import {
   ClientMessage,
   CreateRoomResponse,
   EMPTY_SESSION,
+  applyGameMessage,
   parseServerMessage,
   type HostToUi,
   type ServerMessage,
@@ -40,6 +41,10 @@ export class Session implements vscode.Disposable {
   private pingTimer: NodeJS.Timeout | null = null;
   private listeners = new Set<Listener>();
   private disposed = false;
+  /** Разница «часы сервера − мои часы», мс (обновляется сообщением state). */
+  private clock = { offset: 0 };
+  /** Вызывается, когда началась игра (расширение открывает панель игры). */
+  onGameStarted: (() => void) | null = null;
 
   constructor(private readonly ctx: vscode.ExtensionContext) {
     this.state = { ...EMPTY_SESSION, savedName: ctx.globalState.get<string>(NAME_KEY, "") };
@@ -120,6 +125,13 @@ export class Session implements vscode.Disposable {
     if (!ok.success || !this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
     this.ws.send(JSON.stringify(ok.data));
     return true;
+  }
+
+  /** Ответ ученика на текущее задание. */
+  answer(taskId: string, answer: number | string): void {
+    const g = this.state.game;
+    if (!g || g.phase !== "playing" || g.task?.id !== taskId || g.myAnswer !== null) return;
+    this.send({ type: "submit", taskId, answer });
   }
 
   /** Выйти из комнаты (учитель при этом закрывает комнату). */
@@ -226,6 +238,20 @@ export class Session implements vscode.Disposable {
         }
         break;
       }
+      case "game_started":
+      case "task":
+      case "answered":
+      case "reveal":
+      case "result":
+      case "state":
+      case "game_over":
+      case "game_reset": {
+        const wasIdle = !this.state.game || this.state.game.phase === "over";
+        const next = applyGameMessage(this.state.game, msg, this.clock);
+        if (next !== undefined) this.set({ game: next });
+        if (msg.type === "game_started" && wasIdle) this.onGameStarted?.();
+        break;
+      }
       case "kicked":
         await this.end("kicked");
         break;
@@ -296,3 +322,4 @@ export class Session implements vscode.Disposable {
     this.listeners.clear();
   }
 }
+

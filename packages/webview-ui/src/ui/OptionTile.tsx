@@ -30,7 +30,7 @@ export function OptionTile({
       animate={{ opacity: state === "dim" ? 0.35 : 1, scale: state === "picked" ? 0.98 : 1 }}
       transition={{ duration: 0.18 }}
       className={cn(
-        "group relative flex min-h-[72px] items-center gap-3 rounded-card px-4 py-3 text-left text-white",
+        "group relative flex min-h-[72px] w-full items-center gap-3 rounded-card px-4 py-3 text-left text-white",
         "shadow-[inset_0_-3px_0_rgb(0_0_0/0.18),inset_0_1px_0_rgb(255_255_255/0.18)]",
         state === "picked" && "ring-4 ring-white/70",
       )}

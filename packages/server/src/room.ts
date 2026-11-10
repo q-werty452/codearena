@@ -11,6 +11,8 @@ import {
   type TeamMode,
 } from "@codearena/shared";
 import type { Env } from "./index.ts";
+import * as engine from "./engine.ts";
+import { GameError, type Effect, type EngineEnv, type GameData } from "./engine.ts";
 
 /** Игрок в хранилище комнаты (токен никогда не уходит другим клиентам). */
 interface StoredPlayer {
@@ -31,6 +33,8 @@ interface RoomData {
   players: Record<string, StoredPlayer>;
   /** Токены выгнанных — с ними обратно не пустит. */
   kicked: string[];
+  /** Текущая игра (null — лобби). */
+  game: GameData | null;
 }
 
 /** Что привязано к каждому WebSocket (переживает гибернацию). */
@@ -43,6 +47,7 @@ export class Room extends DurableObject<Env> {
     super(ctx, env);
     ctx.blockConcurrencyWhile(async () => {
       this.data = (await ctx.storage.get<RoomData>("room")) ?? null;
+      if (this.data) this.data.game ??= null;
     });
     // Автоответ на ping без пробуждения объекта — не тратит лимит.
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('{"type":"ping"}', '{"type":"pong","t":0}'));
@@ -62,6 +67,7 @@ export class Room extends DurableObject<Env> {
       teamNames: [...DEFAULT_TEAM_NAMES.ru],
       players: {},
       kicked: [],
+      game: null,
     };
     await this.save();
     return true;
@@ -89,7 +95,11 @@ export class Room extends DurableObject<Env> {
 
     if (att.role === "teacher") {
       // Учитель сразу видит лобби.
-      queueMicrotask(() => this.send(server, this.lobbyMessage()));
+      queueMicrotask(() => {
+        this.send(server, this.lobbyMessage());
+        const g = this.data?.game;
+        if (g) for (const m of engine.resumeFor(g, this.gameEnv(), null)) this.send(server, m);
+      });
     }
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -121,9 +131,14 @@ export class Room extends DurableObject<Env> {
     if (!this.data) return;
     if (Date.now() - this.data.lastActivity >= LIMITS.roomIdleMs) {
       await this.destroy();
-    } else {
-      await this.ctx.storage.setAlarm(this.data.lastActivity + LIMITS.roomIdleMs);
+      return;
     }
+    // Таймер игры: закончился отсчёт или время на вопрос.
+    const g = this.data.game;
+    if (g?.deadline !== null && g?.deadline !== undefined && Date.now() >= g.deadline) {
+      this.dispatch(engine.onDeadline(g, this.gameEnv()));
+    }
+    await this.save();
   }
 
   /* ─────────────── Учитель ─────────────── */
@@ -174,6 +189,41 @@ export class Room extends DurableObject<Env> {
         await this.destroy();
         return;
       }
+      case "start_game": {
+        if (d.game && d.game.phase !== "over") return this.error(ws, "game_running", "Игра уже идёт");
+        try {
+          d.game = engine.startGame(msg.game, msg.tasks, msg.settings, Date.now());
+        } catch (e) {
+          if (e instanceof GameError) return this.error(ws, e.code === "invalid_tasks" ? "invalid_tasks" : "no_game", e.message);
+          throw e;
+        }
+        this.dispatch(engine.startEffects(d.game, this.gameEnv()));
+        await this.save();
+        return;
+      }
+      case "pause":
+      case "resume":
+      case "next":
+      case "end_game": {
+        const g = d.game;
+        if (!g || g.phase === "over") return this.error(ws, "no_game", "Игра не идёт");
+        const env = this.gameEnv();
+        const fx =
+          msg.type === "pause" ? engine.pause(g, env)
+          : msg.type === "resume" ? engine.resume(g, env)
+          : msg.type === "next" ? engine.next(g, env)
+          : engine.finish(g, env);
+        this.dispatch(fx);
+        await this.save();
+        return;
+      }
+      case "reset_game": {
+        d.game = null;
+        this.broadcast({ type: "game_reset" });
+        await this.save();
+        this.broadcastLobby();
+        return;
+      }
       case "ping":
         return this.send(ws, { type: "pong", t: Date.now() });
       default:
@@ -217,11 +267,57 @@ export class Room extends DurableObject<Env> {
       ws.serializeAttachment({ role: "student", playerId: player.id } satisfies Attachment);
       this.send(ws, { type: "joined", playerId: player.id, token: player.token, team: player.team });
       this.broadcastLobby();
+      // Игра уже идёт — вернуть ученика в то же место.
+      if (d.game) for (const m of engine.resumeFor(d.game, this.gameEnv(), player.id)) this.send(ws, m);
       return;
     }
 
     if (!att.playerId || !d.players[att.playerId]) return this.error(ws, "not_joined", "Сначала войди в комнату");
+
+    if (msg.type === "submit") {
+      if (!d.game) return this.error(ws, "no_game", "Игра не идёт");
+      try {
+        this.dispatch(engine.submit(d.game, this.gameEnv(), att.playerId, msg.taskId, msg.answer ?? msg.code));
+      } catch (e) {
+        if (e instanceof GameError) return this.error(ws, e.code === "no_game" ? "no_game" : e.code, e.message);
+        throw e;
+      }
+      await this.save();
+      return;
+    }
     return this.error(ws, "not_teacher", "Это может только учитель");
+  }
+
+  /* ─────────────── Игра ─────────────── */
+
+  private gameEnv(): EngineEnv {
+    const d = this.data!;
+    return {
+      now: Date.now(),
+      players: Object.values(d.players)
+        .sort((a, b) => a.joinedAt - b.joinedAt)
+        .map((p) => ({ id: p.id, name: p.name, team: p.team })),
+      online: this.onlineIds(),
+      mode: d.mode,
+    };
+  }
+
+  /** Разослать эффекты движка по адресатам. */
+  private dispatch(effects: Effect[]): void {
+    for (const { to, msg } of effects) {
+      if (to === "all") this.broadcast(msg);
+      else if (to === "teacher") for (const s of this.ctx.getWebSockets("teacher")) this.send(s, msg);
+      else if (to === "students") for (const s of this.studentSockets()) this.send(s, msg);
+      else for (const s of this.studentSockets(to.player)) this.send(s, msg);
+    }
+  }
+
+  private broadcast(msg: ServerMessage): void {
+    const raw = JSON.stringify(msg);
+    for (const s of this.ctx.getWebSockets()) {
+      const a = s.deserializeAttachment() as Attachment | null;
+      if (a?.role === "teacher" || (a?.role === "student" && a.playerId)) this.sendRaw(s, raw);
+    }
   }
 
   /* ─────────────── Утилиты ─────────────── */
@@ -298,7 +394,9 @@ export class Room extends DurableObject<Env> {
   private async save(): Promise<void> {
     if (!this.data) return;
     await this.ctx.storage.put("room", this.data);
-    await this.ctx.storage.setAlarm(this.data.lastActivity + LIMITS.roomIdleMs);
+    const idle = this.data.lastActivity + LIMITS.roomIdleMs;
+    const deadline = this.data.game?.deadline ?? Infinity;
+    await this.ctx.storage.setAlarm(Math.min(idle, deadline));
   }
 
   private async destroy(): Promise<void> {

@@ -1,7 +1,8 @@
 import type { SessionSnapshot } from "@codearena/shared";
 import { JoinScreen } from "./screens/Join.tsx";
 import { StudentLobby } from "./screens/StudentLobby.tsx";
-import { TeacherLobby } from "./screens/TeacherLobby.tsx";
+import { TeacherPanel } from "./screens/teacher/TeacherPanel.tsx";
+import { StudentGame, StudentGameSidebar } from "./screens/StudentGame.tsx";
 import { TeacherSidebar } from "./screens/TeacherSidebar.tsx";
 import { EndedScreen } from "./screens/Ended.tsx";
 import { ConnectionBanner } from "./ui/Controls.tsx";
@@ -33,10 +34,11 @@ export function Screen({ view, session, prefill }: { view: "sidebar" | "panel"; 
 
   if (session.role === "teacher") {
     if (!session.lobby) return <LoadingScreen />;
-    return view === "panel" ? <TeacherLobby session={session} /> : <TeacherSidebar session={session} />;
+    return view === "panel" ? <TeacherPanel session={session} /> : <TeacherSidebar session={session} />;
   }
 
   if (session.role === "student" && session.me) {
+    if (session.game) return view === "panel" ? <StudentGame session={session} /> : <StudentGameSidebar session={session} />;
     return view === "sidebar" ? <StudentLobby session={session} onLeave={() => host.post({ type: "leave" })} /> : <PanelIdle />;
   }
 

@@ -109,3 +109,80 @@ describe("комнаты и лобби", () => {
     expect((await s.next("error")).code).toBe("not_teacher");
   });
 });
+
+describe("викторина через комнату", () => {
+  const tasks = [
+    { type: "choice", topic: "Python", prompt: "len('hi')?", options: ["1", "2", "3"], correct: 1, explanation: "две буквы" },
+    { type: "choice", topic: "Python", prompt: "type(1.0)?", options: ["int", "float"], correct: 1 },
+  ];
+  const settings = { questionSec: 20 };
+
+  it("полный цикл: старт → вопрос → ответы → показ → итоги", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    const a = await connect(code);
+    a.send({ type: "join", name: "Айбек К." });
+    const ja = await a.next("joined");
+    const b = await connect(code);
+    b.send({ type: "join", name: "Нурай А." });
+    await b.next("joined");
+
+    // Ученик не может запустить игру.
+    a.send({ type: "start_game", game: "quiz", settings, tasks });
+    expect((await a.next("error")).code).toBe("not_teacher");
+
+    t.send({ type: "start_game", game: "quiz", settings, tasks });
+    await a.next("game_started");
+    await a.next("state", (m) => m.state.phase === "countdown");
+
+    t.send({ type: "next" }); // пропустить отсчёт
+    const task = await a.next("task");
+    expect(task.task).not.toHaveProperty("correct");
+    expect(task.limitMs).toBe(20_000);
+
+    a.send({ type: "submit", taskId: task.taskId, answer: 1 });
+    await a.next("answered");
+    const feed = await t.next("teacher_feed");
+    expect(feed.event).toMatchObject({ kind: "submission", playerId: ja.playerId, correct: true });
+
+    // Повторный ответ не принимается.
+    a.send({ type: "submit", taskId: task.taskId, answer: 0 });
+    expect((await a.next("error")).code).toBe("already_answered");
+
+    // Переподключение посреди вопроса: тот же вопрос и «ответ принят».
+    a.close();
+    const a2 = await connect(code);
+    a2.send({ type: "join", name: "Айбек К.", token: ja.token });
+    await a2.next("game_started");
+    await a2.next("task", (m) => m.taskId === task.taskId);
+    await a2.next("answered");
+
+    // Второй ответил — все в сети ответили, показ без ожидания таймера.
+    b.send({ type: "submit", taskId: task.taskId, answer: 0 });
+    const rv = await a2.next("reveal");
+    expect(rv.answer).toBe(1);
+    expect(rv.stats).toEqual([1, 1, 0]);
+    expect(rv.explanation).toBe("две буквы");
+    const ra = await a2.next("result");
+    expect(ra.correct).toBe(true);
+    expect(ra.points).toBeGreaterThanOrEqual(500);
+    expect((await b.next("result")).points).toBe(0);
+
+    t.send({ type: "next" });
+    await a2.next("task", (m) => m.index === 1);
+    t.send({ type: "end_game" });
+    const over = await a2.next("game_over");
+    expect(over.leaders[0]!.name).toBe("Айбек К.");
+
+    // Новая игра в той же комнате.
+    t.send({ type: "reset_game" });
+    await a2.next("game_reset");
+  });
+
+  it("в викторине нельзя запустить пустой набор или вопросы без вариантов", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    t.send({ type: "start_game", game: "quiz", settings, tasks: [{ type: "short_answer", topic: "t", prompt: "?", answers: ["1"] }] });
+    expect((await t.next("error")).code).toBe("invalid_tasks");
+  });
+});

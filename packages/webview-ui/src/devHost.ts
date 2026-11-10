@@ -3,8 +3,12 @@
  * и отвечает на команды учителя так же, как сервер. Позволяет проверить
  * экраны в браузере без VS Code и без сервера.
  */
+import * as engine from "../../server/src/engine.ts";
 import {
   EMPTY_SESSION,
+  GameSettings,
+  applyGameMessage,
+  type Task,
   type ClientMessage,
   type HostToUi,
   type PlayerInfo,
@@ -13,13 +17,14 @@ import {
   type UiToHost,
 } from "@codearena/shared";
 
-export type DevScenario = "teacher" | "student" | "join" | "ended";
+export type DevScenario = "teacher" | "student" | "join" | "ended" | "quiz";
 
 const NAMES = [
   "Айбек Касымов", "Нурай Абдыкадырова", "Тимур Б.", "Эльдияр Т.", "Айгерим С.", "Данияр М.",
   "Бэтмен", "Алина К.", "Арсен Ж.", "Мээрим О.", "Бексултан А.", "Жанара Т.",
 ];
 const TEAM_NAMES = ["Красные", "Синие", "Зелёные"];
+type TaskList = Task[];
 
 function players(n: number): PlayerInfo[] {
   return NAMES.slice(0, n).map((name, i) => ({
@@ -49,6 +54,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
         lobby,
       };
     case "student":
+    case "quiz":
       return { ...EMPTY_SESSION, role: "student", status: "online", code: "482913", me: { playerId: "p0", name: "Айбек Касымов", team: 0 }, lobby };
     case "ended":
       return { ...EMPTY_SESSION, ended: "kicked" };
@@ -57,7 +63,10 @@ export function scenario(s: DevScenario): SessionSnapshot {
   }
 }
 
-export function installDevHost(initial: SessionSnapshot): void {
+let stopGame: (() => void) | null = null;
+
+export function installDevHost(initial: SessionSnapshot, opts: { autoQuiz?: TaskList } = {}): void {
+  stopGame?.();
   let s = initial;
   const emit = (m: HostToUi) => setTimeout(() => window.postMessage(m, "*"), 0);
   const push = () => emit({ type: "session", session: s });
@@ -71,9 +80,75 @@ export function installDevHost(initial: SessionSnapshot): void {
     push();
   };
 
+  /* ── Игра на настоящем движке сервера, боты отвечают сами ── */
+  let game: engine.GameData | null = null;
+  const clock = { offset: 0 };
+  const me = s.me?.playerId ?? null;
+  const env = (): engine.EngineEnv => ({
+    now: Date.now(),
+    players: s.lobby!.players.map((p) => ({ id: p.id, name: p.name, team: p.team })),
+    online: new Set(s.lobby!.players.filter((p) => p.connected).map((p) => p.id)),
+    mode: s.lobby!.mode,
+  });
+  const deliver = (fx: engine.Effect[]) => {
+    for (const { to, msg } of fx) {
+      const mine =
+        to === "all" ||
+        (s.role === "teacher" ? to === "teacher" : to === "students" || (typeof to === "object" && to.player === me));
+      if (!mine) continue;
+      const next = applyGameMessage(s.game, msg, clock);
+      if (next !== undefined) s = { ...s, game: next };
+      if (msg.type === "task") scheduleBots(msg.taskId);
+    }
+    push();
+  };
+  const timers: ReturnType<typeof setTimeout>[] = [];
+  const scheduleBots = (taskId: string) => {
+    for (const p of s.lobby!.players) {
+      if (p.id === me || !p.connected) continue;
+      timers.push(
+        setTimeout(() => {
+          const task = game?.tasks.find((x) => x.id === taskId);
+          if (!game || !task || task.type !== "choice") return;
+          const pick = Math.random() < 0.7 ? task.correct : Math.floor(Math.random() * task.options.length);
+          try {
+            deliver(engine.submit(game, env(), p.id, taskId, pick));
+          } catch {
+            /* опоздал или уже показали ответ */
+          }
+        }, 1500 + Math.random() * 11000),
+      );
+    }
+  };
+  const tick = setInterval(() => {
+    if (game?.deadline && Date.now() >= game.deadline) deliver(engine.onDeadline(game, env()));
+  }, 200);
+  stopGame = () => {
+    clearInterval(tick);
+    timers.forEach(clearTimeout);
+  };
+  const startQuiz = (tasks: TaskList, sec = 20) => {
+    game = engine.startGame("quiz", tasks, GameSettings.parse({ questionSec: sec }), Date.now());
+    deliver(engine.startEffects(game, env()));
+  };
+  if (opts.autoQuiz) setTimeout(() => startQuiz(opts.autoQuiz!), 300);
+
   const onSend = (m: ClientMessage) => {
     const lobby = s.lobby;
     if (!lobby) return;
+    if (game) {
+      const e = env();
+      if (m.type === "next") return deliver(engine.next(game, e));
+      if (m.type === "pause") return deliver(engine.pause(game, e));
+      if (m.type === "resume") return deliver(engine.resume(game, e));
+      if (m.type === "end_game") return deliver(engine.finish(game, e));
+      if (m.type === "reset_game") {
+        game = null;
+        s = { ...s, game: null };
+        return push();
+      }
+    }
+    if (m.type === "start_game") return startQuiz(m.tasks, m.settings.questionSec);
     switch (m.type) {
       case "set_teams": {
         const n = m.mode === "teams2" ? 2 : m.mode === "teams3" ? 3 : 0;
@@ -107,6 +182,15 @@ export function installDevHost(initial: SessionSnapshot): void {
         break;
       case "send":
         onSend(m.msg);
+        break;
+      case "answer":
+        if (game && me) {
+          try {
+            deliver(engine.submit(game, env(), me, m.taskId, m.answer));
+          } catch (e) {
+            console.warn(e);
+          }
+        }
         break;
       case "copy":
         void navigator.clipboard?.writeText(m.text).catch(() => {});

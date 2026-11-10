@@ -18,6 +18,7 @@ import { OptionTile } from "./ui/OptionTile.tsx";
 import { JoinScreen } from "./screens/Join.tsx";
 import { App } from "./App.tsx";
 import { installDevHost, scenario, type DevScenario } from "./devHost.ts";
+import { sampleQuiz } from "./lib/game.ts";
 
 function Gallery() {
   const [dark, setDark] = useState(() => new URLSearchParams(location.search).get("theme") !== "light");
@@ -32,7 +33,7 @@ function Gallery() {
   const [mount, setMount] = useState(0);
   useEffect(() => {
     if (tab !== "ds") {
-      installDevHost(scenario(tab));
+      installDevHost(scenario(tab), tab === "quiz" ? { autoQuiz: sampleQuiz(locale).tasks } : {});
       setMount((m) => m + 1);
     }
   }, [tab]);
@@ -63,6 +64,7 @@ function Gallery() {
                 { value: "student", label: "Ученик" },
                 { value: "join", label: "Вход" },
                 { value: "ended", label: "Выгнали" },
+                { value: "quiz", label: "Викторина" },
               ]}
             />
             <Segmented
@@ -70,7 +72,6 @@ function Gallery() {
               onChange={setLocale}
               options={[
                 { value: "ru", label: "RU" },
-                { value: "ky", label: "KY" },
                 { value: "en", label: "EN" },
               ]}
             />

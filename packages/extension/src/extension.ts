@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import type { HostToUi, UiToHost } from "@codearena/shared";
+import { homedir } from "node:os";
+import { TaskSet, type HostToUi, type UiToHost } from "@codearena/shared";
 import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
 
@@ -45,7 +46,35 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
   );
 
+  // Началась игра — ученику открываем панель игры (там вопросы и плитки).
+  session.onGameStarted = () => GamePanel.show(context);
+
   void session.restore();
+}
+
+/** Набор заданий → файл .codearena.json */
+async function saveTasks(set: TaskSet): Promise<void> {
+  const name = (set.title || "quiz").replace(/[^\p{L}\p{N}_-]+/gu, "-").slice(0, 40) || "quiz";
+  const uri = await vscode.window.showSaveDialog({
+    defaultUri: vscode.Uri.joinPath(vscode.workspace.workspaceFolders?.[0]?.uri ?? vscode.Uri.file(homedir()), `${name}.codearena.json`),
+    filters: { "CodeArena": ["json"] },
+  });
+  if (!uri) return;
+  await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(JSON.stringify(set, null, 2) + "\n"));
+  void vscode.window.showInformationMessage(vscode.l10n.t("Saved: {0}", uri.fsPath));
+}
+
+/** Файл → набор заданий (проверяется схемой, мусор отклоняется). */
+async function loadTasks(): Promise<TaskSet | null> {
+  const [uri] = (await vscode.window.showOpenDialog({ canSelectMany: false, filters: { "CodeArena": ["json"] } })) ?? [];
+  if (!uri) return null;
+  try {
+    const raw = JSON.parse(new TextDecoder().decode(await vscode.workspace.fs.readFile(uri)));
+    return TaskSet.parse(raw);
+  } catch {
+    void vscode.window.showErrorMessage(vscode.l10n.t("This file is not a CodeArena task set."));
+    return null;
+  }
 }
 
 export function deactivate(): void {}
@@ -106,6 +135,17 @@ class WebviewHost implements vscode.WebviewViewProvider {
       case "send":
         session.send(msg.msg);
         break;
+      case "answer":
+        session.answer(msg.taskId, msg.answer);
+        break;
+      case "save_tasks":
+        await saveTasks(msg.set);
+        break;
+      case "load_tasks": {
+        const set = await loadTasks();
+        if (set) this.post({ type: "tasks_loaded", set });
+        break;
+      }
     }
   }
 }

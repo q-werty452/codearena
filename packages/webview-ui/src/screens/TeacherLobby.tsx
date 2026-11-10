@@ -29,7 +29,7 @@ const NONE = "none";
 const teamCount = (m: TeamMode) => (m === "teams2" ? 2 : m === "teams3" ? 3 : 0);
 
 /** Лобби учителя: код комнаты, игроки, деление на команды. */
-export function TeacherLobby({ session }: { session: SessionSnapshot }) {
+export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapshot; onChooseGame: () => void }) {
   const t = useT();
   const lobby = session.lobby;
   const code = session.code ?? "";
@@ -109,8 +109,7 @@ export function TeacherLobby({ session }: { session: SessionSnapshot }) {
 
       <footer className="sticky bottom-0 z-20 -mx-6 mt-auto border-t border-border bg-[color-mix(in_srgb,var(--vscode-editor-background,var(--ca-bg))_88%,transparent)] backdrop-blur">
         <div className="flex items-center justify-end gap-3 px-6 py-3">
-          <span className="text-[12px] text-muted">{t("teacher.soon")}</span>
-          <Button variant="primary" size="lg" icon={<Gamepad2 size={18} />} disabled>
+          <Button variant="primary" size="lg" icon={<Gamepad2 size={18} />} onClick={onChooseGame}>
             {t("teacher.chooseGame")}
           </Button>
         </div>

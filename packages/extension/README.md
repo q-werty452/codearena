@@ -14,7 +14,7 @@
 | 🏁 Race | A series of tasks, first to the finish line wins |
 | 🐞 Find the bug | Click the buggy line, fix broken code or pick the better variant |
 
-Tasks in Python, JavaScript and HTML/CSS. Interface in English, Russian and Kyrgyz.
+Tasks in Python, JavaScript and HTML/CSS. Interface in English and Russian.
 
 ## Free, forever
 

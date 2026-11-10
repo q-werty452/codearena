@@ -17,7 +17,6 @@ export const TEAM_ICONS = ["flame", "droplet", "leaf"] as const;
 
 export const DEFAULT_TEAM_NAMES = {
   ru: ["Красные", "Синие", "Зелёные"],
-  ky: ["Кызылдар", "Көктөр", "Жашылдар"],
   en: ["Red", "Blue", "Green"],
 } as const;
 

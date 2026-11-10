@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 import { LocaleContext, pickLocale } from "./lib/i18n.ts";
 import { App } from "./App.tsx";
+import { setSoundDefault } from "./lib/game.ts";
 
 declare global {
   interface Window {
@@ -15,6 +16,8 @@ declare global {
 }
 
 const boot = window.__CODEARENA__ ?? { view: "sidebar" as const };
+// У учеников звук по умолчанию выключен (класс шумный); панель учителя включает его сама.
+setSoundDefault(false);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
