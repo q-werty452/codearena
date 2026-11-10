@@ -1,0 +1,425 @@
+{
+  "version": 1,
+  "game": "codewars",
+  "title": "Codewars: JavaScript",
+  "author": "q-werty452",
+  "description": "Функции на массивы и строки: filter, map, reduce, Set, рекурсия. Короче правильное решение — выше место. 16 задач.",
+  "tasks": [
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни сумму a и b.",
+      "starter": "function sum(a, b) {\n  \n}",
+      "tests": [
+        {
+          "call": "sum(2, 3)",
+          "expected": "5"
+        },
+        {
+          "call": "sum(-4, 4)",
+          "expected": "0"
+        },
+        {
+          "call": "sum(0.5, 0.5)",
+          "expected": "1"
+        }
+      ],
+      "rules": [],
+      "solution": "function sum(a, b) {\n  return a + b;\n}",
+      "explanation": "Самая короткая задача — разогрев."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни массив только чётных чисел из nums.",
+      "starter": "function evens(nums) {\n  \n}",
+      "tests": [
+        {
+          "call": "evens([1, 2, 3, 4])",
+          "expected": "[2, 4]"
+        },
+        {
+          "call": "evens([])",
+          "expected": "[]"
+        },
+        {
+          "call": "evens([7, 9])",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "function evens(nums) {\n  return nums.filter((n) => n % 2 === 0);\n}",
+      "explanation": "filter оставляет элементы, для которых условие истинно."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Переверни строку s.",
+      "starter": "function reverse(s) {\n  \n}",
+      "tests": [
+        {
+          "call": "reverse('abc')",
+          "expected": "'cba'"
+        },
+        {
+          "call": "reverse('')",
+          "expected": "''"
+        },
+        {
+          "call": "reverse('JavaScript')",
+          "expected": "'tpircSavaJ'"
+        }
+      ],
+      "rules": [],
+      "solution": "function reverse(s) {\n  return [...s].reverse().join('');\n}",
+      "explanation": "Строку → массив символов → reverse → обратно в строку."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни true, если строка читается одинаково в обе стороны.",
+      "starter": "function isPalindrome(s) {\n  \n}",
+      "tests": [
+        {
+          "call": "isPalindrome('шалаш')",
+          "expected": "true"
+        },
+        {
+          "call": "isPalindrome('кот')",
+          "expected": "false"
+        },
+        {
+          "call": "isPalindrome('')",
+          "expected": "true"
+        }
+      ],
+      "rules": [],
+      "solution": "function isPalindrome(s) {\n  return s === [...s].reverse().join('');\n}",
+      "explanation": "Палиндром совпадает со своим переворотом."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Посчитай гласные a, e, i, o, u в строке (строчные латинские).",
+      "starter": "function countVowels(s) {\n  \n}",
+      "tests": [
+        {
+          "call": "countVowels('hello')",
+          "expected": "2"
+        },
+        {
+          "call": "countVowels('sky')",
+          "expected": "0"
+        },
+        {
+          "call": "countVowels('aeiou')",
+          "expected": "5"
+        }
+      ],
+      "rules": [],
+      "solution": "function countVowels(s) {\n  return [...s].filter((ch) => 'aeiou'.includes(ch)).length;\n}",
+      "explanation": "Отфильтровать подходящие символы и взять длину."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни наибольшее число массива (массив не пустой).",
+      "starter": "function max(arr) {\n  \n}",
+      "tests": [
+        {
+          "call": "max([3, 9, 2])",
+          "expected": "9"
+        },
+        {
+          "call": "max([-5, -1, -7])",
+          "expected": "-1"
+        },
+        {
+          "call": "max([4])",
+          "expected": "4"
+        }
+      ],
+      "rules": [],
+      "solution": "function max(arr) {\n  return Math.max(...arr);\n}",
+      "explanation": "Math.max принимает числа через запятую — массив раскладываем через ..."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Сделай первую букву слова заглавной.",
+      "starter": "function capitalize(word) {\n  \n}",
+      "tests": [
+        {
+          "call": "capitalize('кот')",
+          "expected": "'Кот'"
+        },
+        {
+          "call": "capitalize('js')",
+          "expected": "'Js'"
+        },
+        {
+          "call": "capitalize('A')",
+          "expected": "'A'"
+        }
+      ],
+      "rules": [],
+      "solution": "function capitalize(word) {\n  return word[0].toUpperCase() + word.slice(1);\n}",
+      "explanation": "Первая буква в верхний регистр + остаток слова."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни сумму всех чисел массива (пустой — 0).",
+      "starter": "function total(arr) {\n  \n}",
+      "tests": [
+        {
+          "call": "total([1, 2, 3])",
+          "expected": "6"
+        },
+        {
+          "call": "total([])",
+          "expected": "0"
+        },
+        {
+          "call": "total([-2, 2, 10])",
+          "expected": "10"
+        }
+      ],
+      "rules": [],
+      "solution": "function total(arr) {\n  return arr.reduce((a, b) => a + b, 0);\n}",
+      "explanation": "reduce с начальным 0 работает и для пустого массива."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "FizzBuzz: для n, кратного 15, верни 'FizzBuzz', кратного 3 — 'Fizz', кратного 5 — 'Buzz', иначе число строкой.",
+      "starter": "function fizzbuzz(n) {\n  \n}",
+      "tests": [
+        {
+          "call": "fizzbuzz(15)",
+          "expected": "'FizzBuzz'"
+        },
+        {
+          "call": "fizzbuzz(9)",
+          "expected": "'Fizz'"
+        },
+        {
+          "call": "fizzbuzz(10)",
+          "expected": "'Buzz'"
+        },
+        {
+          "call": "fizzbuzz(7)",
+          "expected": "'7'"
+        }
+      ],
+      "rules": [],
+      "solution": "function fizzbuzz(n) {\n  if (n % 15 === 0) return 'FizzBuzz';\n  if (n % 3 === 0) return 'Fizz';\n  if (n % 5 === 0) return 'Buzz';\n  return String(n);\n}",
+      "explanation": "Проверять 15 нужно раньше 3 и 5."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни факториал n (n ≥ 0, 0! = 1).",
+      "starter": "function factorial(n) {\n  \n}",
+      "tests": [
+        {
+          "call": "factorial(0)",
+          "expected": "1"
+        },
+        {
+          "call": "factorial(5)",
+          "expected": "120"
+        },
+        {
+          "call": "factorial(1)",
+          "expected": "1"
+        }
+      ],
+      "rules": [],
+      "solution": "function factorial(n) {\n  return n <= 1 ? 1 : n * factorial(n - 1);\n}",
+      "explanation": "Рекурсия: n! = n × (n − 1)!."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Убери повторы из массива, сохранив порядок.",
+      "starter": "function unique(arr) {\n  \n}",
+      "tests": [
+        {
+          "call": "unique([1, 2, 2, 3, 1])",
+          "expected": "[1, 2, 3]"
+        },
+        {
+          "call": "unique([])",
+          "expected": "[]"
+        },
+        {
+          "call": "unique(['a', 'a'])",
+          "expected": "['a']"
+        }
+      ],
+      "rules": [],
+      "solution": "function unique(arr) {\n  return [...new Set(arr)];\n}",
+      "explanation": "Set хранит только уникальные значения в порядке добавления."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Посчитай слова в строке (слова разделены пробелами, лишние пробелы не считаются).",
+      "starter": "function countWords(s) {\n  \n}",
+      "tests": [
+        {
+          "call": "countWords('я учу JS')",
+          "expected": "3"
+        },
+        {
+          "call": "countWords('  много   пробелов  ')",
+          "expected": "2"
+        },
+        {
+          "call": "countWords('')",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "function countWords(s) {\n  return s.split(' ').filter(Boolean).length;\n}",
+      "explanation": "После split пустые кусочки от лишних пробелов отбрасываем."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни последний элемент массива (для пустого — undefined).",
+      "starter": "function last(arr) {\n  \n}",
+      "tests": [
+        {
+          "call": "last([1, 2, 3])",
+          "expected": "3"
+        },
+        {
+          "call": "last(['a'])",
+          "expected": "'a'"
+        },
+        {
+          "call": "last([])",
+          "expected": "undefined"
+        }
+      ],
+      "rules": [],
+      "solution": "function last(arr) {\n  return arr[arr.length - 1];\n}",
+      "explanation": "Последний индекс — length - 1. Для пустого массива это arr[-1] — undefined."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Повтори строку s n раз.",
+      "starter": "function repeatStr(s, n) {\n  \n}",
+      "tests": [
+        {
+          "call": "repeatStr('ab', 3)",
+          "expected": "'ababab'"
+        },
+        {
+          "call": "repeatStr('x', 0)",
+          "expected": "''"
+        }
+      ],
+      "rules": [],
+      "solution": "function repeatStr(s, n) {\n  return s.repeat(n);\n}",
+      "explanation": "У строк есть метод repeat."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "medium",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Верни среднее арифметическое (для пустого массива — 0).",
+      "starter": "function average(arr) {\n  \n}",
+      "tests": [
+        {
+          "call": "average([2, 4, 6])",
+          "expected": "4"
+        },
+        {
+          "call": "average([])",
+          "expected": "0"
+        },
+        {
+          "call": "average([5])",
+          "expected": "5"
+        }
+      ],
+      "rules": [],
+      "solution": "function average(arr) {\n  return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;\n}",
+      "explanation": "Не забыть про пустой массив — иначе 0 / 0 = NaN."
+    },
+    {
+      "type": "code",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 300,
+      "language": "javascript",
+      "prompt": "Переведи градусы Фаренгейта в Цельсий и округли: (f − 32) × 5 / 9.",
+      "starter": "function toCelsius(f) {\n  \n}",
+      "tests": [
+        {
+          "call": "toCelsius(32)",
+          "expected": "0"
+        },
+        {
+          "call": "toCelsius(212)",
+          "expected": "100"
+        },
+        {
+          "call": "toCelsius(100)",
+          "expected": "38"
+        }
+      ],
+      "rules": [],
+      "solution": "function toCelsius(f) {\n  return Math.round((f - 32) * 5 / 9);\n}",
+      "explanation": "Math.round округляет до ближайшего целого."
+    }
+  ]
+}

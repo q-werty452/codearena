@@ -1,0 +1,294 @@
+{
+  "version": 1,
+  "game": "quiz",
+  "title": "Викторина: JavaScript",
+  "author": "q-werty452",
+  "description": "Типы и приведение, let/const, массивы (map, filter, push), DOM и события. 19 вопросов.",
+  "tasks": [
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что выведет `console.log(typeof null)`?",
+      "options": [
+        "\"undefined\"",
+        "\"null\"",
+        "ошибку",
+        "\"object\""
+      ],
+      "correct": 3,
+      "explanation": "Историческая особенность JS: typeof null возвращает \"object\"."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Чем `const` отличается от `let`?",
+      "options": [
+        "ничем",
+        "const только для чисел",
+        "const нельзя переприсвоить",
+        "let нельзя изменить"
+      ],
+      "correct": 2,
+      "explanation": "const запрещает присвоить новое значение. Но содержимое объекта или массива в const менять можно."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Чему равно `2 + \"2\"`?",
+      "options": [
+        "4",
+        "ошибка",
+        "NaN",
+        "\"22\""
+      ],
+      "correct": 3,
+      "explanation": "Если один из операндов + строка, второй превращается в строку и они склеиваются."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Чему равно `\"5\" - 2`?",
+      "options": [
+        "\"52\"",
+        "\"3\"",
+        "3",
+        "NaN"
+      ],
+      "correct": 2,
+      "explanation": "Минус работает только с числами, поэтому \"5\" превращается в 5."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какой метод добавляет элемент в конец массива?",
+      "options": [
+        "pop",
+        "shift",
+        "unshift",
+        "push"
+      ],
+      "correct": 3,
+      "explanation": "push добавляет в конец, pop убирает с конца, unshift/shift — то же в начале."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что вернёт `[1, 2, 3].map(x => x * 2)`?",
+      "options": [
+        "6",
+        "undefined",
+        "[1, 2, 3]",
+        "[2, 4, 6]"
+      ],
+      "correct": 3,
+      "explanation": "map возвращает новый массив из результатов функции для каждого элемента."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какое сравнение не приводит типы?",
+      "options": [
+        "=",
+        "==",
+        "===",
+        "!="
+      ],
+      "correct": 2,
+      "explanation": "=== сравнивает и значение, и тип. == сначала приводит типы — отсюда сюрпризы вроде 0 == \"\"."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Чему равно `[1, 2, 3].length`?",
+      "options": [
+        "2",
+        "undefined",
+        "3",
+        "4"
+      ],
+      "correct": 2,
+      "explanation": "length — количество элементов. Последний индекс на единицу меньше."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Как найти элемент с id=\"title\"?",
+      "options": [
+        "document.getElementById(\"title\")",
+        "document.getId(\"title\")",
+        "document.querySelector(\"title\")",
+        "document.id(\"title\")"
+      ],
+      "correct": 0,
+      "explanation": "getElementById(\"title\") или querySelector(\"#title\") — с решёткой. Без # querySelector ищет тег <title>."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Какое событие срабатывает при нажатии на кнопку мышью?",
+      "options": [
+        "tap",
+        "push",
+        "click",
+        "press"
+      ],
+      "correct": 2,
+      "explanation": "Событие называется click: btn.addEventListener(\"click\", …)."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что делает `addEventListener`?",
+      "options": [
+        "Удаляет элемент",
+        "Создаёт элемент",
+        "Меняет стиль",
+        "Подписывает функцию на событие"
+      ],
+      "correct": 3,
+      "explanation": "Функция будет вызываться каждый раз, когда произойдёт событие."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Чему равно `Boolean(\"\")`?",
+      "options": [
+        "undefined",
+        "\"\"",
+        "true",
+        "false"
+      ],
+      "correct": 3,
+      "explanation": "Пустая строка, 0, null, undefined и NaN — «ложные» значения."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Как записать стрелочную функцию, возвращающую 1?",
+      "options": [
+        "f => function()",
+        "const f = -> 1",
+        "const f = () => 1",
+        "function => f()"
+      ],
+      "correct": 2,
+      "explanation": "Стрелочная функция: (параметры) => результат."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что вернёт `[1, 2, 3, 4].filter(n => n > 2)`?",
+      "options": [
+        "true",
+        "2",
+        "[1, 2]",
+        "[3, 4]"
+      ],
+      "correct": 3,
+      "explanation": "filter оставляет элементы, для которых функция вернула true."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что делает `JSON.parse`?",
+      "options": [
+        "Превращает строку JSON в объект",
+        "Превращает объект в строку",
+        "Копирует объект",
+        "Проверяет объект"
+      ],
+      "correct": 0,
+      "explanation": "JSON.parse — из строки в объект, JSON.stringify — наоборот."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что выведет `console.log(0.1 + 0.2 === 0.3)`?",
+      "options": [
+        "ошибку",
+        "false",
+        "NaN",
+        "true"
+      ],
+      "correct": 1,
+      "explanation": "Дробные числа хранятся неточно: 0.1 + 0.2 = 0.30000000000000004."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Как получить текст, который ввели в <input>?",
+      "options": [
+        "input.text",
+        "input.content",
+        "input.innerHTML",
+        "input.value"
+      ],
+      "correct": 3,
+      "explanation": "Введённое значение поля — свойство value."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Что делает `return` в функции?",
+      "options": [
+        "Выводит в консоль",
+        "Ничего",
+        "Возвращает значение и завершает функцию",
+        "Повторяет функцию"
+      ],
+      "correct": 2,
+      "explanation": "После return код функции дальше не выполняется."
+    },
+    {
+      "type": "choice",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 20,
+      "prompt": "Как получить последний элемент массива arr?",
+      "options": [
+        "arr[-1]",
+        "arr.last",
+        "arr[arr.length]",
+        "arr[arr.length - 1]"
+      ],
+      "correct": 3,
+      "explanation": "Индексы с нуля, поэтому последний — length - 1. Ещё можно arr.at(-1)."
+    }
+  ]
+}

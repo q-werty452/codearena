@@ -6,7 +6,7 @@ Open source (MIT), zero cost: students' code runs on their own machines, the gam
 
 Made by [**q-werty452**](https://github.com/q-werty452).
 
-> 🚧 Work in progress. Ready: rooms & teams, **Quiz**, **Find the bug**, **Tug of war**, **Codewars**. Next: Race, anti-cheat & teacher table, AI task generation, publishing. See the [spec](docs/TZ.pdf).
+> 🚧 Work in progress. Ready: rooms & teams, **Quiz**, **Find the bug**, **Tug of war**, **Codewars**, task bank. Next: **Lesson mode** (the default room mode), Race, anti-cheat. See the [roadmap](docs/ROADMAP.md) and the [spec](docs/TZ.pdf).
 
 Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CSS are checked with selector rules (“there is a `<footer>`”, “every `img` has `alt`”, “`.card` has `display: flex`”), JavaScript and Python with test calls — all on the student's computer. Django/DRF and Flutter snippets are supported in Quiz and Find the bug (no code execution).
 
@@ -18,7 +18,7 @@ Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CS
 | [`packages/webview-ui`](packages/webview-ui) | All game UI inside VS Code (student and teacher panels) | React, Vite, Tailwind CSS, Motion |
 | [`packages/server`](packages/server) | Rooms, players, teams, scores, timers, answer checking | Cloudflare Workers, Durable Objects (SQLite), WebSocket Hibernation |
 | [`packages/shared`](packages/shared) | Message protocol, task schemas, scoring logic | TypeScript, Zod |
-| [`tasks/`](tasks) | Open task bank (HTML/CSS sets for every game), validated by tests — send yours as a pull request | JSON |
+| [`tasks/`](tasks) | Open task bank: HTML/CSS and JavaScript sets for every game (148 tasks), validated by tests — send yours as a pull request | JSON |
 
 ## Development
 

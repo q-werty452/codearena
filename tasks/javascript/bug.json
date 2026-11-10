@@ -1,0 +1,328 @@
+{
+  "version": 1,
+  "game": "bug",
+  "title": "Найди баг: JavaScript",
+  "author": "q-werty452",
+  "description": "return, = и ===, выход за массив, строки вместо чисел, querySelector, forEach и map, безопасность. 20 заданий.",
+  "tasks": [
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "function sum(a, b) {\n  const result = a + b;\n}\nconsole.log(sum(2, 3));",
+      "line": 2,
+      "explanation": "Результат посчитан, но не возвращён: без return функция вернёт undefined. Нужно return a + b."
+    },
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const age = 18;\nif (age = 21) {\n  console.log(\"Можно\");\n}",
+      "line": 2,
+      "explanation": "Одно = — это присваивание. Сравнивают через ===."
+    },
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const arr = [10, 20, 30];\nfor (let i = 0; i <= arr.length; i++) {\n  console.log(arr[i]);\n}",
+      "line": 2,
+      "explanation": "Последний индекс — arr.length - 1. С <= цикл зайдёт за массив и выведет undefined."
+    },
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const a = \"2\";\nconst b = \"3\";\nconsole.log(a + b); // ждём 5",
+      "line": 3,
+      "explanation": "Строки складываются склейкой: получится \"23\". Сначала превратите в числа: Number(a) + Number(b)."
+    },
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "// <button class=\"buy\">Купить</button>\nconst btn = document.querySelector(\"buy\");\nbtn.addEventListener(\"click\", () => alert(\"Ок\"));",
+      "line": 2,
+      "explanation": "querySelector принимает CSS-селектор: для класса нужна точка — \".buy\"."
+    },
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "function onClick() {\n  alert(\"Привет\");\n}\nbutton.addEventListener(\"click\", onClick());",
+      "line": 4,
+      "explanation": "onClick() вызывает функцию сразу. Передавать нужно саму функцию: onClick без скобок."
+    },
+    {
+      "type": "find_line",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Найди строку с ошибкой",
+      "code": "const nums = [1, 2, 3];\nconst doubled = nums.forEach((n) => n * 2);\nconsole.log(doubled);",
+      "line": 2,
+      "explanation": "forEach ничего не возвращает (undefined). Чтобы получить новый массив, нужен map."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "Функция должна возвращать сумму двух чисел.",
+      "code": "function sum(a, b) {\n  a + b;\n}",
+      "tests": [
+        {
+          "call": "sum(2, 3)",
+          "expected": "5"
+        },
+        {
+          "call": "sum(-1, 1)",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "function sum(a, b) {\n  return a + b;\n}",
+      "explanation": "Без return функция возвращает undefined."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "isAdult(age) — true, если 18 лет или больше.",
+      "code": "function isAdult(age) {\n  if (age = 18) return true;\n  return age > 18;\n}",
+      "tests": [
+        {
+          "call": "isAdult(18)",
+          "expected": "true"
+        },
+        {
+          "call": "isAdult(10)",
+          "expected": "false"
+        },
+        {
+          "call": "isAdult(30)",
+          "expected": "true"
+        }
+      ],
+      "rules": [],
+      "solution": "function isAdult(age) {\n  return age >= 18;\n}",
+      "explanation": "age = 18 — присваивание, оно всегда «истинно». Достаточно return age >= 18."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "total(arr) — сумма всех чисел массива.",
+      "code": "function total(arr) {\n  let s = 0;\n  for (let i = 0; i <= arr.length; i++) {\n    s += arr[i];\n  }\n  return s;\n}",
+      "tests": [
+        {
+          "call": "total([1, 2, 3])",
+          "expected": "6"
+        },
+        {
+          "call": "total([])",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "function total(arr) {\n  let s = 0;\n  for (let i = 0; i < arr.length; i++) {\n    s += arr[i];\n  }\n  return s;\n}",
+      "explanation": "С <= в конце прибавляется arr[arr.length] = undefined, и сумма становится NaN."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "Числа приходят из полей ввода строками. add должна складывать их как числа.",
+      "code": "function add(a, b) {\n  return a + b;\n}",
+      "tests": [
+        {
+          "call": "add(\"2\", \"3\")",
+          "expected": "5"
+        },
+        {
+          "call": "add(\"10\", \"5\")",
+          "expected": "15"
+        }
+      ],
+      "rules": [],
+      "solution": "function add(a, b) {\n  return Number(a) + Number(b);\n}",
+      "explanation": "Значения из input — строки. Number() превращает их в числа."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "capitalize делает первую букву заглавной: \"кот\" → \"Кот\".",
+      "code": "function capitalize(word) {\n  return word[0].toUpperCase() + word.slice(0);\n}",
+      "tests": [
+        {
+          "call": "capitalize(\"кот\")",
+          "expected": "'Кот'"
+        },
+        {
+          "call": "capitalize(\"js\")",
+          "expected": "'Js'"
+        }
+      ],
+      "rules": [],
+      "solution": "function capitalize(word) {\n  return word[0].toUpperCase() + word.slice(1);\n}",
+      "explanation": "slice(0) возвращает всё слово, а нужно без первой буквы — slice(1)."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "max(arr) — наибольшее число массива (числа могут быть отрицательными).",
+      "code": "function max(arr) {\n  let best = 0;\n  for (const n of arr) {\n    if (n > best) best = n;\n  }\n  return best;\n}",
+      "tests": [
+        {
+          "call": "max([1, 5, 3])",
+          "expected": "5"
+        },
+        {
+          "call": "max([-5, -2, -9])",
+          "expected": "-2"
+        }
+      ],
+      "rules": [],
+      "solution": "function max(arr) {\n  let best = arr[0];\n  for (const n of arr) {\n    if (n > best) best = n;\n  }\n  return best;\n}",
+      "explanation": "Если начать с 0, для отрицательных чисел ответ будет 0. Начинать нужно с первого элемента."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 180,
+      "language": "javascript",
+      "prompt": "doubleAll возвращает новый массив, где каждое число удвоено.",
+      "code": "function doubleAll(nums) {\n  return nums.forEach((n) => n * 2);\n}",
+      "tests": [
+        {
+          "call": "doubleAll([1, 2, 3])",
+          "expected": "[2, 4, 6]"
+        },
+        {
+          "call": "doubleAll([])",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "function doubleAll(nums) {\n  return nums.map((n) => n * 2);\n}",
+      "explanation": "forEach возвращает undefined. Новый массив собирает map."
+    },
+    {
+      "type": "best_variant",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "const name = \"Анна\";",
+        "var name = \"Анна\";"
+      ],
+      "correct": 0,
+      "explanation": "const/let видны только внутри блока и не дают случайно переобъявить переменную. var — устаревший способ."
+    },
+    {
+      "type": "best_variant",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "if (a === b) {\n  save();\n}",
+        "if (a == b) {\n  save();\n}"
+      ],
+      "correct": 0,
+      "explanation": "=== не приводит типы: 0 === \"\" — false. С == такие сравнения дают сюрпризы."
+    },
+    {
+      "type": "best_variant",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "const doubled = nums.map((n) => n * 2);",
+        "const doubled = [];\nfor (let i = 0; i < nums.length; i++) {\n  doubled.push(nums[i] * 2);\n}"
+      ],
+      "correct": 0,
+      "explanation": "map делает то же самое короче и сразу говорит о намерении: «преобразовать каждый элемент»."
+    },
+    {
+      "type": "best_variant",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "const text = \"Привет, \" + name + \"!\";",
+        "const text = `Привет, ${name}!`;"
+      ],
+      "correct": 1,
+      "explanation": "Шаблонные строки читаются проще, особенно когда переменных несколько."
+    },
+    {
+      "type": "best_variant",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "el.innerHTML = userInput;",
+        "el.textContent = userInput;"
+      ],
+      "correct": 1,
+      "explanation": "innerHTML выполнит HTML из ввода пользователя — это дыра (XSS). textContent вставляет просто текст."
+    },
+    {
+      "type": "best_variant",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "javascript",
+      "prompt": "Какой вариант лучше?",
+      "variants": [
+        "btn.addEventListener(\"click\", buy);",
+        "btn.onclick = buy;"
+      ],
+      "correct": 0,
+      "explanation": "onclick хранит только один обработчик — следующий перезапишет предыдущий. addEventListener позволяет несколько."
+    }
+  ]
+}

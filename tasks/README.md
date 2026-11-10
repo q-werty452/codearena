@@ -6,6 +6,7 @@ Each file is a `TaskSet` (see `packages/shared/src/tasks.ts`) with a `game` fiel
 | Folder | Sets |
 |---|---|
 | `html-css/` | quiz (19), tug of war (19), find the bug (20), Codewars (16) |
+| `javascript/` | quiz (19), tug of war (19), find the bug (20), Codewars (16) |
 
 Every task with code is checked automatically (`npm test -w codearena`):
 the broken code or starter must fail its checks and the reference solution must pass.

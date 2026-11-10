@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "game": "tug",
+  "title": "Канат: JavaScript",
+  "author": "q-werty452",
+  "description": "Быстрые вопросы: типы, операторы, строки, методы массивов. 19 заданий.",
+  "tasks": [
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "typeof 42",
+      "answers": [
+        "number",
+        "\"number\""
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "typeof \"hi\"",
+      "answers": [
+        "string",
+        "\"string\""
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Метод массива: добавить в конец",
+      "answers": [
+        "push"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Метод массива: убрать последний",
+      "answers": [
+        "pop"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "[1, 2, 3].length",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Ключевое слово для неизменяемой переменной",
+      "answers": [
+        "const"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "2 ** 3",
+      "answers": [
+        "8"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "10 % 3",
+      "answers": [
+        "1"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "\"abc\".length",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "\"JS\".toLowerCase()",
+      "answers": [
+        "js",
+        "\"js\"",
+        "'js'"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Math.max(4, 9, 2)",
+      "answers": [
+        "9"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "[1, 2, 3].indexOf(2)",
+      "answers": [
+        "1"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Boolean(0)",
+      "answers": [
+        "false"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Оператор строгого равенства",
+      "answers": [
+        "==="
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Событие нажатия мышью",
+      "answers": [
+        "click"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "\"5\" + 1",
+      "answers": [
+        "51",
+        "\"51\"",
+        "'51'"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Number(\"7\") + 1",
+      "answers": [
+        "8"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Метод массива, преобразующий каждый элемент",
+      "answers": [
+        "map"
+      ],
+      "caseSensitive": false
+    },
+    {
+      "type": "short_answer",
+      "topic": "JavaScript",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "JSON.??? — объект в строку",
+      "answers": [
+        "stringify",
+        "JSON.stringify"
+      ],
+      "caseSensitive": false
+    }
+  ]
+}
