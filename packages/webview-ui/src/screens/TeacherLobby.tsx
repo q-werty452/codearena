@@ -10,7 +10,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { Check, ChevronDown, Copy, DoorClosed, Flag, Radio, Gamepad2, Link2, MessageCircleQuestion, MoreHorizontal, Pencil, Shuffle, UserX, Users, WifiOff } from "lucide-react";
+import { Check, ChevronDown, Copy, DoorClosed, Flag, Radio, Gamepad2, Link2, MessageCircleQuestion, MoreHorizontal, Pencil, Shuffle, Smartphone, UserX, Users, WifiOff } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { isDone, shuffleIntoTeams, type LessonSnapshot, type LessonStatus, type PlayerInfo, type SessionSnapshot, type TeamIndex, type TeamMode } from "@codearena/shared";
 import { Button } from "../ui/Button.tsx";
@@ -22,6 +22,7 @@ import { StatusDot } from "../ui/Status.tsx";
 import { cn } from "../lib/cn.ts";
 import { prettyCode, useT } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
+import { WatchDialog } from "../ui/WatchDialog.tsx";
 
 type Assignment = Record<string, TeamIndex | null>;
 const NONE = "none";
@@ -65,6 +66,7 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
 
   const lesson = session.lesson;
   const [teamsOpen, setTeamsOpen] = useState(mode !== "solo");
+  const [watchOpen, setWatchOpen] = useState(false);
 
   return (
     <div className="mx-auto flex min-h-full max-w-[1100px] flex-col gap-5 px-6 pt-5">
@@ -78,11 +80,16 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
         </div>
         <div className="flex items-center gap-3">
           <StatusDot status={session.status} />
+          <Button size="sm" variant="ghost" icon={<Smartphone size={14} />} onClick={() => setWatchOpen(true)} title={t("watch.title")}>
+            {t("watch.button")}
+          </Button>
           <Button size="sm" variant="ghost" icon={<DoorClosed size={14} />} onClick={() => host.post({ type: "leave" })}>
             {t("teacher.closeRoom")}
           </Button>
         </div>
       </header>
+
+      <WatchDialog link={session.watchLink} open={watchOpen} onClose={() => setWatchOpen(false)} />
 
       <LessonHero code={code} link={session.webLink ?? session.link ?? ""} players={players} lesson={lesson} />
 

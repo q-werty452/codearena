@@ -12,7 +12,7 @@ import type { Session } from "./session.ts";
  */
 const SHARE_BATCH_MS = 400;
 const PROGRESS_MIN_MS = 2000;
-const LESSON_FILE_KEY = "codearena.lessonFile";
+export const LESSON_FILE_KEY = "codearena.lessonFile";
 
 const ru = () => vscode.env.language.toLowerCase().startsWith("ru");
 const L = {

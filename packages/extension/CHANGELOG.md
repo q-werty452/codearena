@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0
+
+- **Watch from your phone**: the teacher panel has a «From phone» button with a QR code. A simple,
+  large page shows who is writing, who is done and who is stuck, with progress; tap a student to see
+  their code live (in Codewars also the submitted solution and tests passed). During a game: timer and
+  answers. View only. The teacher can step out of the room and keep an eye on the class.
+- **Hints on a line**: looking at a student's code (in VS Code — the 💬 button, or on the phone — tap a line),
+  the teacher writes a short hint. The student sees that line highlighted with the hint next to it and a
+  notification. When the student fixes the line, the hint disappears. The student's code is never changed.
+- Clicking the status bar icon now opens its small menu too (it used to open the sidebar —
+  the CodeArena icon on the left already does that).
+- Fixed: the server logged an error when a student disconnected after the room was closed.
+
 ## 0.2.1
 
 - **Status bar icon** at the bottom right, next to Copilot: hover it for a small popup —

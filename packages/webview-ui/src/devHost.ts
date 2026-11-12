@@ -70,6 +70,7 @@ export function scenario(s: DevScenario): SessionSnapshot {
         code: "482913",
         link: "vscode://q-werty452.codearena/join?code=482913",
         webLink: "https://codearena.example.workers.dev/j/482913",
+        watchLink: "https://codearena.example.workers.dev/w/482913#t=3f9a1c0e7b2d4a6f8e1c5b7a9d0f2e4c",
         lobby,
       };
     case "student":

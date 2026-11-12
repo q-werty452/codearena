@@ -25,5 +25,8 @@
   "config.ai.model": "Gemini model for task generation, e.g. `gemini-3.6-flash`. Empty — pick the newest stable *flash* model available to your key automatically.",
   "config.ai.endpoint": "Gemini API base URL. Empty — `https://generativelanguage.googleapis.com`. Change only for a proxy.",
   "description": "Kahoot + Codewars inside VS Code: tug of war, quiz, Codewars, race and find-the-bug games for programming lessons.",
-  "displayName": "CodeArena — coding games for class"
+  "displayName": "CodeArena — coding games for class",
+  "command.hintLine": "Lesson: hint for the student on this line",
+  "color.hintBackground": "Background of a line with the teacher's hint",
+  "color.hintForeground": "Text of the teacher's hint"
 }

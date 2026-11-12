@@ -1,6 +1,6 @@
 import { SELF } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
-import type { CreateRoomResponse, ServerMessage } from "@codearena/shared";
+import { watchToken, type CreateRoomResponse, type ServerMessage } from "@codearena/shared";
 
 let ipCounter = 0;
 async function createRoom(): Promise<CreateRoomResponse> {
@@ -11,8 +11,8 @@ async function createRoom(): Promise<CreateRoomResponse> {
 }
 
 /** Подключение с очередью входящих сообщений. */
-async function connect(code: string, teacher?: string) {
-  const q = teacher ? `?teacher=${teacher}` : "";
+async function connect(code: string, teacher?: string, watch?: string) {
+  const q = teacher ? `?teacher=${teacher}` : watch ? `?watch=${watch}` : "";
   const r = await SELF.fetch(`http://x/rooms/${code}/ws${q}`, { headers: { upgrade: "websocket" } });
   expect(r.status).toBe(101);
   const ws = r.webSocket!;
@@ -26,6 +26,8 @@ async function connect(code: string, teacher?: string) {
   return {
     send: (m: unknown) => ws.send(JSON.stringify(m)),
     close: () => ws.close(),
+    /** Сколько непрочитанных сообщений такого типа лежит во входящих. */
+    pending: (type: ServerMessage["type"]) => inbox.filter((m) => m.type === type).length,
     /** Ждёт сообщение нужного типа (и удовлетворяющее условию). */
     async next<T extends ServerMessage["type"]>(type: T, pred: (m: Extract<ServerMessage, { type: T }>) => boolean = () => true) {
       for (let i = 0; i < 100; i++) {
@@ -347,5 +349,92 @@ describe("урок, часть 2: код учителя, чекпоинты, п�
     // Ученик не может показывать код и смотреть чужой.
     a.send({ type: "peek", playerId: ja.playerId });
     expect((await a.next("error")).code).toBe("not_teacher");
+  });
+});
+
+describe("смотреть с телефона", () => {
+  it("страница /w/<код> отдаётся без кэша и без индексации", async () => {
+    const r = await SELF.fetch("http://x/w/123456");
+    expect(r.status).toBe(200);
+    expect(r.headers.get("content-type")).toContain("text/html");
+    expect(r.headers.get("cache-control")).toBe("no-store");
+    const html = await r.text();
+    expect(html).toContain('const CODE = "123456"');
+    expect(html).toContain("noindex");
+  });
+
+  it("чужой токен наблюдателя и токен учителя вместо него не пускают", async () => {
+    const { code, teacherToken } = await createRoom();
+    const bad = await SELF.fetch(`http://x/rooms/${code}/ws?watch=${"0".repeat(32)}`, { headers: { upgrade: "websocket" } });
+    expect(bad.status).toBe(403);
+    const raw = await SELF.fetch(`http://x/rooms/${code}/ws?watch=${teacherToken}`, { headers: { upgrade: "websocket" } });
+    expect(raw.status).toBe(403);
+  });
+
+  it("наблюдатель видит то же, что учитель, но ничего не может изменить", async () => {
+    const { code, teacherToken } = await createRoom();
+    const t = await connect(code, teacherToken);
+    await t.next("lobby");
+    const w = await connect(code, undefined, await watchToken(teacherToken));
+    expect((await w.next("lobby")).players).toEqual([]);
+    await w.next("lesson_state");
+
+    const a = await connect(code);
+    a.send({ type: "join", name: "Айбек К." });
+    const ja = await a.next("joined");
+    expect((await w.next("lobby", (m) => m.players.length === 1)).players[0]!.name).toBe("Айбек К.");
+    a.send({ type: "status", status: "lost" });
+    await w.next("lesson_state", (m) => m.statuses[ja.playerId] === "lost");
+    a.send({ type: "confused" });
+    await w.next("lesson_state", (m) => m.confused === 1);
+    a.send({ type: "progress", checkpoint: 0, percent: 40 });
+    await w.next("lesson_state", (m) => m.progress[ja.playerId] === 40);
+
+    // Код ученика: телефон просит — получает только телефон, у учителя в VS Code ничего не открывается.
+    w.send({ type: "peek", playerId: ja.playerId });
+    await a.next("peek_request");
+    a.send({ type: "peek_reply", fileName: "index.html", text: "<h1>Привет</h1>" });
+    expect((await w.next("peek_code")).text).toBe("<h1>Привет</h1>");
+    // И наоборот: учитель смотрит из VS Code — телефону не приходит.
+    t.send({ type: "peek", playerId: ja.playerId });
+    await a.next("peek_request");
+    a.send({ type: "peek_reply", fileName: "index.html", text: "v2" });
+    expect((await t.next("peek_code")).text).toBe("v2");
+    await new Promise((r) => setTimeout(r, 150));
+    w.send({ type: "kick_player", playerId: ja.playerId });
+    expect((await w.next("error")).code).toBe("not_teacher");
+    // До этого момента учителю пришёл ровно один peek_code, телефону — ровно один.
+    expect(t.pending("peek_code")).toBe(0);
+    expect(w.pending("peek_code")).toBe(0);
+
+    // Подсказка на строке: с телефона и из VS Code доходит до ученика, отправивший получает подтверждение.
+    w.send({ type: "hint", playerId: ja.playerId, line: 3, text: "  закрой тег  ", fileName: "index.html" });
+    expect(await a.next("hint")).toMatchObject({ line: 3, text: "закрой тег", fileName: "index.html" });
+    expect(await w.next("hint_sent")).toMatchObject({ playerId: ja.playerId, line: 3 });
+    t.send({ type: "hint", playerId: ja.playerId, line: 1, text: "добавь doctype" });
+    expect(await a.next("hint")).toMatchObject({ line: 1, text: "добавь doctype", fileName: "" });
+    await t.next("hint_sent");
+    // Ученик подсказки другим не шлёт; пустая подсказка и строка 0 — не проходят.
+    a.send({ type: "hint", playerId: ja.playerId, line: 1, text: "x" });
+    expect((await a.next("error")).code).toBe("not_teacher");
+    t.send({ type: "hint", playerId: ja.playerId, line: 0, text: "x" });
+    expect((await t.next("error")).code).toBe("bad_message");
+    t.send({ type: "hint", playerId: ja.playerId, line: 2, text: "   " });
+    expect((await t.next("error")).code).toBe("bad_message");
+
+    // Команды учителя от наблюдателя не проходят и комнату не меняют.
+    w.send({ type: "kick_player", playerId: ja.playerId });
+    expect((await w.next("error")).code).toBe("not_teacher");
+    w.send({ type: "close_room" });
+    expect((await w.next("error")).code).toBe("not_teacher");
+    const e = await SELF.fetch(`http://x/rooms/${code}`);
+    expect(await e.json()).toEqual({ exists: true });
+
+    // Игру видит вживую: старт, состояние, итоги.
+    t.send({ type: "start_game", game: "quiz", settings: {}, tasks: [{ type: "choice", topic: "t", prompt: "?", options: ["a", "b"], correct: 0 }] });
+    expect((await w.next("game_started")).game).toBe("quiz");
+    expect((await w.next("state")).state.game).toBe("quiz");
+    t.send({ type: "end_game" });
+    await w.next("game_over");
   });
 });

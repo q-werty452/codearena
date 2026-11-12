@@ -1,5 +1,6 @@
 import type { CreateRoomResponse } from "@codearena/shared";
 import { joinPage } from "./joinPage.ts";
+import { watchPage } from "./watchPage.ts";
 export { Room } from "./room.ts";
 
 export interface Env {
@@ -47,6 +48,10 @@ export default {
     // Страница-приглашение для мессенджеров.
     const jp = url.pathname.match(/^\/j\/(\d{6})$/);
     if (jp && request.method === "GET") return joinPage(jp[1]!);
+
+    // «Смотреть с телефона»: страница только для просмотра (токен — во фрагменте ссылки).
+    const wp = url.pathname.match(/^\/w\/(\d{6})$/);
+    if (wp && request.method === "GET") return watchPage(wp[1]!);
 
     // Создать комнату: вернуть 6-значный код и токен учителя.
     if (url.pathname === "/rooms" && request.method === "POST") {

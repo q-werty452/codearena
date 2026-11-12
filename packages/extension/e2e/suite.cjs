@@ -63,12 +63,14 @@ async function lessonScenario(session, step) {
   await waitFor("status lost via the status bar popup", () => session.snapshot.lesson.myStatus === "lost", 40000);
   step("status bar popup → «lost» clicked, status: " + session.snapshot.lesson.myStatus);
   await waitFor("hover driver done", () => fs.existsSync(h + ".hover.done"), 30000);
+  await waitFor("status done via the popup opened by a click", () => session.snapshot.lesson.myStatus === "done", 10000);
+  step("click on the icon → popup → «done», status: " + session.snapshot.lesson.myStatus);
   void ctx;
 }
 
 const isTeacherDoc = (e) => e.document.uri.scheme === "codearena" && e.document.uri.path.startsWith("/teacher/");
 
-async function liveStudentScenario(session, step) {
+async function liveStudentScenario(session, step, api) {
   // Учитель показал файл — он открылся рядом, только для чтения.
   const ted = await waitFor("teacher file beside", () => vscode.window.visibleTextEditors.find(isTeacherDoc));
   step("teacher file opened beside: " + ted.document.uri.toString() + " (" + ted.document.lineCount + " lines)");
@@ -104,6 +106,22 @@ async function liveStudentScenario(session, step) {
   }, 10000);
   step("follow: teacher moved to line 11, student's view followed");
   await sleep(1500); // ответ на «посмотреть код» долетает до учителя
+
+  // Подсказка учителя на строке 9 — подсвечена у ученика.
+  const h1 = await waitFor("hint on line 9", () => api.hints.list().find((h) => h.line === 9 && h.text === "проверь абзац"), 10000);
+  step("teacher hint shown: " + JSON.stringify(h1));
+  await vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.One, preserveFocus: false });
+  await sleep(600);
+  fs.writeFileSync(process.env.CODEARENA_E2E_HANDOFF + ".shot", "go");
+  await waitFor("student screenshot", () => fs.existsSync(process.env.CODEARENA_E2E_HANDOFF + ".shot.done"), 15000);
+  // Выше вставили строку — подсказка едет вместе со своей строкой.
+  await ed.edit((b) => b.insert(new vscode.Position(0, 0), "<!-- мой комментарий -->\n"));
+  await waitFor("hint moved to line 10", () => api.hints.list().some((h) => h.line === 10), 5000);
+  step("line inserted above → hint moved to line 10");
+  // Ученик исправил саму строку — подсказка пропала.
+  await ed.edit((b) => b.replace(doc.lineAt(9).range, "\t<p>Абзац исправлен</p>"));
+  await waitFor("hint gone", () => api.hints.list().length === 0, 5000);
+  step("student fixed the line → hint gone");
 }
 
 async function liveTeacherScenario(session, step) {
@@ -140,6 +158,11 @@ async function liveTeacherScenario(session, step) {
     vscode.window.visibleTextEditors.find((e) => e.document.uri.scheme === "codearena" && e.document.uri.path.startsWith("/students/")));
   step("peek opened " + peek.document.uri.path + ": " + JSON.stringify(peek.document.getText()));
   if (!peek.document.getText().includes("BOT CODE")) throw new Error("wrong peek text");
+  // Подсказка ученику на строке 1 — из открытого кода ученика (без окна ввода).
+  await vscode.window.showTextDocument(peek.document, { viewColumn: peek.viewColumn, preserveFocus: false });
+  await vscode.commands.executeCommand("codearena.hintLine", { line: 1, text: "закрой тег <p>" });
+  step("hint sent from the student's code (line 1)");
+  await sleep(800);
 
   await vscode.commands.executeCommand("codearena.stopShare");
   await waitFor("share off", () => !session.snapshot.lesson.share);
@@ -206,6 +229,9 @@ exports.run = async function run() {
       await session.createRoom();
       await waitFor("room", () => session.snapshot.code && session.snapshot.status === "online");
       await vscode.commands.executeCommand("codearena.openPanel");
+      const watch = await waitFor("watch link", () => session.snapshot.watchLink);
+      fs.writeFileSync(process.env.CODEARENA_E2E_HANDOFF + ".watch", watch);
+      step("watch link ready: " + watch.replace(/#t=.*/, "#t=…"));
       fs.writeFileSync(process.env.CODEARENA_E2E_HANDOFF, session.snapshot.code);
       step("room " + session.snapshot.code + ", panel open; waiting for the CDP driver");
       await waitFor("driver done", () => fs.existsSync(process.env.CODEARENA_E2E_HANDOFF + ".done"), 170000);
@@ -226,7 +252,7 @@ exports.run = async function run() {
     await waitFor("joined", () => session.snapshot.me);
     step("joined room " + session.snapshot.code);
     if (SCENARIO === "livestudent") {
-      await liveStudentScenario(session, step);
+      await liveStudentScenario(session, step, api);
       fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
       return;
     }

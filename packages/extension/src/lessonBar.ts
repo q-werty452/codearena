@@ -4,7 +4,7 @@ import type { Session } from "./session.ts";
 
 /**
  * Значок CodeArena справа в строке состояния — только иконка, без текста.
- * Клик — боковая панель CodeArena. Наведение — маленькое окошко с кнопками
+ * Клик и наведение — маленькое окошко с кнопками
  * (как у Copilot): у ученика «готово / пишу / не понял / объясните ещё раз»,
  * у учителя — сводка класса и быстрые действия, до входа — «Войти в урок».
  * Подсветка: у ученика «не понял», у учителя — есть просьбы объяснить ещё раз.
@@ -125,6 +125,8 @@ export class LessonBar implements vscode.Disposable {
     this.disposables.push(
       this.item,
       vscode.commands.registerCommand("codearena.setStatus", () => this.pick()),
+      // Клик по значку: после клика фокус на нём — встроенная команда показывает его окошко.
+      vscode.commands.registerCommand("codearena.barMenu", () => vscode.commands.executeCommand("workbench.action.showHover")),
       vscode.commands.registerCommand("codearena.status.done", () => session.setStatus("done")),
       vscode.commands.registerCommand("codearena.status.writing", () => session.setStatus("writing")),
       vscode.commands.registerCommand("codearena.status.lost", () => session.setStatus("lost")),
@@ -139,7 +141,7 @@ export class LessonBar implements vscode.Disposable {
     void vscode.commands.executeCommand("setContext", "codearena.inLesson", inLesson);
     void vscode.commands.executeCommand("setContext", "codearena.isTeacher", s.role === "teacher" && !!s.lobby);
     this.item.text = "$(mortar-board)";
-    this.item.command = "codearena.sidebar.focus";
+    this.item.command = "codearena.barMenu";
     this.item.backgroundColor = undefined;
     if (s.role === "teacher" && s.lobby) {
       this.item.tooltip = tip(teacherTip(s));

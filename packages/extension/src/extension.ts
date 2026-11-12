@@ -5,6 +5,7 @@ import { renderWebviewHtml } from "./webviewHtml.ts";
 import { Session } from "./session.ts";
 import { CodeTasks } from "./codeTask.ts";
 import { LessonBar } from "./lessonBar.ts";
+import { LessonHints } from "./lessonHints.ts";
 import { AntiCheat } from "./antiCheat.ts";
 import { LessonLive } from "./lessonLive.ts";
 import { runChecks } from "./runner.ts";
@@ -24,6 +25,8 @@ let myTasks: MyTasks;
 export interface CodeArenaApi {
   session: Session;
   myTasks: MyTasks;
+  /** Подсказки учителя на строках (для e2e). */
+  hints: LessonHints;
 }
 
 export function activate(context: vscode.ExtensionContext): CodeArenaApi {
@@ -68,7 +71,8 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
   // Началась игра — ученику открываем панель игры (там вопросы и плитки).
   session.onGameStarted = () => GamePanel.show(context);
   // Урок в статус-баре: «Войти в урок» → статус ученика / сводка учителя.
-  context.subscriptions.push(new LessonBar(session), new LessonLive(context, session));
+  const hints = new LessonHints(context, session);
+  context.subscriptions.push(new LessonBar(session), new LessonLive(context, session), hints);
   // Игра закончилась — ученик возвращается к своему коду, панель игры закрывается.
   session.onBackToLesson = () => {
     if (session.snapshot.role === "student") GamePanel.close();
@@ -79,7 +83,7 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
   context.subscriptions.push(codeTasks, new AntiCheat(session, (uri) => codeTasks.isTaskFile(uri)));
 
   void session.restore();
-  return { session, myTasks };
+  return { session, myTasks, hints };
 }
 
 /** Набор заданий → файл .codearena.json */

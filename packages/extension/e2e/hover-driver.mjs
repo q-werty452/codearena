@@ -6,7 +6,7 @@ const require = createRequire(import.meta.url);
 const WebSocket = require("ws");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export async function hoverBar(port, { click = null, shot = null, openSidebar = false } = {}) {
+export async function hoverBar(port, { click = null, shot = null, openSidebar = false, clickPopup = false } = {}) {
   const targets = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
   const page = targets.find((t) => t.type === "page" && /workbench/.test(t.url));
   if (!page) return { ok: false, results: ["no workbench page"] };
@@ -28,11 +28,16 @@ export async function hoverBar(port, { click = null, shot = null, openSidebar = 
       if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, right: e.closest('.right-items') !== null, text: e.innerText, w: innerWidth }; })()`);
     if (!item) return { ok: false, results: ["status bar item codearena.lesson not found"] };
     results.push(`status bar item "${item.text.trim()}" on the ${item.right ? "right" : "LEFT"} side`);
-    await mouse("mouseMoved", item.x - 30, item.y - 200);
-    await sleep(200);
-    await mouse("mouseMoved", item.x, item.y);
     let hover = null;
-    for (let i = 0; i < 40 && !hover; i++) {
+    // Подсказка иногда не успевает после закрытия панели игры — до трёх заходов мышью.
+    for (let i = 0; i < 60 && !hover; i++) {
+      if (i % 20 === 0) {
+        await mouse("mouseMoved", item.x - 30, item.y - 200);
+        await sleep(300);
+        await mouse("mouseMoved", item.x - 2, item.y);
+        await sleep(50);
+        await mouse("mouseMoved", item.x, item.y);
+      }
       await sleep(150);
       hover = await ev(`(() => { const h = [...document.querySelectorAll('.monaco-hover')].find((x) => x.offsetParent !== null && x.innerText.includes('CodeArena'));
         if (!h) return null; const r = h.getBoundingClientRect();
@@ -61,6 +66,34 @@ export async function hoverBar(port, { click = null, shot = null, openSidebar = 
       await mouse("mousePressed", a.x, a.y);
       await mouse("mouseReleased", a.x, a.y);
       results.push(`clicked "${a.text.trim()}" in the popup`);
+    }
+    if (clickPopup) {
+      // Клик по иконке (мышь только что пришла — подсказка ещё не успела бы показаться) → окошко.
+      const visible = () => ev(`[...document.querySelectorAll('.monaco-hover')].some((x) => x.offsetParent !== null && x.innerText.includes('CodeArena'))`);
+      await mouse("mouseMoved", item.x, item.y - 300);
+      await sleep(800);
+      results.push("popup gone after moving away: " + !(await visible()));
+      await mouse("mouseMoved", item.x, item.y);
+      await mouse("mousePressed", item.x, item.y);
+      await mouse("mouseReleased", item.x, item.y);
+      const seen = [];
+      for (let i = 0; i < 10; i++) { await sleep(150); seen.push(await visible() ? 1 : 0); }
+      results.push("popup after click (every 150 ms): " + seen.join(""));
+      const sideOpen = await ev(`(() => { const p = document.querySelector('.part.sidebar'); return !!(p && p.offsetWidth > 0 && /codearena/i.test(p.querySelector('.composite.title')?.innerText || '')); })()`);
+      results.push("sidebar opened by the click: " + sideOpen);
+      if (!seen.slice(-4).every(Boolean) || sideOpen) return { ok: false, results };
+      // Кнопка в окошке, открытом кликом: «Готово».
+      const d = await ev(`(() => { const h = [...document.querySelectorAll('.monaco-hover')].find((x) => x.offsetParent !== null && x.innerText.includes('CodeArena'));
+        const a = h && [...h.querySelectorAll('a')].find((x) => (x.getAttribute('data-href') || x.getAttribute('href') || '').includes('codearena.status.done'));
+        if (!a) return null; const r = a.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; })()`);
+      if (!d) return { ok: false, results: [...results, "no «done» link in the clicked popup"] };
+      await mouse("mouseMoved", item.x, (item.y + d.y) / 2);
+      await sleep(100);
+      await mouse("mouseMoved", d.x, d.y);
+      await sleep(300);
+      await mouse("mousePressed", d.x, d.y);
+      await mouse("mouseReleased", d.x, d.y);
+      results.push("clicked «done» in the popup opened by the click");
     }
     if (openSidebar) {
       // Клик по самой иконке — открывается боковая панель CodeArena.

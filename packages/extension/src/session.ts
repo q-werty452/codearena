@@ -12,6 +12,8 @@ import {
   type LessonStatus,
   type ServerMessage,
   type SessionSnapshot,
+  watchToken,
+  watchUrl,
 } from "@codearena/shared";
 
 /** Что сохраняется между перезапусками VS Code: вернуться в ту же комнату. */
@@ -80,6 +82,7 @@ export class Session implements vscode.Disposable {
     this.token = saved.token;
     this.pendingName = saved.name ?? this.state.savedName;
     this.set({ role: saved.role, code: saved.code, status: "connecting", ...this.links(saved.code, saved.role) });
+    if (saved.role === "teacher") this.setWatchLink(saved.code, saved.token);
     this.connect();
   }
 
@@ -120,6 +123,7 @@ export class Session implements vscode.Disposable {
       this.token = teacherToken;
       await this.save({ role: "teacher", code, token: teacherToken, at: Date.now() });
       this.set({ role: "teacher", code, status: "connecting", busy: false, ...this.links(code, "teacher") });
+      this.setWatchLink(code, teacherToken);
       this.connect();
     } catch {
       this.set({ busy: false, error: { field: "general", message: "server_unreachable" } });
@@ -333,6 +337,13 @@ export class Session implements vscode.Disposable {
     if (!r.ok) throw new Error(String(r.status));
     const body = (await r.json()) as { exists?: boolean };
     return body.exists === true;
+  }
+
+  /** Учитель: ссылка «смотреть с телефона» (токен наблюдателя считается из токена учителя). */
+  private setWatchLink(code: string, teacherToken: string): void {
+    void watchToken(teacherToken).then((t) => {
+      if (this.state.role === "teacher" && this.state.code === code) this.set({ watchLink: watchUrl(this.serverUrl, code, t) });
+    });
   }
 
   private links(code: string, role: "student" | "teacher"): Pick<SessionSnapshot, "link" | "webLink"> {

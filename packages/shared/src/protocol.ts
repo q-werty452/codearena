@@ -132,6 +132,14 @@ export const ClientMessage = z.discriminatedUnion("type", [
   z.object({ type: z.literal("progress"), checkpoint: z.number().int(), percent: z.number().min(0).max(100) }),
   /** Учитель: посмотреть код ученика. */
   z.object({ type: z.literal("peek"), playerId: z.string() }),
+  /** Учитель (или телефон учителя): подсказка ученику на строке его кода. */
+  z.object({
+    type: z.literal("hint"),
+    playerId: z.string(),
+    line: z.number().int().min(1).max(100_000),
+    text: z.string().trim().min(1).max(300),
+    fileName: z.string().max(200).optional(),
+  }),
   /** Ученик: ответ на просьбу учителя посмотреть код. */
   z.object({ type: z.literal("peek_reply"), fileName: z.string().max(200), text: z.string().max(100_000) }),
   z.object({ type: z.literal("ping") }),
@@ -270,6 +278,10 @@ export const ServerMessage = z.discriminatedUnion("type", [
   z.object({ type: z.literal("checkpoint"), checkpoint: z.number().int(), fileName: z.string(), code: z.string() }),
   /** Ученику: учитель просит показать код. */
   z.object({ type: z.literal("peek_request") }),
+  /** Ученику: подсказка учителя на строке (номер с 1). */
+  z.object({ type: z.literal("hint"), line: z.number().int(), text: z.string(), fileName: z.string().default("") }),
+  /** Тому, кто отправил подсказку: дошла до ученика. */
+  z.object({ type: z.literal("hint_sent"), playerId: z.string(), line: z.number().int(), text: z.string() }),
   /** Учителю: код ученика. */
   z.object({ type: z.literal("peek_code"), playerId: z.string(), name: z.string(), fileName: z.string(), text: z.string() }),
   z.object({ type: z.literal("game_reset") }),

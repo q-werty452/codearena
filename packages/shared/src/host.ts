@@ -149,6 +149,8 @@ export interface SessionSnapshot {
   link: string | null;
   /** Веб-ссылка, которую удобно кидать в мессенджер. */
   webLink: string | null;
+  /** Учитель: ссылка «смотреть с телефона» (только просмотр). */
+  watchLink: string | null;
   me: { playerId: string; name: string; team: TeamIndex | null } | null;
   lobby: LobbySnapshot | null;
   /** Последнее сохранённое имя ученика — поле уже заполнено. */
@@ -167,6 +169,7 @@ export const EMPTY_SESSION: SessionSnapshot = {
   code: null,
   link: null,
   webLink: null,
+  watchLink: null,
   me: null,
   lobby: null,
   savedName: "",

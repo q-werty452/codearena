@@ -114,7 +114,11 @@ t.on("message", (d) => {
         }
       }
     }
-    if (m.type === "peek_code") live.peek = { name: m.name, fileName: m.fileName, hasCode: m.text.includes("<li>Два</li>") };
+    if (m.type === "peek_code") {
+      live.peek = { name: m.name, fileName: m.fileName, hasCode: m.text.includes("<li>Два</li>") };
+      // Подсказка на строке 9 («<p>Абзац</p>» у ученика).
+      if (!live.hinted) { live.hinted = true; t.send(JSON.stringify({ type: "hint", playerId: m.playerId, line: 9, text: "проверь абзац", fileName: m.fileName })); }
+    }
     return;
   }
   if (SCENARIO === "lesson") {
@@ -178,8 +182,25 @@ if (SCENARIO === "lesson") {
   const { existsSync } = await import("node:fs");
   void (async () => {
     while (!existsSync(handoff + ".hover")) await new Promise((r) => setTimeout(r, 300));
-    hoverResult = await hoverBar(debugPort, { click: "codearena.status.lost", shot: join(SHOTS, "statusbar-student.png"), openSidebar: true }).catch((e) => ({ ok: false, results: [String(e)] }));
+    hoverResult = await hoverBar(debugPort, { click: "codearena.status.lost", shot: join(SHOTS, "statusbar-student.png"), clickPopup: true }).catch((e) => ({ ok: false, results: [String(e)] }));
     writeFileSync(handoff + ".hover.done", "x");
+  })();
+}
+// livestudent: снимок окна VS Code ученика с подсказкой учителя (по сигналу из suite.cjs).
+if (SCENARIO === "livestudent") {
+  const { existsSync } = await import("node:fs");
+  void (async () => {
+    while (!existsSync(handoff + ".shot")) await new Promise((r) => setTimeout(r, 300));
+    try {
+      const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
+      const page = targets.find((t) => t.type === "page" && /workbench/.test(t.url));
+      const cdp = new WebSocket(page.webSocketDebuggerUrl, { perMessageDeflate: false });
+      await new Promise((r) => cdp.on("open", r));
+      const shotData = await new Promise((r) => { cdp.on("message", (d) => { const m = JSON.parse(d); if (m.id === 1) r(m.result?.data); }); cdp.send(JSON.stringify({ id: 1, method: "Page.captureScreenshot", params: { format: "png" } })); });
+      if (shotData) writeFileSync(join(SHOTS, "student-hint.png"), Buffer.from(shotData, "base64"));
+      cdp.close();
+    } catch (e) { console.log("student screenshot failed:", e.message); }
+    writeFileSync(handoff + ".shot.done", "x");
   })();
 }
 // liveteacher: комнату создаёт VS Code, бот-ученик подключается по коду из handoff-файла.
@@ -200,6 +221,7 @@ if (SCENARIO === "liveteacher") {
         bot.send(JSON.stringify({ type: "progress", checkpoint: m.checkpoint, percent: 40 }));
       }
       if (m.type === "peek_request") bot.send(JSON.stringify({ type: "peek_reply", fileName: "index.html", text: "<p>BOT CODE</p>" }));
+      if (m.type === "hint") live.hint = { line: m.line, text: m.text, fileName: m.fileName };
     });
   }, 200);
 }
@@ -215,7 +237,7 @@ try {
     vscodeExecutablePath: process.env.VSCODE_PATH ?? "/usr/share/code/code",
     extensionDevelopmentPath: resolve(here, ".."),
     extensionTestsPath: resolve(here, "suite.cjs"),
-    launchArgs: [...(LIVE ? [wsDir] : []), ...(SCENARIO === "teacherui" || SCENARIO === "lesson" ? [`--remote-debugging-port=${debugPort}`] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
+    launchArgs: [...(LIVE ? [wsDir] : []), ...(SCENARIO === "teacherui" || SCENARIO === "lesson" || SCENARIO === "livestudent" ? [`--remote-debugging-port=${debugPort}`] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
     extensionTestsEnv: { CODEARENA_E2E_TMP: tmp, CODEARENA_E2E_FIXTURES: resolve(here, "..", "src", "__fixtures__"), CODEARENA_E2E_CODE: code, CODEARENA_E2E_OUT: out, CODEARENA_E2E_SCENARIO: SCENARIO, CODEARENA_E2E_HANDOFF: handoff },
   });
 } catch {
@@ -230,11 +252,29 @@ if (SCENARIO === "livestudent") {
 } else if (SCENARIO === "liveteacher") {
   const last = live.shareTexts.at(-1) ?? "";
   console.log(`bot student got ${live.shares} lesson_share message(s) for 10 keystrokes; last has all edits: ${last.includes("<!-- 0123456789 -->")}; checkpoint: ${JSON.stringify(live.checkpoint)}; share stopped: ${live.off}`);
-  liveOk = live.shares >= 2 && live.shares <= 6 && last.includes("<!-- 0123456789 -->") && live.checkpoint?.n === 1 && live.checkpoint.sameAsShare && live.off;
+  console.log("bot student got hint:", JSON.stringify(live.hint));
+  liveOk = live.shares >= 2 && live.shares <= 6 && last.includes("<!-- 0123456789 -->") && live.checkpoint?.n === 1 && live.checkpoint.sameAsShare && live.off &&
+    live.hint?.line === 1 && live.hint.text === "закрой тег <p>" && live.hint.fileName === "index.html";
   bot?.close();
 } else if (SCENARIO === "teacherui") {
   console.log((uiResult?.results ?? ["driver did not run"]).map((r) => "  ▸ " + r).join("\n"));
-  liveOk = uiResult?.ok === true;
+  // Ссылка «с телефона», которую посчитало расширение, пускает на сервер как наблюдателя.
+  let watchOk = false;
+  try {
+    const link = readFileSync(handoff + ".watch", "utf8");
+    const m = link.match(/\/w\/(\d{6})#t=([0-9a-f]{32})$/);
+    if (m) {
+      watchOk = await new Promise((res) => {
+        const w = new WebSocket(`ws://${server}/rooms/${m[1]}/ws?watch=${m[2]}`);
+        w.on("message", (d) => { if (JSON.parse(d).type === "lobby") { w.close(); res(true); } });
+        w.on("unexpected-response", () => res(false));
+        w.on("error", () => res(false));
+        setTimeout(() => res(false), 5000);
+      });
+    }
+  } catch {}
+  console.log("  ▸ watch link from the extension accepted by the server: " + watchOk);
+  liveOk = uiResult?.ok === true && watchOk;
 } else if (SCENARIO === "mytasks") {
   console.log("gemini calls:", gemini.calls.map((c) => `${c.path} (key ${c.key})`).join(", "), "| key in URL:", gemini.keyInUrl);
   liveOk = !gemini.keyInUrl && gemini.calls.some((c) => c.path.includes("gemini-3.6-flash:generateContent"));
@@ -247,7 +287,7 @@ else if (SCENARIO === "anticheat") console.log("teacher saw flags:", JSON.string
 else console.log("teacher saw:", feed.map((f) => `${f.correct ? "✓" : "✗"} ${f.report?.passed}/${f.report?.total}`).join(", "));
 t.close();
 // VS Code оставляет «dconf watch» с унаследованным портом отладки — убираем только его.
-if (SCENARIO === "teacherui" || SCENARIO === "lesson") {
+if (SCENARIO === "teacherui" || SCENARIO === "lesson" || SCENARIO === "livestudent") {
   const { execSync } = await import("node:child_process");
   try {
     for (const m of execSync("ss -ltnp", { encoding: "utf8" }).matchAll(new RegExp(`:${debugPort}\\s.*"dconf",pid=(\\d+)`, "g"))) {

@@ -2,7 +2,7 @@
   "name": "codearena",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "publisher": "q-werty452",
   "author": {
     "name": "q-werty452",
@@ -156,6 +156,12 @@
         "icon": "$(milestone)"
       },
       {
+        "command": "codearena.hintLine",
+        "title": "%command.hintLine%",
+        "category": "CodeArena",
+        "icon": "$(comment)"
+      },
+      {
         "command": "codearena.openTeacherCode",
         "title": "%command.openTeacherCode%",
         "category": "CodeArena"
@@ -208,6 +214,18 @@
         }
       }
     },
+    "colors": [
+      {
+        "id": "codearena.hintBackground",
+        "description": "%color.hintBackground%",
+        "defaults": { "dark": "#f59e0b24", "light": "#f59e0b2e", "highContrast": "#f59e0b40", "highContrastLight": "#f59e0b40" }
+      },
+      {
+        "id": "codearena.hintForeground",
+        "description": "%color.hintForeground%",
+        "defaults": { "dark": "#fbbf24", "light": "#b45309", "highContrast": "#fbbf24", "highContrastLight": "#92400e" }
+      }
+    ],
     "keybindings": [
       {
         "command": "codearena.submitCode",
@@ -272,9 +290,25 @@
           "command": "codearena.checkpoint",
           "when": "codearena.isTeacher && resourceScheme == file",
           "group": "navigation@6"
+        },
+        {
+          "command": "codearena.hintLine",
+          "when": "codearena.isTeacher && resourceScheme == codearena && resourcePath =~ /^\\/students\\//",
+          "group": "navigation@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "codearena.hintLine",
+          "when": "codearena.isTeacher && resourceScheme == codearena && resourcePath =~ /^\\/students\\//",
+          "group": "navigation@0"
         }
       ],
       "commandPalette": [
+        {
+          "command": "codearena.hintLine",
+          "when": "codearena.isTeacher && resourceScheme == codearena"
+        },
         {
           "command": "codearena.runTests",
           "when": "codearena.taskFile"
@@ -341,7 +375,7 @@
     "package": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\" && vsce package --no-dependencies",
     "test": "vitest run",
     "sweep": "node e2e/gallery-sweep.mjs",
-    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs dartcw && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher && node e2e/run.mjs mytasks && node e2e/run.mjs teacherui"
+    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs dartcw && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher && node e2e/run.mjs mytasks && node e2e/run.mjs teacherui && node e2e/watch-page.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

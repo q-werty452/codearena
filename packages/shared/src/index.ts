@@ -6,3 +6,4 @@ export * from "./host.ts";
 export * from "./lesson.ts";
 export * from "./importer.ts";
 export * from "./ai.ts";
+export * from "./watch.ts";

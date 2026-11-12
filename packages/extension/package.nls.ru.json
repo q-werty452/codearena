@@ -25,5 +25,8 @@
   "config.ai.model": "Модель Gemini для заданий, например `gemini-3.6-flash`. Пусто — автоматически самая новая стабильная *flash*-модель, доступная вашему ключу.",
   "config.ai.endpoint": "Адрес Gemini API. Пусто — `https://generativelanguage.googleapis.com`. Меняйте только для прокси.",
   "description": "Kahoot + Codewars в VS Code: режим урока, викторина, перетягивание каната, Codewars, гонка и «Найди баг» для уроков программирования.",
-  "displayName": "CodeArena — игры по программированию для класса"
+  "displayName": "CodeArena — игры по программированию для класса",
+  "command.hintLine": "Урок: подсказка ученику на этой строке",
+  "color.hintBackground": "Фон строки с подсказкой учителя",
+  "color.hintForeground": "Текст подсказки учителя"
 }

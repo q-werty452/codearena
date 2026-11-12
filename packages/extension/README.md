@@ -11,9 +11,13 @@ Free and open source. No accounts for students — a 6-digit code or a link is e
 
 The room opens in **Lesson** mode:
 
-- Students mark **Done / Still writing / Lost** from the sidebar, from the popup over the CodeArena
-  icon at the bottom right (hover it), or with `Ctrl+Alt+1…3`, and can ask **«Explain again»**
-  anonymously — you only see the count. Clicking the icon opens the CodeArena sidebar.
+- Students mark **Done / Still writing / Lost** from the sidebar, from the small menu of the CodeArena
+  icon at the bottom right (click or hover it), or with `Ctrl+Alt+1…3`, and can ask **«Explain again»**
+  anonymously — you only see the count.
+- **Hints on a line**: open a student's code, put the cursor on a line and press 💬 — the student sees
+  your hint right next to that line. It disappears when they fix it.
+- **Watch from your phone**: «From phone» in the teacher panel shows a QR code — scan it and follow the
+  class live in the phone browser: who is writing, done or stuck, progress, and each student's code. View only.
 - **Show your file**: students get your code next to theirs, read-only, and can follow your cursor.
 - **Checkpoints**: your current code becomes the reference for the step; each student's progress
   is computed from their own file (whitespace and blank lines don't matter).

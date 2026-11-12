@@ -10,6 +10,7 @@ import {
   type ServerMessage,
   type TeamIndex,
   type TeamMode,
+  watchToken,
 } from "@codearena/shared";
 import type { Env } from "./index.ts";
 import * as engine from "./engine.ts";
@@ -65,13 +66,16 @@ const SHARE_PERSIST_MS = 10_000;
 const PROGRESS_PERSIST_MS = 15_000;
 
 /** Что привязано к каждому WebSocket (переживает гибернацию). */
-type Attachment = { role: "teacher" } | { role: "student"; playerId: string | null };
+/** watcher — «смотреть с телефона»: получает то же, что учитель, но ничего не может менять. */
+type Attachment = { role: "teacher" } | { role: "watcher" } | { role: "student"; playerId: string | null };
 
 export class Room extends DurableObject<Env> {
   private data: RoomData | null = null;
   private share: ShareData | null = null;
   private sharePersistedAt = 0;
   private progressPersistedAt = 0;
+  /** Кто просил код ученика (учитель в VS Code или телефон) — ответ уходит только им. */
+  private peekWaiters = new Map<string, Set<WebSocket>>();
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -122,14 +126,19 @@ export class Room extends DurableObject<Env> {
     if (teacher !== null && teacher !== this.data.teacherToken) {
       return new Response("not_teacher", { status: 403 });
     }
+    const watch = url.searchParams.get("watch");
+    if (watch !== null && watch !== (await watchToken(this.data.teacherToken))) {
+      return new Response("not_watcher", { status: 403 });
+    }
 
     const pair = new WebSocketPair();
     const [client, server] = [pair[0], pair[1]];
-    const att: Attachment = teacher ? { role: "teacher" } : { role: "student", playerId: null };
-    this.ctx.acceptWebSocket(server, [att.role]);
+    const att: Attachment = teacher ? { role: "teacher" } : watch ? { role: "watcher" } : { role: "student", playerId: null };
+    // Наблюдатель помечен и тегом "teacher": всё, что уходит учителю, видит и он.
+    this.ctx.acceptWebSocket(server, att.role === "watcher" ? ["teacher", "watcher"] : [att.role]);
     server.serializeAttachment(att);
 
-    if (att.role === "teacher") {
+    if (att.role === "teacher" || att.role === "watcher") {
       // Учитель сразу видит лобби.
       queueMicrotask(() => {
         this.send(server, this.lobbyMessage());
@@ -148,6 +157,12 @@ export class Room extends DurableObject<Env> {
     if (!msg) return this.error(ws, "bad_message", "Неверное сообщение");
 
     const att = ws.deserializeAttachment() as Attachment;
+    // Наблюдатель только смотрит: может лишь попросить код ученика, остальное — нет.
+    if (att.role === "watcher") {
+      if (msg.type === "peek") return this.peek(ws, msg.playerId);
+      if (msg.type === "hint") return this.hint(ws, msg);
+      return this.error(ws, "not_teacher", "Только просмотр");
+    }
     this.data.lastActivity = Date.now();
 
     if (att.role === "teacher") await this.onTeacher(ws, msg);
@@ -155,6 +170,7 @@ export class Room extends DurableObject<Env> {
   }
 
   override async webSocketClose(ws: WebSocket): Promise<void> {
+    if (!this.data) return; // комната уже закрыта
     const att = ws.deserializeAttachment() as Attachment | null;
     // Игрок остаётся в комнате — просто помечается «не в сети».
     if (att?.role === "student" && att.playerId) this.broadcastLobby();
@@ -269,12 +285,10 @@ export class Room extends DurableObject<Env> {
         for (const s of this.studentSockets()) this.send(s, { type: "lesson_share_off" });
         return;
       }
-      case "peek": {
-        const sockets = this.studentSockets(msg.playerId);
-        if (!sockets.length) return this.error(ws, "not_joined", "Ученик не в сети");
-        for (const s of sockets) this.send(s, { type: "peek_request" });
-        return;
-      }
+      case "peek":
+        return this.peek(ws, msg.playerId);
+      case "hint":
+        return this.hint(ws, msg);
       case "start_game": {
         if (d.game && d.game.phase !== "over") return this.error(ws, "game_running", "Игра уже идёт");
         try {
@@ -389,9 +403,14 @@ export class Room extends DurableObject<Env> {
 
     if (msg.type === "peek_reply") {
       const name = d.players[att.playerId]?.name ?? "?";
-      for (const s of this.ctx.getWebSockets("teacher")) {
-        this.send(s, { type: "peek_code", playerId: att.playerId, name, fileName: msg.fileName, text: msg.text });
-      }
+      const reply: ServerMessage = { type: "peek_code", playerId: att.playerId, name, fileName: msg.fileName, text: msg.text };
+      const waiters = [...(this.peekWaiters.get(att.playerId) ?? [])].filter((s) => s.readyState === WebSocket.OPEN);
+      this.peekWaiters.delete(att.playerId);
+      // Запрос мог потеряться при гибернации — тогда как раньше: учителю (не телефону).
+      const to = waiters.length
+        ? waiters
+        : this.ctx.getWebSockets("teacher").filter((s) => (s.deserializeAttachment() as Attachment | null)?.role === "teacher");
+      for (const s of to) this.send(s, reply);
       return;
     }
 
@@ -417,6 +436,24 @@ export class Room extends DurableObject<Env> {
   }
 
   /* ─────────────── Урок ─────────────── */
+
+  /** Подсказка ученику на строке его кода. Отправившему — подтверждение. */
+  private hint(ws: WebSocket, msg: Extract<ClientMessage, { type: "hint" }>): void {
+    const sockets = this.studentSockets(msg.playerId);
+    if (!sockets.length) return this.error(ws, "not_joined", "Ученик не в сети");
+    for (const s of sockets) this.send(s, { type: "hint", line: msg.line, text: msg.text, fileName: msg.fileName ?? "" });
+    this.send(ws, { type: "hint_sent", playerId: msg.playerId, line: msg.line, text: msg.text });
+  }
+
+  /** Попросить у ученика его код. Ответ получит только тот, кто просил. */
+  private peek(ws: WebSocket, playerId: string): void {
+    const sockets = this.studentSockets(playerId);
+    if (!sockets.length) return this.error(ws, "not_joined", "Ученик не в сети");
+    let set = this.peekWaiters.get(playerId);
+    if (!set) this.peekWaiters.set(playerId, (set = new Set()));
+    set.add(ws);
+    for (const s of sockets) this.send(s, { type: "peek_request" });
+  }
 
   /** Сводка для учителя. Кто именно просил объяснить — не раскрывается. */
   private lessonState(): ServerMessage {
@@ -470,7 +507,7 @@ export class Room extends DurableObject<Env> {
     const raw = JSON.stringify(msg);
     for (const s of this.ctx.getWebSockets()) {
       const a = s.deserializeAttachment() as Attachment | null;
-      if (a?.role === "teacher" || (a?.role === "student" && a.playerId)) this.sendRaw(s, raw);
+      if (a?.role === "teacher" || a?.role === "watcher" || (a?.role === "student" && a.playerId)) this.sendRaw(s, raw);
     }
   }
 
@@ -517,7 +554,7 @@ export class Room extends DurableObject<Env> {
     const msg = JSON.stringify(this.lobbyMessage());
     for (const s of this.ctx.getWebSockets()) {
       const a = s.deserializeAttachment() as Attachment | null;
-      if (a?.role === "teacher" || (a?.role === "student" && a.playerId)) this.sendRaw(s, msg);
+      if (a?.role === "teacher" || a?.role === "watcher" || (a?.role === "student" && a.playerId)) this.sendRaw(s, msg);
     }
   }
 
