@@ -11,8 +11,9 @@ Free and open source. No accounts for students — a 6-digit code or a link is e
 
 The room opens in **Lesson** mode:
 
-- Students mark **Done / Still writing / Lost** from the status bar (`Ctrl+Alt+1…3`) and can ask
-  **«Explain again»** anonymously — you only see the count.
+- Students mark **Done / Still writing / Lost** from the sidebar, from the popup over the CodeArena
+  icon at the bottom right (hover it), or with `Ctrl+Alt+1…3`, and can ask **«Explain again»**
+  anonymously — you only see the count. Clicking the icon opens the CodeArena sidebar.
 - **Show your file**: students get your code next to theirs, read-only, and can follow your cursor.
 - **Checkpoints**: your current code becomes the reference for the step; each student's progress
   is computed from their own file (whitespace and blank lines don't matter).

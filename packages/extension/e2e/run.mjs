@@ -122,6 +122,7 @@ t.on("message", (d) => {
     if (m.type === "lesson_state") {
       const statuses = Object.values(m.statuses);
       if (statuses.includes("done") && !teacherSaw.includes("done")) teacherSaw.push("done");
+      if (statuses.includes("lost") && !teacherSaw.includes("lost")) teacherSaw.push("lost");
       if (m.confused === 1 && !teacherSaw.includes("confused=1")) {
         teacherSaw.push("confused=1");
         if (JSON.stringify(m).includes("E2E")) teacherSaw.push("LEAK: name in lesson_state");
@@ -162,7 +163,23 @@ if (SCENARIO === "teacherui") {
     while (!existsSync(handoff)) await new Promise((r) => setTimeout(r, 300));
     await new Promise((r) => setTimeout(r, 2500));
     uiResult = await drive(debugPort, handoff).catch((e) => ({ ok: false, results: [String(e)] }));
+    // Окошко учителя над значком (снимок).
+    const { hoverBar } = await import("./hover-driver.mjs");
+    const hv = await hoverBar(debugPort, { shot: join(process.env.CODEARENA_E2E_SHOTS || tmp, "statusbar-teacher.png") }).catch((e) => ({ ok: false, results: [String(e)] }));
+    uiResult = { ok: uiResult.ok && hv.ok, results: [...uiResult.results, ...hv.results.map((r) => "statusbar: " + r)] };
     writeFileSync(handoff + ".done", "x");
+  })();
+}
+// lesson: окошко над значком в строке состояния — ученик жмёт «Не понял», потом клик по значку.
+let hoverResult = null;
+const SHOTS = process.env.CODEARENA_E2E_SHOTS || tmp;
+if (SCENARIO === "lesson") {
+  const { hoverBar } = await import("./hover-driver.mjs");
+  const { existsSync } = await import("node:fs");
+  void (async () => {
+    while (!existsSync(handoff + ".hover")) await new Promise((r) => setTimeout(r, 300));
+    hoverResult = await hoverBar(debugPort, { click: "codearena.status.lost", shot: join(SHOTS, "statusbar-student.png"), openSidebar: true }).catch((e) => ({ ok: false, results: [String(e)] }));
+    writeFileSync(handoff + ".hover.done", "x");
   })();
 }
 // liveteacher: комнату создаёт VS Code, бот-ученик подключается по коду из handoff-файла.
@@ -198,7 +215,7 @@ try {
     vscodeExecutablePath: process.env.VSCODE_PATH ?? "/usr/share/code/code",
     extensionDevelopmentPath: resolve(here, ".."),
     extensionTestsPath: resolve(here, "suite.cjs"),
-    launchArgs: [...(LIVE ? [wsDir] : []), ...(SCENARIO === "teacherui" ? [`--remote-debugging-port=${debugPort}`] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
+    launchArgs: [...(LIVE ? [wsDir] : []), ...(SCENARIO === "teacherui" || SCENARIO === "lesson" ? [`--remote-debugging-port=${debugPort}`] : []), "--user-data-dir", join(tmp, "user"), "--extensions-dir", join(tmp, "ext"), "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes", "--disable-extensions"],
     extensionTestsEnv: { CODEARENA_E2E_TMP: tmp, CODEARENA_E2E_FIXTURES: resolve(here, "..", "src", "__fixtures__"), CODEARENA_E2E_CODE: code, CODEARENA_E2E_OUT: out, CODEARENA_E2E_SCENARIO: SCENARIO, CODEARENA_E2E_HANDOFF: handoff },
   });
 } catch {
@@ -221,12 +238,16 @@ if (SCENARIO === "livestudent") {
 } else if (SCENARIO === "mytasks") {
   console.log("gemini calls:", gemini.calls.map((c) => `${c.path} (key ${c.key})`).join(", "), "| key in URL:", gemini.keyInUrl);
   liveOk = !gemini.keyInUrl && gemini.calls.some((c) => c.path.includes("gemini-3.6-flash:generateContent"));
-} else if (SCENARIO === "lesson") console.log("teacher saw:", teacherSaw.join(", "));
+} else if (SCENARIO === "lesson") {
+  console.log("teacher saw:", teacherSaw.join(", "));
+  console.log((hoverResult?.results ?? ["hover driver did not run"]).map((r) => "  ▸ " + r).join("\n"));
+  liveOk = hoverResult?.ok === true && teacherSaw.includes("lost");
+}
 else if (SCENARIO === "anticheat") console.log("teacher saw flags:", JSON.stringify(Object.values(lastFlags)[0] ?? {}));
 else console.log("teacher saw:", feed.map((f) => `${f.correct ? "✓" : "✗"} ${f.report?.passed}/${f.report?.total}`).join(", "));
 t.close();
 // VS Code оставляет «dconf watch» с унаследованным портом отладки — убираем только его.
-if (SCENARIO === "teacherui") {
+if (SCENARIO === "teacherui" || SCENARIO === "lesson") {
   const { execSync } = await import("node:child_process");
   try {
     for (const m of execSync("ss -ltnp", { encoding: "utf8" }).matchAll(new RegExp(`:${debugPort}\\s.*"dconf",pid=(\\d+)`, "g"))) {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- **Status bar icon** at the bottom right, next to Copilot: hover it for a small popup —
+  students pick Done / Still writing / Lost or ask «Explain again», the teacher sees the class summary
+  and can show their file or start the next step. Clicking the icon opens the CodeArena sidebar.
+
 ## 0.2.0
 
 - **Task bank: 469 tasks** (was 146). New medium-level sets for HTML/CSS and JavaScript,

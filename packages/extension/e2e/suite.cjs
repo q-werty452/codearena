@@ -57,6 +57,12 @@ async function lessonScenario(session, step) {
   // Учитель закрывает итоги — ученик возвращается в урок, панель закрывается сама.
   await waitFor("back to lesson", () => !session.snapshot.game && !vscode.window.tabGroups.all.some((g) => g.tabs.some((t) => t.label === "CodeArena")), 20000);
   step("back to lesson: game panel closed, status kept: " + session.snapshot.lesson.myStatus);
+  // Окошко над значком в строке состояния: внешний CDP-скрипт наводит мышь и жмёт «Не понял».
+  const h = process.env.CODEARENA_E2E_HANDOFF;
+  fs.writeFileSync(h + ".hover", "go");
+  await waitFor("status lost via the status bar popup", () => session.snapshot.lesson.myStatus === "lost", 40000);
+  step("status bar popup → «lost» clicked, status: " + session.snapshot.lesson.myStatus);
+  await waitFor("hover driver done", () => fs.existsSync(h + ".hover.done"), 30000);
   void ctx;
 }
 
