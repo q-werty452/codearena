@@ -39,11 +39,11 @@ export function BankDialog({ game, open, onClose, onAdd }: { game: GameKind; ope
             aria-label={t("bank.title")}
           >
             <div className="flex items-center gap-3">
-              <span className="flex size-9 items-center justify-center rounded-[10px] bg-accent/15 text-accent">
+              <span className="flex size-9 items-center justify-center rounded-[10px] bg-surface-2 text-muted">
                 <Library size={18} />
               </span>
               <div className="flex-1">
-                <h2 className="text-[18px] font-bold">{t("bank.title")}</h2>
+                <h2 className="text-[18px] font-semibold">{t("bank.title")}</h2>
                 <p className="text-[12px] text-muted">{t("bank.hint")}</p>
               </div>
               <button onClick={onClose} className="flex size-8 items-center justify-center rounded-[8px] text-muted hover:bg-hover hover:text-fg" aria-label="close">
@@ -52,13 +52,13 @@ export function BankDialog({ game, open, onClose, onAdd }: { game: GameKind; ope
             </div>
             {mine.length > 0 && (
               <div className="mt-4">
-                <h3 className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-muted">{t("my.title")}</h3>
+                <h3 className="mb-2 text-[12px] font-medium text-muted">{t("my.title")}</h3>
                 <div className="flex flex-col gap-2">
                   {mine.map(({ s, tasks }) => {
                     const Icon = SRC[s.source];
                     return (
                       <div key={s.id} className="flex items-center gap-3 rounded-card border border-accent/30 bg-accent/[0.05] px-4 py-3">
-                        <Icon size={16} className="shrink-0 text-accent" />
+                        <Icon size={16} className="shrink-0 text-muted" />
                         <div className="min-w-0 flex-1">
                           <div className="truncate font-semibold">{s.title}</div>
                           <div className="text-[11px] text-muted">
@@ -89,7 +89,7 @@ export function BankDialog({ game, open, onClose, onAdd }: { game: GameKind; ope
                     );
                   })}
                 </div>
-                <h3 className="mb-2 mt-5 text-[12px] font-semibold uppercase tracking-wide text-muted">{t("bank.title")}</h3>
+                <h3 className="mb-2 mt-5 text-[12px] font-medium text-muted">{t("bank.title")}</h3>
               </div>
             )}
             <div className={mine.length ? "flex flex-col gap-2.5" : "mt-4 flex flex-col gap-2.5"}>

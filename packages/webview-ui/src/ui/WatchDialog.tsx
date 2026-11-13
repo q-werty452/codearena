@@ -52,10 +52,10 @@ export function WatchDialog({ link, open, onClose }: { link: string | null; open
             aria-label={t("watch.title")}
           >
             <div className="flex items-center gap-3">
-              <span className="flex size-9 items-center justify-center rounded-[10px] bg-accent/15 text-accent">
+              <span className="flex size-9 items-center justify-center rounded-[10px] bg-surface-2 text-muted">
                 <Smartphone size={18} />
               </span>
-              <h2 className="flex-1 text-[18px] font-bold">{t("watch.title")}</h2>
+              <h2 className="flex-1 text-[18px] font-semibold">{t("watch.title")}</h2>
               <button onClick={onClose} className="flex size-8 items-center justify-center rounded-[8px] text-muted hover:bg-hover hover:text-fg" aria-label="close">
                 <X size={16} />
               </button>

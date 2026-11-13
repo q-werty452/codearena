@@ -141,7 +141,7 @@ export function TeacherBug({ session, g, teamNames }: { session: SessionSnapshot
                 {revealed && g.reveal?.explanation && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                     <Card className="p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("bug.why")}</div>
+                      <div className="text-[12px] font-medium text-muted">{t("bug.why")}</div>
                       <p className="mt-1 text-[14px]">
                         <CodeAwareText text={g.reveal.explanation} />
                       </p>

@@ -18,7 +18,7 @@ export function TeacherSidebar({ session }: { session: SessionSnapshot }) {
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("teacher.code")}</span>
         <StatusDot status={session.status} withText={false} />
       </div>
-      <div className="font-mono text-[40px] font-bold leading-none tracking-[0.05em] tabular">{prettyCode(session.code ?? "")}</div>
+      <div className="font-mono text-[40px] font-semibold leading-none tracking-[0.05em] tabular">{prettyCode(session.code ?? "")}</div>
 
       <Card className="flex flex-col gap-2 px-3 py-2.5">
         <div className="flex items-center justify-between gap-2">

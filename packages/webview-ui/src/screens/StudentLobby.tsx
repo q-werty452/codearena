@@ -36,7 +36,7 @@ export function StudentLobby({ session, onLeave }: { session: SessionSnapshot; o
         <div className="flex items-center gap-3">
           <Avatar name={me.name} team={me.team} size={40} />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[15px] font-bold">{me.name}</div>
+            <div className="truncate text-[14px] font-semibold">{me.name}</div>
             <div className="mt-0.5 flex items-center gap-2">
               {teamInfo ? <TeamBadge team={teamInfo.index} name={teamInfo.name} className="px-2 py-0.5 text-[11px]" /> : null}
               <span className="text-[12px] text-muted">
@@ -60,7 +60,7 @@ export function StudentLobby({ session, onLeave }: { session: SessionSnapshot; o
                   whileTap={{ scale: 0.98 }}
                   onClick={() => host.post({ type: "lesson_status", status })}
                   className={cn(
-                    "relative flex h-12 items-center gap-3 overflow-hidden rounded-btn border-2 px-3 text-left text-[15px] font-semibold transition-colors",
+                    "relative flex h-12 items-center gap-3 overflow-hidden rounded-btn border-2 px-3 text-left text-[14px] font-semibold transition-colors",
                     on ? "text-white" : "border-border bg-surface hover:bg-surface-2",
                   )}
                   style={on ? { background: color, borderColor: color } : undefined}
@@ -129,7 +129,7 @@ function LiveLesson({ session }: { session: SessionSnapshot }) {
           <div className="truncate text-[13px] font-semibold">{share ? share.fileName : t("live2.waitShare")}</div>
         </div>
         {share && (
-          <button onClick={() => host.post({ type: "open_teacher_code" })} className="rounded-[7px] px-2 py-1 text-[12px] font-semibold text-accent hover:bg-hover">
+          <button onClick={() => host.post({ type: "open_teacher_code" })} className="rounded-[7px] px-2 py-1 text-[12px] font-semibold text-link hover:bg-hover">
             {t("live2.open")}
           </button>
         )}
@@ -144,7 +144,7 @@ function LiveLesson({ session }: { session: SessionSnapshot }) {
               <div className="text-[12px] text-muted">{t("live2.myFile")}</div>
               <div className="truncate font-mono text-[12px]">{myFile ?? "—"}</div>
             </div>
-            <button onClick={() => host.post({ type: "choose_lesson_file" })} className="rounded-[7px] px-2 py-1 text-[12px] font-semibold text-accent hover:bg-hover">
+            <button onClick={() => host.post({ type: "choose_lesson_file" })} className="rounded-[7px] px-2 py-1 text-[12px] font-semibold text-link hover:bg-hover">
               {myFile ? t("live2.change") : t("live2.chooseFile")}
             </button>
           </div>
@@ -152,7 +152,7 @@ function LiveLesson({ session }: { session: SessionSnapshot }) {
             <div className="mt-2">
               <div className="mb-1 flex justify-between text-[12px]">
                 <span className="text-muted">{t("live2.myProgress")}</span>
-                <span className="font-bold tabular">{myProgress}%</span>
+                <span className="font-semibold tabular">{myProgress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-2">
                 <motion.div className="h-full rounded-full" style={{ background: myProgress >= 100 ? "var(--ca-success)" : "var(--ca-accent)" }} animate={{ width: `${myProgress}%` }} transition={{ type: "spring", stiffness: 160, damping: 22 }} />

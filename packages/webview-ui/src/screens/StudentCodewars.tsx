@@ -37,7 +37,7 @@ export function StudentCodewarsBody({ session, g }: { session: SessionSnapshot; 
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <span className="text-[13px] text-muted tabular">{t("tug.task", { n: g.index + 1 })} / {g.count}</span>
-        <span className={cn("inline-flex items-center gap-1.5 font-mono text-[22px] font-bold tabular", left <= 30 && "text-warning")}>
+        <span className={cn("inline-flex items-center gap-1.5 font-mono text-[20px] font-bold tabular", left <= 30 && "text-warning")}>
           <Clock size={16} className="text-muted" />
           {formatClock(left)}
         </span>
@@ -47,7 +47,7 @@ export function StudentCodewarsBody({ session, g }: { session: SessionSnapshot; 
         <div className="mb-1 flex items-center gap-2">
           <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-semibold uppercase text-muted">{LANG_LABEL[task.language] ?? task.language}</span>
         </div>
-        <p className="whitespace-pre-wrap text-[15px] font-semibold leading-snug">
+        <p className="whitespace-pre-wrap text-[14px] font-semibold leading-snug">
           <CodeAwareText text={task.prompt} />
         </p>
       </Card>
@@ -191,7 +191,7 @@ export function NoPython({ dart = false }: { dart?: boolean }) {
         <p className="mt-0.5 text-muted">{t(dart ? "cw.noDartHint" : "cw.noPythonHint")}</p>
         <ExternalA
           href={dart ? "https://dart.dev/get-dart" : "https://www.python.org/downloads/"}
-          className="mt-2 inline-flex items-center gap-1.5 rounded-btn bg-accent px-3 py-1.5 text-[13px] font-semibold text-white no-underline hover:bg-accent-hover"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-btn bg-accent px-3 py-1.5 text-[13px] font-semibold text-on-accent no-underline hover:bg-accent-hover"
         >
           {t("cw.howInstall")} <ExternalLink size={13} />
         </ExternalA>

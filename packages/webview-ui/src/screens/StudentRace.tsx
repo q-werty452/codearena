@@ -55,7 +55,7 @@ export function StudentRaceBody({ session, g }: { session: SessionSnapshot; g: G
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3">
         <span className="text-[14px] font-semibold tabular">{t("race.step", { n: Math.min(pos + 1, g.count), total: g.count })}</span>
-        <span className={cn("inline-flex items-center gap-1.5 font-mono text-[22px] font-bold tabular", left <= 30 && "text-warning")}>
+        <span className={cn("inline-flex items-center gap-1.5 font-mono text-[20px] font-bold tabular", left <= 30 && "text-warning")}>
           <Clock size={16} className="text-muted" />
           {formatClock(left)}
         </span>
@@ -77,7 +77,7 @@ export function StudentRaceBody({ session, g }: { session: SessionSnapshot; g: G
             {g.result?.place === 1 ? <Trophy size={26} /> : <Flag size={26} />}
           </span>
           <div>
-            <div className="text-[22px] font-bold">{t("race.finished", { n: g.result?.place ?? "?" })}</div>
+            <div className="text-[20px] font-bold">{t("race.finished", { n: g.result?.place ?? "?" })}</div>
             <div className="text-[13px] opacity-90">{t("race.finishedHint")}</div>
           </div>
         </motion.div>
@@ -139,7 +139,7 @@ function RaceTask({ g, lockedLeft }: { g: GameSnapshot; lockedLeft: number }) {
     return (
       <div className="flex flex-col gap-3">
         <Card className="p-4">
-          <p className="whitespace-pre-wrap text-[15px] font-semibold">
+          <p className="whitespace-pre-wrap text-[14px] font-semibold">
             <CodeAwareText text={task.prompt} />
           </p>
         </Card>

@@ -24,8 +24,8 @@
   "config.serverUrl": "Game server URL. The default is the free public CodeArena server. Change it only if your school runs its own server (see the [README](https://github.com/q-werty452/codearena#self-hosting)).",
   "config.ai.model": "Gemini model for task generation, e.g. `gemini-3.6-flash`. Empty — pick the newest stable *flash* model available to your key automatically.",
   "config.ai.endpoint": "Gemini API base URL. Empty — `https://generativelanguage.googleapis.com`. Change only for a proxy.",
-  "description": "Kahoot + Codewars inside VS Code: tug of war, quiz, Codewars, race and find-the-bug games for programming lessons.",
-  "displayName": "CodeArena — coding games for class",
+  "description": "Teach programming in VS Code: see who is done or stuck, show your code to the class, hint on a student's line, follow the class from your phone, and run quick games — quiz, tug of war, Codewars. Free, no student accounts.",
+  "displayName": "CodeArena — lessons and coding games for class",
   "command.hintLine": "Lesson: hint for the student on this line",
   "color.hintBackground": "Background of a line with the teacher's hint",
   "color.hintForeground": "Text of the teacher's hint"

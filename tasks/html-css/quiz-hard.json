@@ -1,0 +1,399 @@
+{
+  "version": 1,
+  "game": "quiz",
+  "title": "Викторина: HTML и CSS — сложный уровень",
+  "author": "q-werty452",
+  "description": "26 вопросов с подвохом: специфичность, flex, grid, позиционирование, единицы, доступность.",
+  "tasks": [
+    {
+      "type": "choice",
+      "topic": "Специфичность",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какого цвета будет `<p class=\"text\">` внутри `<div id=\"main\">`?\n```css\n#main p { color: red; }\n.text { color: blue; }\np { color: green; }\n```",
+      "options": [
+        "red",
+        "blue",
+        "green",
+        "чёрный"
+      ],
+      "correct": 0,
+      "explanation": "Селектор с id (#main p) специфичнее класса — побеждает красный, хотя .text ниже."
+    },
+    {
+      "type": "choice",
+      "topic": "Специфичность",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какого цвета текст у `<button id=\"buy\" class=\"btn\">`?\n```css\n.btn { color: white !important; }\n#buy { color: black; }\n```",
+      "options": [
+        "black",
+        "white",
+        "по умолчанию",
+        "зависит от порядка"
+      ],
+      "correct": 1,
+      "explanation": "!important перебивает даже селектор с id."
+    },
+    {
+      "type": "choice",
+      "topic": "Специфичность",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какой селектор специфичнее?",
+      "options": [
+        ".nav .item a",
+        "* li",
+        "ul#menu li",
+        "body ul li a"
+      ],
+      "correct": 2,
+      "explanation": "Один id весит больше любого количества классов и тегов."
+    },
+    {
+      "type": "choice",
+      "topic": "Блочная модель",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какая полная ширина `.box`, если box-sizing не задан?\n```css\n.box { width: 200px; padding: 20px; border: 5px solid; }\n```",
+      "options": [
+        "240px",
+        "225px",
+        "250px",
+        "200px"
+      ],
+      "correct": 2,
+      "explanation": "По умолчанию content-box: 200 + 20·2 + 5·2 = 250px."
+    },
+    {
+      "type": "choice",
+      "topic": "Блочная модель",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какая полная ширина `.box`?\n```css\n.box { box-sizing: border-box; width: 200px; padding: 20px; border: 5px solid; }\n```",
+      "options": [
+        "250px",
+        "240px",
+        "200px",
+        "150px"
+      ],
+      "correct": 2,
+      "explanation": "border-box: padding и border входят в width."
+    },
+    {
+      "type": "choice",
+      "topic": "Блочная модель",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "У двух блоков подряд margin-bottom: 30px и margin-top: 20px. Какой отступ между ними?",
+      "options": [
+        "30px",
+        "50px",
+        "10px",
+        "20px"
+      ],
+      "correct": 0,
+      "explanation": "Вертикальные внешние отступы схлопываются: берётся больший."
+    },
+    {
+      "type": "choice",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "`display: flex` у контейнера. Куда по умолчанию выстраиваются дети?",
+      "options": [
+        "сеткой",
+        "в столбец",
+        "в строку слева направо",
+        "друг на друга"
+      ],
+      "correct": 2,
+      "explanation": "flex-direction по умолчанию row."
+    },
+    {
+      "type": "choice",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Что делает `justify-content: space-between` во flex-контейнере?",
+      "options": [
+        "все элементы по центру",
+        "одинаковые отступы со всех сторон",
+        "растягивает элементы",
+        "крайние элементы у краёв, остальные — равномерно между"
+      ],
+      "correct": 3,
+      "explanation": "space-between — первый и последний прижаты к краям."
+    },
+    {
+      "type": "choice",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какое свойство центрирует элементы flex-строки по вертикали?",
+      "options": [
+        "vertical-align: middle",
+        "align-items: center",
+        "justify-content: center",
+        "text-align: center"
+      ],
+      "correct": 1,
+      "explanation": "При flex-direction: row вертикаль — поперечная ось, её задаёт align-items."
+    },
+    {
+      "type": "choice",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Что значит `flex: 1` у всех детей контейнера?",
+      "options": [
+        "ширина 1px",
+        "занимают одну строку",
+        "делят свободное место поровну",
+        "только первый растягивается"
+      ],
+      "correct": 2,
+      "explanation": "flex: 1 = flex-grow 1 — все растут одинаково."
+    },
+    {
+      "type": "choice",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Как в flex разрешить перенос элементов на новую строку?",
+      "options": [
+        "flex-direction: wrap",
+        "display: inline-flex",
+        "flex-wrap: wrap",
+        "white-space: normal"
+      ],
+      "correct": 2,
+      "explanation": "По умолчанию flex-wrap: nowrap — все в одну строку."
+    },
+    {
+      "type": "choice",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "`grid-template-columns: repeat(3, 1fr)`. Сколько колонок и какие?",
+      "options": [
+        "3 колонки по содержимому",
+        "3 колонки по 1px",
+        "3 равные колонки",
+        "1 колонка на 3 строки"
+      ],
+      "correct": 2,
+      "explanation": "fr — доля свободного места; три по 1fr — три равные."
+    },
+    {
+      "type": "choice",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Как сделать, чтобы элемент сетки занял 2 колонки?",
+      "options": [
+        "colspan: 2",
+        "grid-columns: 2",
+        "column-count: 2",
+        "grid-column: span 2"
+      ],
+      "correct": 3,
+      "explanation": "span 2 — растянуть на две колонки."
+    },
+    {
+      "type": "choice",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Чем `gap` удобнее margin у карточек в grid/flex?",
+      "options": [
+        "ничем",
+        "отступ только между элементами, не по краям",
+        "работает только в таблицах",
+        "меняет размер элементов"
+      ],
+      "correct": 1,
+      "explanation": "gap не добавляет отступ снаружи крайних элементов."
+    },
+    {
+      "type": "choice",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "`position: absolute` — относительно чего позиционируется элемент?",
+      "options": [
+        "окна браузера всегда",
+        "своего места в потоке",
+        "родителя всегда",
+        "ближайшего предка с position не static"
+      ],
+      "correct": 3,
+      "explanation": "Если такого предка нет — относительно начального блока страницы."
+    },
+    {
+      "type": "choice",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Чем `position: sticky` отличается от `fixed`?",
+      "options": [
+        "fixed прокручивается вместе со страницей",
+        "прилипает только когда доскроллили, внутри родителя",
+        "ничем",
+        "sticky работает только в flex"
+      ],
+      "correct": 1,
+      "explanation": "sticky ведёт себя как relative, пока не достигнет порога (top: 0)."
+    },
+    {
+      "type": "choice",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "У `.modal` z-index: 100, но он под шапкой с z-index: 10. Возможная причина?",
+      "options": [
+        "z-index работает только у img",
+        "у .modal нет position",
+        "шапка выше в HTML",
+        "100 меньше 10 для строк"
+      ],
+      "correct": 1,
+      "explanation": "z-index действует только на позиционированные элементы (и flex/grid-детей)."
+    },
+    {
+      "type": "choice",
+      "topic": "Единицы",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "1rem — это...",
+      "options": [
+        "размер шрифта корневого элемента html",
+        "размер шрифта родителя",
+        "16px всегда",
+        "1% ширины экрана"
+      ],
+      "correct": 0,
+      "explanation": "rem — от html; em — от шрифта текущего/родителя. 16px — только значение по умолчанию."
+    },
+    {
+      "type": "choice",
+      "topic": "Единицы",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "100vh — это...",
+      "options": [
+        "высота родителя",
+        "высота окна браузера",
+        "высота всей страницы",
+        "100 пикселей"
+      ],
+      "correct": 1,
+      "explanation": "vh — процент от высоты области просмотра."
+    },
+    {
+      "type": "choice",
+      "topic": "Переменные",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какой цвет фона у .btn?\n```css\n:root { --main: #4f46e5; }\n.btn { background: var(--main, red); }\n```",
+      "options": [
+        "#4f46e5",
+        "прозрачный",
+        "ошибка",
+        "red"
+      ],
+      "correct": 0,
+      "explanation": "Переменная задана — запасное значение red не нужно."
+    },
+    {
+      "type": "choice",
+      "topic": "Псевдоклассы",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Что выберет `li:nth-child(odd)`?",
+      "options": [
+        "только первый",
+        "последний",
+        "1-й, 3-й, 5-й … пункты",
+        "2-й, 4-й, 6-й …"
+      ],
+      "correct": 2,
+      "explanation": "odd — нечётные по порядку."
+    },
+    {
+      "type": "choice",
+      "topic": "Селекторы",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Какой селектор выберет ссылки, которые открываются в новой вкладке?",
+      "options": [
+        "a:new",
+        "a.blank",
+        "a::target",
+        "a[target=\"_blank\"]"
+      ],
+      "correct": 3,
+      "explanation": "Селектор по атрибуту."
+    },
+    {
+      "type": "choice",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Зачем у `<input>` атрибут `id` и у `<label>` атрибут `for` с тем же значением?",
+      "options": [
+        "чтобы поле стало обязательным",
+        "без этого форма не отправится",
+        "для красоты",
+        "клик по подписи ставит фокус в поле и экранный диктор читает подпись"
+      ],
+      "correct": 3,
+      "explanation": "Связанная подпись — доступность и удобство."
+    },
+    {
+      "type": "choice",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Когда у `<img>` правильно писать `alt=\"\"` (пустой)?",
+      "options": [
+        "картинка чисто декоративная",
+        "никогда",
+        "если есть title",
+        "если картинка большая"
+      ],
+      "correct": 0,
+      "explanation": "Пустой alt говорит читалке пропустить картинку; отсутствие alt — ошибка."
+    },
+    {
+      "type": "choice",
+      "topic": "Формы",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Что делает атрибут `required` у поля формы?",
+      "options": [
+        "запрещает ввод",
+        "делает поле жирным",
+        "проверяет email",
+        "не даёт отправить форму, пока поле пустое"
+      ],
+      "correct": 3,
+      "explanation": "Встроенная проверка браузера."
+    },
+    {
+      "type": "choice",
+      "topic": "Адаптивность",
+      "difficulty": "hard",
+      "timeLimitSec": 30,
+      "prompt": "Как в медиазапросе задать стили для экранов уже 600px?",
+      "options": [
+        "@media (width: 600px)",
+        "@media (max-width: 600px)",
+        "@media (min-width: 600px)",
+        "@media screen > 600px"
+      ],
+      "correct": 1,
+      "explanation": "max-width — «не шире чем»: до 600px включительно."
+    }
+  ]
+}

@@ -107,7 +107,7 @@ function TeamLabel({ team, name, score, align }: { team: number; name: string; s
         <TeamIcon team={team} size={15} />
       </span>
       <div className="min-w-0">
-        <div className="truncate text-[15px] font-bold">{name}</div>
+        <div className="truncate text-[14px] font-bold">{name}</div>
         {score !== undefined && <div className="text-[12px] text-muted tabular">{score}</div>}
       </div>
     </div>

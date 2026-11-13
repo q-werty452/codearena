@@ -106,7 +106,7 @@ export function TugEditor({
         </div>
 
         <div>
-          <h1 className="text-title font-bold">{t("tug.editTitle")}</h1>
+          <h1 className="text-title font-semibold">{t("tug.editTitle")}</h1>
           <input
             value={set.title}
             onChange={(e) => onChange({ ...set, title: e.target.value })}
@@ -266,7 +266,7 @@ export function ShortCard({
           placeholder={t("tug.promptPlaceholder")}
           aria-label={t("tug.prompt")}
           maxLength={300}
-          className="h-9 w-full rounded-btn border border-border bg-input px-3 font-mono text-[15px] font-semibold outline-none focus:border-[var(--ca-focus)]"
+          className="h-9 w-full rounded-btn border border-border bg-input px-3 font-mono text-[14px] font-semibold outline-none focus:border-[var(--ca-focus)]"
         />
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[12px] text-muted">=</span>

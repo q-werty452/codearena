@@ -11,13 +11,15 @@ export interface BankSet {
   set: TaskSet;
 }
 
+const levelKey = (id: string) => id.replace(/\.json$/, "").replace(/-medium$/, "~1").replace(/-hard$/, "~2");
+
 export const BANK: BankSet[] = Object.entries(modules)
   .flatMap(([path, raw]) => {
     const r = TaskSet.safeParse(raw);
     return r.success ? [{ id: path.replace(/^.*tasks\//, ""), set: r.data }] : [];
   })
-  // Базовый уровень раньше среднего: «quiz.json» перед «quiz-medium.json».
-  .sort((a, b) => a.id.replace("-medium", "~").localeCompare(b.id.replace("-medium", "~")));
+  // Уровни по порядку: «quiz.json» (базовый) → «quiz-medium.json» → «quiz-hard.json».
+  .sort((a, b) => levelKey(a.id).localeCompare(levelKey(b.id)));
 
 /** Наборы для игры. Гонка берёт задания из викторины, каната и Codewars. */
 export const bankFor = (game: GameKind) => {

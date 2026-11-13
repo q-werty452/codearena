@@ -74,7 +74,7 @@ export function Toggle({
         <motion.span
           className="absolute top-[2px] size-[14px] rounded-full bg-white shadow"
           animate={{ left: checked ? 18 : 2 }}
-          transition={{ type: "spring", stiffness: 600, damping: 35 }}
+          transition={{ type: "spring", stiffness: 600, damping: 48 }}
         />
       </span>
       {label}
@@ -103,25 +103,17 @@ export function ConnectionBanner({ show, text }: { show: boolean; text: string }
   );
 }
 
-/** Логотип: фиолетовый знак «‹/›» в скруглённом квадрате + название. */
+/** Логотип: знак «‹/›» в скруглённом квадрате цвета кнопок темы VS Code + название одним цветом. */
 export function Logo({ size = 28, withText = true }: { size?: number; withText?: boolean }) {
   return (
     <div className="inline-flex items-center gap-2.5">
       <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
-        <defs>
-          <linearGradient id="ca-logo" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#A78BFA" />
-            <stop offset="1" stopColor="#7C3AED" />
-          </linearGradient>
-        </defs>
-        <rect width="32" height="32" rx="9" fill="url(#ca-logo)" />
-        <path d="M12.5 10.5 7 16l5.5 5.5M19.5 10.5 25 16l-5.5 5.5" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="16" cy="16" r="1.9" fill="#fff" />
+        <rect width="32" height="32" rx="8" fill="var(--ca-accent)" />
+        <path d="M12.5 10.5 7 16l5.5 5.5M19.5 10.5 25 16l-5.5 5.5" fill="none" stroke="var(--ca-on-accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="16" cy="16" r="1.9" fill="var(--ca-on-accent)" />
       </svg>
       {withText && (
-        <span className="text-[16px] font-bold tracking-[-0.01em]">
-          Code<span className="text-accent">Arena</span>
-        </span>
+        <span className="text-[16px] font-semibold">CodeArena</span>
       )}
     </div>
   );

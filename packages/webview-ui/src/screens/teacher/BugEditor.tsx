@@ -122,7 +122,7 @@ export function BugEditor({
         </div>
 
         <div>
-          <h1 className="text-title font-bold">{t("bug.editTitle")}</h1>
+          <h1 className="text-title font-semibold">{t("bug.editTitle")}</h1>
           <input
             value={set.title}
             onChange={(e) => onChange({ ...set, title: e.target.value })}

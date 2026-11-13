@@ -41,7 +41,7 @@ export function GamePicker({
           {t("pick.back")}
         </Button>
       </div>
-      <h1 className="text-title font-bold">{t("pick.title")}</h1>
+      <h1 className="text-title font-semibold">{t("pick.title")}</h1>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
         {GAMES.map((g, i) => {
           const tugBlocked = g.kind === "tug" && mode !== "teams2";
@@ -66,7 +66,7 @@ export function GamePicker({
                 <Icon size={22} strokeWidth={2.2} />
               </span>
               <div>
-                <div className="text-[16px] font-bold">{t(`game.${g.kind}` as MessageKey)}</div>
+                <div className="text-[16px] font-semibold">{t(`game.${g.kind}` as MessageKey)}</div>
                 <div className="mt-1 text-[13px] text-muted">
                   {tugBlocked && g.ready ? t("game.tug.need2") : t(`game.${g.kind}.desc` as MessageKey)}
                 </div>
@@ -93,8 +93,8 @@ function AntiCheatCard({ value, onChange }: { value: AntiCheatSettings; onChange
   return (
     <Card className="p-5">
       <div className="mb-1 flex items-center gap-2">
-        <ShieldCheck size={18} className="text-accent" />
-        <h2 className="text-[15px] font-bold">{t("ac.title")}</h2>
+        <ShieldCheck size={18} className="text-muted" />
+        <h2 className="text-[14px] font-semibold">{t("ac.title")}</h2>
       </div>
       <p className="mb-4 text-[12px] text-muted">{t("ac.hint")}</p>
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">

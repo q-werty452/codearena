@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.0
+
+- **Clear store page**: what CodeArena solves, a 2-minute start, and how to use each feature with screenshots — including a step-by-step checkpoint example.
+- **Looks native to VS Code**: buttons, focus, toggles, progress and links take the colours of your VS Code theme
+  instead of a fixed violet. Flat logo, no blurred glow, sentence case labels in the panel (the sidebar keeps VS Code's
+  own uppercase style), fewer font sizes, calmer weights and motion outside the games. Games keep their colours.
+- **Task bank: 737 tasks** (was 469). New basic level for **Python** and **Dart** (quiz, tug, find the bug,
+  Codewars — 92 tasks each), new hard level for **HTML/CSS** (specificity, box model, flex, grid,
+  positioning, media queries, CSS variables, forms and accessibility — 84 tasks). In the bank, sets go
+  basic → medium → hard.
+- Load test (`npm run load -w codearena`): a teacher, the teacher's phone and 30 students through a lesson
+  and every game — on the live server all answers arrive, ~140 ms typical delay, no errors (also checked with 45).
+
 ## 0.3.0
 
 - **Watch from your phone**: the teacher panel has a «From phone» button with a QR code. A simple,

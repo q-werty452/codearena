@@ -27,12 +27,12 @@ export class ErrorBoundary extends Component<{ children: ReactNode; labels: { ti
         <span className="flex size-12 items-center justify-center rounded-full bg-error/10 text-error">
           <AlertTriangle size={24} />
         </span>
-        <h1 className="text-[18px] font-bold">{labels.title}</h1>
+        <h1 className="text-[18px] font-semibold">{labels.title}</h1>
         <p className="text-[13px] text-muted">{labels.hint}</p>
         <pre className="max-h-32 w-full overflow-auto rounded-btn bg-surface p-3 text-left font-mono text-[11px] text-muted">{error.message}</pre>
         <button
           onClick={() => this.setState({ error: null, key: key + 1 })}
-          className="inline-flex h-9 items-center gap-2 rounded-btn bg-accent px-4 text-[13px] font-semibold text-white hover:bg-accent-hover"
+          className="inline-flex h-9 items-center gap-2 rounded-btn bg-accent px-4 text-[13px] font-semibold text-on-accent hover:bg-accent-hover"
         >
           <RotateCcw size={14} /> {labels.back}
         </button>

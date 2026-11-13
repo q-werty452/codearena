@@ -1,327 +1,362 @@
 {
   "version": 1,
   "game": "bug",
-  "title": "Найди баг: Dart — средний уровень",
+  "title": "Найди баг: Dart — базовый уровень",
   "author": "q-werty452",
-  "description": "Выход за список, final, null safety, конструкторы и super, void-методы, условия из урока 7 и калькулятор из урока 18. 20 заданий.",
+  "description": "21 заданий: найди строку с ошибкой, выбери правильный вариант, исправь код.",
   "tasks": [
     {
       "type": "find_line",
-      "topic": "Циклы",
-      "difficulty": "medium",
+      "topic": "Синтаксис",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
       "prompt": "Найди строку с ошибкой",
-      "code": "void main() {\n  List<int> nums = [1, 2, 3];\n  for (int i = 0; i <= nums.length; i++) {\n    print(nums[i]);\n  }\n}",
+      "code": "void main() {\n  var name = 'Нурай'\n  print('Привет, $name');\n}",
+      "line": 2,
+      "explanation": "Нет точки с запятой после присваивания."
+    },
+    {
+      "type": "find_line",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "dart",
+      "prompt": "Найди строку с ошибкой",
+      "code": "void main() {\n  int age = '17';\n  print(age + 1);\n}",
+      "line": 2,
+      "explanation": "В int нельзя положить строку. Нужно int age = 17 или int.parse('17')."
+    },
+    {
+      "type": "find_line",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "dart",
+      "prompt": "Найди строку с ошибкой",
+      "code": "void main() {\n  var list = [1, 2, 3];\n  print(list[3]);\n}",
       "line": 3,
-      "explanation": "<= доходит до индекса 3, а последний индекс — 2. Нужно i < nums.length."
+      "explanation": "Индексы 0..2 — элемента с индексом 3 нет (RangeError)."
     },
     {
       "type": "find_line",
       "topic": "Переменные",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
       "prompt": "Найди строку с ошибкой",
-      "code": "void main() {\n  final name = 'Ахмед';\n  print(name);\n  name = 'Бек';\n  print(name);\n}",
-      "line": 4,
-      "explanation": "final нельзя присвоить второй раз. Если имя меняется — var или String."
+      "code": "void main() {\n  final x = 5;\n  x = 6;\n  print(x);\n}",
+      "line": 3,
+      "explanation": "final нельзя переприсвоить."
     },
     {
       "type": "find_line",
-      "topic": "Циклы",
-      "difficulty": "medium",
+      "topic": "Функции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
       "prompt": "Найди строку с ошибкой",
-      "code": "int sum(List<int> nums) {\n  int total = 0;\n  for (var n in nums) {\n    total + n;\n  }\n  return total;\n}",
-      "line": 4,
-      "explanation": "total + n считает сумму и выбрасывает её. Нужно total += n."
-    },
-    {
-      "type": "find_line",
-      "topic": "ООП",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "language": "dart",
-      "prompt": "Найди строку с ошибкой",
-      "code": "class User {\n  String name;\n  int age;\n  User(name, age);\n}",
-      "line": 4,
-      "explanation": "Параметры не сохраняются в поля. Правильно: User(this.name, this.age);"
+      "code": "int sum(int a, int b) {\n  a + b;\n}",
+      "line": 2,
+      "explanation": "Нет return: функция с типом int должна вернуть значение."
     },
     {
       "type": "find_line",
       "topic": "Условия",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
       "prompt": "Найди строку с ошибкой",
-      "code": "void main() {\n  int age = 30;\n  if (age >= 16 || age < 8) {\n    print('Детское программирование');\n  } else if (age >= 16 && age <= 60) {\n    print('Курсы для взрослых');\n  }\n}",
+      "code": "void main() {\n  var x = 10;\n  if (x = 10) {\n    print('десять');\n  }\n}",
       "line": 3,
-      "explanation": "Взрослый попадает в первую ветку: условие должно быть age >= 8 && age < 16. Этот баг был в уроке 7."
+      "explanation": "Сравнение — ==, а = — присваивание."
     },
     {
       "type": "find_line",
-      "topic": "Map",
-      "difficulty": "medium",
+      "topic": "Синтаксис",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
       "prompt": "Найди строку с ошибкой",
-      "code": "void main() {\n  Map<String, int> prices = {'чай': 50, 'кофе': 120};\n  int total = prices['чай'] + prices['сок'];\n  print(total);\n}",
+      "code": "void main() {\n  for (var i = 0; i < 3; i++) {\n    print(i)\n  }\n}",
       "line": 3,
-      "explanation": "prices[...] возвращает int? (ключа может не быть, как 'сок'). Нужно (prices['чай'] ?? 0) + (prices['сок'] ?? 0)."
+      "explanation": "Нет точки с запятой после print(i)."
     },
     {
       "type": "find_line",
-      "topic": "Операторы",
-      "difficulty": "medium",
+      "topic": "Null",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
       "prompt": "Найди строку с ошибкой",
-      "code": "double average(List<int> nums) {\n  int sum = 0;\n  for (var n in nums) sum += n;\n  return sum ~/ nums.length;\n}",
+      "code": "void main() {\n  String name = null;\n  print(name);\n}",
+      "line": 2,
+      "explanation": "Тип String не допускает null; нужен String?."
+    },
+    {
+      "type": "find_line",
+      "topic": "Циклы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "language": "dart",
+      "prompt": "Найди строку с ошибкой",
+      "code": "void main() {\n  var total = 0;\n  for (var p in [100, 250, 50]) {\n    total = p;\n  }\n  print(total);\n}",
       "line": 4,
-      "explanation": "~/ даёт int и теряет дробную часть, а функция обещает double. Нужно sum / nums.length."
-    },
-    {
-      "type": "find_line",
-      "topic": "Наследование",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "language": "dart",
-      "prompt": "Найди строку с ошибкой",
-      "code": "class Animal {\n  String name;\n  Animal(this.name);\n}\n\nclass Dog extends Animal {\n  Dog(String name);\n}",
-      "line": 7,
-      "explanation": "Конструктор наследника обязан вызвать конструктор родителя: Dog(String name) : super(name); или Dog(super.name);"
-    },
-    {
-      "type": "find_line",
-      "topic": "List",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "language": "dart",
-      "prompt": "Найди строку с ошибкой",
-      "code": "void main() {\n  var list = [3, 1, 2];\n  var sorted = list.sort();\n  print(sorted);\n}",
-      "line": 3,
-      "explanation": "sort() сортирует на месте и ничего не возвращает (void). Печатают сам list или пишут list..sort()."
-    },
-    {
-      "type": "find_line",
-      "topic": "Null safety",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "language": "dart",
-      "prompt": "Найди строку с ошибкой",
-      "code": "void main() {\n  String? city;\n  print('Город: $city');\n  print(city.length);\n}",
-      "line": 4,
-      "explanation": "city может быть null — компилятор не даст вызвать .length. Нужно city?.length ?? 0."
+      "explanation": "total перезаписывается; нужно total += p."
     },
     {
       "type": "best_variant",
-      "topic": "Null safety",
-      "difficulty": "medium",
+      "topic": "Типы",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
-      "prompt": "Как безопасно получить длину имени, если оно может быть null?",
+      "prompt": "Как прочитать целое число из строки s?",
       "variants": [
-        "name.length",
-        "name!.length",
-        "name == null ? name.length : 0",
-        "name?.length ?? 0"
+        "s.toInt()",
+        "int(s)",
+        "parse.int(s)",
+        "int.parse(s)"
       ],
       "correct": 3,
-      "explanation": "?. вернёт null вместо падения, ?? заменит его на 0. name! упадёт на null."
+      "explanation": "В Dart строку в число превращает int.parse."
     },
     {
       "type": "best_variant",
-      "topic": "ООП",
-      "difficulty": "medium",
+      "topic": "Строки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
-      "prompt": "Какой конструктор правильно сохраняет поля?",
+      "prompt": "Как вставить значение переменной count в строку?",
       "variants": [
-        "class User {\n  String name;\n  int age;\n  User(name, age);\n}",
-        "class User {\n  String name;\n  int age;\n  void User(this.name, this.age);\n}",
-        "class User {\n  String name;\n  int age;\n  User(this.name, this.age);\n}",
-        "class User {\n  String name = '';\n  int age = 0;\n  User(String name, int age) {\n    name = name;\n    age = age;\n  }\n}"
+        "'Всего: {count}'",
+        "'Всего: %count'",
+        "'Всего: $count'",
+        "'Всего: ' + count"
       ],
       "correct": 2,
-      "explanation": "this.name в параметрах сразу присваивает поле. Во втором варианте name = name присваивает параметр сам себе — поля остаются пустыми."
+      "explanation": "Интерполяция: $имя. Склеивать строку с int через + нельзя."
     },
     {
       "type": "best_variant",
-      "topic": "List",
-      "difficulty": "medium",
+      "topic": "Условия",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
-      "prompt": "Как получить СПИСОК только чётных чисел?",
+      "prompt": "Как проверить, что n чётное?",
       "variants": [
-        "nums.forEach((n) => n.isEven)",
-        "nums.where((n) => n.isEven).toList()",
-        "nums.map((n) => n.isEven).toList()",
-        "nums.where((n) => n.isEven)"
+        "n % 2 = 0",
+        "n % 2 == 0",
+        "n ~/ 2 == 1",
+        "n / 2 == 0"
       ],
       "correct": 1,
-      "explanation": "where без toList — Iterable, не List. map вернёт список true/false, forEach ничего не возвращает."
+      "explanation": "Остаток от деления на 2 равен нулю (или n.isEven)."
     },
     {
       "type": "best_variant",
-      "topic": "Ввод",
-      "difficulty": "medium",
+      "topic": "Циклы",
+      "difficulty": "easy",
       "timeLimitSec": 60,
       "language": "dart",
-      "prompt": "Как прочитать число из консоли, чтобы программа не упала на «abc»?",
+      "prompt": "Как пройти по всем элементам списка names?",
       "variants": [
-        "int age = stdin.readLineSync() as int;",
-        "int age = int.tryParse(stdin.readLineSync() ?? '') ?? 0;",
-        "var age = stdin.readLineSync() + 0;",
-        "int age = int.parse(stdin.readLineSync()!);"
+        "for (var i = 0; i <= names.length; i++) {\n  print(names[i]);\n}",
+        "for (var n in names) {\n  print(n);\n}",
+        "foreach (var n in names) {\n  print(n);\n}",
+        "for (n in names) {\n  print(n);\n}"
       ],
       "correct": 1,
-      "explanation": "tryParse вернёт null на «abc», ?? заменит его на 0. int.parse упадёт с FormatException."
+      "explanation": "for-in с var. Вариант с <= выйдет за край списка."
     },
     {
-      "type": "fix_bug",
-      "topic": "Циклы",
-      "difficulty": "medium",
-      "timeLimitSec": 240,
+      "type": "best_variant",
+      "topic": "Null",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
       "language": "dart",
-      "prompt": "Исправь: нужна сумма ЧЁТНЫХ чисел.",
-      "code": "int sumEven(List<int> nums) {\n  int sum = 0;\n  for (var n in nums) {\n    if (n % 2 == 1) sum += n;\n  }\n  return sum;\n}",
-      "tests": [
-        {
-          "call": "sumEven([1, 2, 3, 4])",
-          "expected": "6"
-        },
-        {
-          "call": "sumEven([])",
-          "expected": "0"
-        },
-        {
-          "call": "sumEven([7])",
-          "expected": "0"
-        }
+      "prompt": "Как задать значение по умолчанию, если name может быть null?",
+      "variants": [
+        "name ?: 'гость'",
+        "name ? 'гость'",
+        "name ?? 'гость'",
+        "name || 'гость'"
       ],
-      "rules": [],
-      "solution": "int sumEven(List<int> nums) {\n  int sum = 0;\n  for (var n in nums) {\n    if (n % 2 == 0) sum += n;\n  }\n  return sum;\n}",
-      "explanation": "Условие отбирало нечётные. Чётное — остаток 0 (или n.isEven)."
-    },
-    {
-      "type": "fix_bug",
-      "topic": "Циклы",
-      "difficulty": "medium",
-      "timeLimitSec": 240,
-      "language": "dart",
-      "prompt": "Исправь: максимум должен работать и для отрицательных чисел.",
-      "code": "int maxOf(List<int> nums) {\n  int best = 0;\n  for (var n in nums) {\n    if (n > best) best = n;\n  }\n  return best;\n}",
-      "tests": [
-        {
-          "call": "maxOf([-5, -2, -9])",
-          "expected": "-2"
-        },
-        {
-          "call": "maxOf([1, 3, 2])",
-          "expected": "3"
-        }
-      ],
-      "rules": [],
-      "solution": "int maxOf(List<int> nums) {\n  int best = nums[0];\n  for (var n in nums) {\n    if (n > best) best = n;\n  }\n  return best;\n}",
-      "explanation": "Старт с 0 больше любого отрицательного. Начинаем с первого элемента."
-    },
-    {
-      "type": "fix_bug",
-      "topic": "Map",
-      "difficulty": "medium",
-      "timeLimitSec": 240,
-      "language": "dart",
-      "prompt": "Исправь: нужна СУММА заказов каждого покупателя (задание из урока 13).",
-      "code": "Map<String, int> totals(List<Map<String, dynamic>> orders) {\n  final result = <String, int>{};\n  for (var o in orders) {\n    result[o['user']] = o['amount'];\n  }\n  return result;\n}",
-      "tests": [
-        {
-          "call": "totals([{'user': 'Айгерим', 'amount': 500}, {'user': 'Мээримай', 'amount': 1500}, {'user': 'Айгерим', 'amount': 1200}])",
-          "expected": "{'Айгерим': 1700, 'Мээримай': 1500}"
-        },
-        {
-          "call": "totals([])",
-          "expected": "{}"
-        }
-      ],
-      "rules": [],
-      "solution": "Map<String, int> totals(List<Map<String, dynamic>> orders) {\n  final result = <String, int>{};\n  for (var o in orders) {\n    result[o['user']] = (result[o['user']] ?? 0) + (o['amount'] as int);\n  }\n  return result;\n}",
-      "explanation": "Каждый заказ перезаписывал предыдущий. Прибавляем к уже набранному (?? 0 — для первого раза)."
+      "correct": 2,
+      "explanation": "?? — оператор «если null, то ...»."
     },
     {
       "type": "fix_bug",
       "topic": "Функции",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 240,
       "language": "dart",
-      "prompt": "Исправь калькулятор: при делении на ноль функция должна вернуть 0.",
-      "code": "double divide(double a, double b) {\n  if (b == 0) {\n    print('На ноль делить нельзя!');\n  }\n  return a / b;\n}",
+      "prompt": "Исправь: функция должна вернуть сумму двух чисел.",
+      "code": "int add(int a, int b) {\n  return a - b;\n}",
       "tests": [
         {
-          "call": "divide(1, 0)",
-          "expected": "0.0"
+          "call": "add(2, 3)",
+          "expected": "5"
         },
         {
-          "call": "divide(9, 3)",
-          "expected": "3.0"
+          "call": "add(-1, 1)",
+          "expected": "0"
+        },
+        {
+          "call": "add(10, 5)",
+          "expected": "15"
         }
       ],
       "rules": [],
-      "solution": "double divide(double a, double b) {\n  if (b == 0) {\n    print('На ноль делить нельзя!');\n    return 0;\n  }\n  return a / b;\n}",
-      "explanation": "Сообщение печаталось, но код шёл дальше и возвращал Infinity. После проверки нужен return. Калькулятор из урока 18."
+      "solution": "int add(int a, int b) {\n  return a + b;\n}",
+      "explanation": "Стоял минус вместо плюса."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Условия",
+      "difficulty": "easy",
+      "timeLimitSec": 240,
+      "language": "dart",
+      "prompt": "Исправь: true, если число положительное.",
+      "code": "bool isPositive(int n) {\n  return n < 0;\n}",
+      "tests": [
+        {
+          "call": "isPositive(5)",
+          "expected": "true"
+        },
+        {
+          "call": "isPositive(-3)",
+          "expected": "false"
+        },
+        {
+          "call": "isPositive(0)",
+          "expected": "false"
+        }
+      ],
+      "rules": [],
+      "solution": "bool isPositive(int n) {\n  return n > 0;\n}",
+      "explanation": "Знак сравнения перевёрнут."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Циклы",
+      "difficulty": "easy",
+      "timeLimitSec": 240,
+      "language": "dart",
+      "prompt": "Исправь: сумма чисел от 1 до n включительно.",
+      "code": "int sumTo(int n) {\n  var s = 0;\n  for (var i = 1; i < n; i++) {\n    s += i;\n  }\n  return s;\n}",
+      "tests": [
+        {
+          "call": "sumTo(3)",
+          "expected": "6"
+        },
+        {
+          "call": "sumTo(1)",
+          "expected": "1"
+        },
+        {
+          "call": "sumTo(10)",
+          "expected": "55"
+        }
+      ],
+      "rules": [],
+      "solution": "int sumTo(int n) {\n  var s = 0;\n  for (var i = 1; i <= n; i++) {\n    s += i;\n  }\n  return s;\n}",
+      "explanation": "Условие i < n не включает n — нужно <=."
     },
     {
       "type": "fix_bug",
       "topic": "Строки",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 240,
       "language": "dart",
-      "prompt": "Исправь переворот строки.",
-      "code": "String reverse(String s) {\n  String result = '';\n  for (int i = s.length; i > 0; i--) {\n    result += s[i];\n  }\n  return result;\n}",
+      "prompt": "Исправь: приветствие вида «Привет, Айбек!».",
+      "code": "String greet(String name) {\n  return 'Привет, name!';\n}",
       "tests": [
         {
-          "call": "reverse('Dart')",
-          "expected": "'traD'"
+          "call": "greet('Айбек')",
+          "expected": "'Привет, Айбек!'"
         },
         {
-          "call": "reverse('')",
-          "expected": "''"
-        },
-        {
-          "call": "reverse('a')",
-          "expected": "'a'"
+          "call": "greet('Нурай')",
+          "expected": "'Привет, Нурай!'"
         }
       ],
       "rules": [],
-      "solution": "String reverse(String s) {\n  String result = '';\n  for (int i = s.length - 1; i >= 0; i--) {\n    result += s[i];\n  }\n  return result;\n}",
-      "explanation": "Последний индекс — length - 1, и индекс 0 тоже нужен."
+      "solution": "String greet(String name) {\n  return 'Привет, $name!';\n}",
+      "explanation": "Без $ подставляется слово name, а не значение."
     },
     {
       "type": "fix_bug",
-      "topic": "ООП",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 240,
       "language": "dart",
-      "prompt": "Исправь: совершеннолетний — с 18 лет включительно.",
-      "code": "class Person {\n  final String name;\n  final int age;\n  Person(this.name, this.age);\n\n  bool get isAdult => age > 18;\n}",
+      "prompt": "Исправь: функция должна вернуть последний элемент списка.",
+      "code": "int last(List<int> items) {\n  return items[items.length];\n}",
       "tests": [
         {
-          "call": "Person('Айбек', 18).isAdult",
-          "expected": "true"
+          "call": "last([1, 2, 3])",
+          "expected": "3"
         },
         {
-          "call": "Person('Нурай', 17).isAdult",
-          "expected": "false"
-        },
-        {
-          "call": "Person('Бек', 30).isAdult",
-          "expected": "true"
+          "call": "last([7])",
+          "expected": "7"
         }
       ],
       "rules": [],
-      "solution": "class Person {\n  final String name;\n  final int age;\n  Person(this.name, this.age);\n\n  bool get isAdult => age >= 18;\n}",
-      "explanation": "Строгое > не пускало ровно 18-летних."
+      "solution": "int last(List<int> items) {\n  return items[items.length - 1];\n}",
+      "explanation": "Индекс length выходит за край; последний — length - 1 (или items.last)."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 240,
+      "language": "dart",
+      "prompt": "Исправь: посчитай, сколько раз буква встречается в слове.",
+      "code": "int countLetter(String word, String letter) {\n  var count = 0;\n  for (var ch in word.split('')) {\n    if (ch == letter) count = 1;\n  }\n  return count;\n}",
+      "tests": [
+        {
+          "call": "countLetter('банан', 'а')",
+          "expected": "2"
+        },
+        {
+          "call": "countLetter('кот', 'я')",
+          "expected": "0"
+        },
+        {
+          "call": "countLetter('ааа', 'а')",
+          "expected": "3"
+        }
+      ],
+      "rules": [],
+      "solution": "int countLetter(String word, String letter) {\n  var count = 0;\n  for (var ch in word.split('')) {\n    if (ch == letter) count++;\n  }\n  return count;\n}",
+      "explanation": "count = 1 не считает; нужно count++."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Условия",
+      "difficulty": "easy",
+      "timeLimitSec": 240,
+      "language": "dart",
+      "prompt": "Исправь: «отлично», если балл 90 и выше, иначе «хорошо».",
+      "code": "String grade(int score) {\n  if (score > 90) return 'отлично';\n  return 'хорошо';\n}",
+      "tests": [
+        {
+          "call": "grade(95)",
+          "expected": "'отлично'"
+        },
+        {
+          "call": "grade(90)",
+          "expected": "'отлично'"
+        },
+        {
+          "call": "grade(70)",
+          "expected": "'хорошо'"
+        }
+      ],
+      "rules": [],
+      "solution": "String grade(int score) {\n  if (score >= 90) return 'отлично';\n  return 'хорошо';\n}",
+      "explanation": "Ровно 90 тоже «отлично» — нужно >=."
     }
   ]
 }

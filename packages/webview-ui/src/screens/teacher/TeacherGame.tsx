@@ -79,7 +79,7 @@ function TeacherRound({ session, g, tasks, teamNames }: { session: SessionSnapsh
     <div className="flex min-h-full flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-6 py-3">
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[12px] font-semibold text-accent">{t("game.quiz")}</span>
+          <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] font-medium text-fg">{t("game.quiz")}</span>
           {g.index >= 0 && <span className="font-medium tabular">{t("game.question", { n: g.index + 1, total: g.count })}</span>}
         </div>
         <div className="flex items-center gap-3">
@@ -110,7 +110,7 @@ function TeacherRound({ session, g, tasks, teamNames }: { session: SessionSnapsh
                 {revealed && (g.reveal?.explanation || full?.explanation) && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                     <Card className="p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("game.why")}</div>
+                      <div className="text-[12px] font-medium text-muted">{t("game.why")}</div>
                       <p className="mt-1 text-[14px]">{g.reveal?.explanation ?? full?.explanation}</p>
                     </Card>
                   </motion.div>
@@ -210,7 +210,7 @@ function TeacherResults({ g, session, teamNames, onAgain }: { g: GameSnapshot; s
           </Card>
         )}
         <Card className="p-4">
-          <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+          <div className="mb-2 flex items-center justify-between text-[12px] font-medium text-muted">
             <span>{t("game.top")}</span>
             {g.kind === "tug" || g.kind === "race" ? (
               <span>{g.kind === "race" ? t("race.length") : t("tug.pullsTitle")}</span>
@@ -309,7 +309,7 @@ function TeacherTug({ session, g, tasks, teamNames }: { session: SessionSnapshot
             </div>
             {g.task?.type === "short_answer" && (
               <Card className="flex flex-col items-center gap-2 px-6 py-6 text-center">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("tug.task", { n: g.index + 1 })}</span>
+                <span className="text-[12px] font-medium text-muted">{t("tug.task", { n: g.index + 1 })}</span>
                 <AnimatePresence mode="popLayout">
                   <motion.div key={g.task.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="whitespace-pre-wrap font-mono text-[34px] font-bold leading-tight">
                     {g.task.prompt}
@@ -371,7 +371,7 @@ function WinnerBanner({ winner, names }: { winner: number | null; names: string[
           <TeamIcon team={winner} size={20} />
         </span>
       )}
-      <span className="text-[26px] font-bold">{winner === null ? t("tug.draw") : t("tug.wins", { team: names[winner] ?? "" })}</span>
+      <span className="text-[28px] font-bold">{winner === null ? t("tug.draw") : t("tug.wins", { team: names[winner] ?? "" })}</span>
     </motion.div>
   );
 }

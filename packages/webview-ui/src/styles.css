@@ -4,7 +4,8 @@
  * Дизайн-система CodeArena.
  * База (фон, текст, рамки, шрифты) берётся из темы VS Code — поэтому
  * интерфейс одинаково аккуратен в светлой и тёмной теме.
- * Яркие цвета — только для игровых элементов, они не зависят от темы.
+ * Акцент (главные кнопки, выбор, фокус) — тоже из темы: цвет кнопок VS Code,
+ * поэтому панель выглядит частью редактора. Яркие цвета — только в играх.
  * Токены объявлены и на body: VS Code вешает переменные темы на него.
  */
 :root,
@@ -15,7 +16,7 @@ body {
   --ca-border: var(--vscode-widget-border, var(--vscode-panel-border, rgb(128 128 128 / 0.22)));
   --ca-input: var(--vscode-input-background, rgb(128 128 128 / 0.08));
   --ca-input-fg: var(--vscode-input-foreground, var(--ca-fg));
-  --ca-focus: var(--vscode-focusBorder, #8b5cf6);
+  --ca-focus: var(--vscode-focusBorder, #0078d4);
   --ca-font: var(--vscode-font-family, ui-sans-serif, system-ui, sans-serif);
   --ca-mono: var(--vscode-editor-font-family, ui-monospace, "SFMono-Regular", Menlo, monospace);
 
@@ -24,9 +25,13 @@ body {
   --ca-surface-2: color-mix(in srgb, var(--ca-fg) 8%, var(--ca-bg));
   --ca-hover: color-mix(in srgb, var(--ca-fg) 6%, transparent);
 
-  /* Игровые цвета из ТЗ. */
-  --ca-accent: #8b5cf6;
-  --ca-accent-hover: #7c4ff0;
+  /* Акцент — цвет кнопок текущей темы VS Code; ссылки — цвет ссылок темы. */
+  --ca-accent: var(--vscode-button-background, #0078d4);
+  --ca-accent-hover: var(--vscode-button-hoverBackground, color-mix(in srgb, var(--ca-accent) 86%, #fff));
+  --ca-on-accent: var(--vscode-button-foreground, #ffffff);
+  --ca-link: var(--vscode-textLink-foreground, #4daafc);
+
+  /* Игровые цвета: плитки ответов, команды, статусы. */
   --ca-success: #22c55e;
   --ca-error: #ef4444;
   --ca-warning: #f59e0b;
@@ -57,6 +62,8 @@ body.vscode-high-contrast {
   --color-input: var(--ca-input);
   --color-accent: var(--ca-accent);
   --color-accent-hover: var(--ca-accent-hover);
+  --color-on-accent: var(--ca-on-accent);
+  --color-link: var(--ca-link);
   --color-success: var(--ca-success);
   --color-error: var(--ca-error);
   --color-warning: var(--ca-warning);

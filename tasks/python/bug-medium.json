@@ -1,0 +1,361 @@
+{
+  "version": 1,
+  "game": "bug",
+  "title": "Найди баг: Python — средний уровень",
+  "author": "q-werty452",
+  "description": "Изменение списка в цикле, изменяемые значения по умолчанию, self, срезы, is и ==, банк и меню. Код из домашек колледжа. 21 заданий.",
+  "tasks": [
+    {
+      "type": "find_line",
+      "topic": "Циклы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "def total(prices):\n    s = 0\n    for i in range(len(prices) - 1):\n        s += prices[i]\n    return s",
+      "line": 3,
+      "explanation": "range(len(prices) - 1) не доходит до последнего элемента. Нужно range(len(prices)) или просто sum(prices)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Словари",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "stock = {\"яблоко\": 0, \"груша\": 5, \"слива\": 0}\nfor name in stock:\n    if stock[name] == 0:\n        del stock[name]\nprint(stock)",
+      "line": 4,
+      "explanation": "Нельзя удалять ключи из словаря во время прохода по нему — RuntimeError. Проходят по копии: for name in list(stock)."
+    },
+    {
+      "type": "find_line",
+      "topic": "ООП",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def inc():\n        self.value += 1",
+      "line": 5,
+      "explanation": "Метод экземпляра обязан принимать self первым параметром: def inc(self)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Функции",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "def add_student(name, group=[]):\n    group.append(name)\n    return group\n\na = add_student(\"Айбек\")\nb = add_student(\"Нурай\")\nprint(b)  # ['Айбек', 'Нурай'] — откуда Айбек?",
+      "line": 1,
+      "explanation": "Список по умолчанию создаётся один раз и общий для всех вызовов. Нужно group=None, а внутри: if group is None: group = []."
+    },
+    {
+      "type": "find_line",
+      "topic": "Циклы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "i = 10\nwhile i > 0:\n    print(i)\n    i += 1\nprint(\"Пуск!\")",
+      "line": 4,
+      "explanation": "i растёт, а условие ждёт, что i станет 0 — бесконечный цикл. Нужно i -= 1."
+    },
+    {
+      "type": "find_line",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "word = \"кот\"\nword[0] = \"К\"\nprint(word)",
+      "line": 2,
+      "explanation": "Строки неизменяемы. Новую строку собирают: word = word[0].upper() + word[1:] или word.capitalize()."
+    },
+    {
+      "type": "find_line",
+      "topic": "Наследование",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "class Person:\n    def __init__(self, name):\n        self.name = name\n\nclass Student(Person):\n    def __init__(self, name, group):\n        Person.__init__(name)\n        self.group = group",
+      "line": 7,
+      "explanation": "Родительский конструктор так вызывается без self. Правильно: super().__init__(name)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Срезы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "def last_three(items):\n    \"\"\"Последние три элемента списка.\"\"\"\n    return items[-3:-1]\n\nprint(last_three([1, 2, 3, 4, 5]))  # ждём [3, 4, 5]",
+      "line": 3,
+      "explanation": "Конец среза не включается: [-3:-1] даёт два элемента. Нужно items[-3:]."
+    },
+    {
+      "type": "find_line",
+      "topic": "Операторы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "a = [1, 2]\nb = [1, 2]\nif a is b:\n    print(\"Одинаковые\")\nelse:\n    print(\"Разные\")",
+      "line": 3,
+      "explanation": "is проверяет, что это один и тот же объект. Содержимое сравнивают через ==."
+    },
+    {
+      "type": "find_line",
+      "topic": "Списки",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Найди строку с ошибкой",
+      "code": "orders = [\"суп\", \"плов\", \"чай\"]\nfor i in range(1, len(orders) + 1):\n    print(i, orders[i])",
+      "line": 3,
+      "explanation": "Индексы списка с 0: orders[3] — IndexError. Для нумерации с 1: for i, order in enumerate(orders, 1)."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Списки",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Какой вариант правильно копирует список, чтобы оригинал не менялся?",
+      "variants": [
+        "copy = items",
+        "copy = items.copy()",
+        "copy == items",
+        "copy = [items]"
+      ],
+      "correct": 1,
+      "explanation": "items.copy() (или items[:]) создаёт новый список. copy = items — та же ссылка, [items] — список из одного списка."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Словари",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Как лучше проверить, есть ли ключ в словаре?",
+      "variants": [
+        "if user[\"name\"]:",
+        "if \"name\" in user.values():",
+        "if user.get(\"name\") != None:",
+        "if \"name\" in user:"
+      ],
+      "correct": 3,
+      "explanation": "in ищет среди ключей и не падает. user[\"name\"] даст KeyError, get ломается, если значение None или 0, values() ищет среди значений."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Исключения",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Какой вариант безопасно читает число от пользователя?",
+      "variants": [
+        "try:\n    age = int(input(\"Возраст: \"))\nexcept ValueError:\n    print(\"Нужно число\")",
+        "try:\n    age = int(input(\"Возраст: \"))\nexcept:\n    pass",
+        "age = int(input(\"Возраст: \"))",
+        "age = input(\"Возраст: \")\nif age > 0:\n    print(\"ok\")"
+      ],
+      "correct": 0,
+      "explanation": "Ловим конкретное исключение ValueError и сообщаем об ошибке. Голый except: pass молча проглатывает всё, даже Ctrl+C."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Файлы",
+      "difficulty": "medium",
+      "timeLimitSec": 60,
+      "language": "python",
+      "prompt": "Какой вариант правильно читает файл и закрывает его?",
+      "variants": [
+        "text = open(\"notes.txt\").read",
+        "with open(\"notes.txt\", \"w\") as f:\n    text = f.read()",
+        "f = open(\"notes.txt\")\ntext = f.read()",
+        "with open(\"notes.txt\", encoding=\"utf-8\") as f:\n    text = f.read()"
+      ],
+      "correct": 3,
+      "explanation": "with закрывает файл сам, даже при ошибке; encoding нужен для русского текста. Режим «w» стирает файл."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь: функция должна считать гласные и в заглавных буквах.",
+      "code": "def count_vowels(s):\n    count = 0\n    for ch in s:\n        if ch in \"аеёиоуыэюя\":\n            count += 1\n    return count",
+      "tests": [
+        {
+          "call": "count_vowels(\"Арбуз\")",
+          "expected": "2"
+        },
+        {
+          "call": "count_vowels(\"ОКНО\")",
+          "expected": "2"
+        },
+        {
+          "call": "count_vowels(\"ткн\")",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "def count_vowels(s):\n    count = 0\n    for ch in s.lower():\n        if ch in \"аеёиоуыэюя\":\n            count += 1\n    return count",
+      "explanation": "Сравнивали только строчные буквы — «А» в «Арбуз» не считалась. Приводим строку к нижнему регистру."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Циклы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь: максимум должен работать и для отрицательных чисел.",
+      "code": "def my_max(nums):\n    best = 0\n    for n in nums:\n        if n > best:\n            best = n\n    return best",
+      "tests": [
+        {
+          "call": "my_max([-5, -2, -9])",
+          "expected": "-2"
+        },
+        {
+          "call": "my_max([1, 3, 2])",
+          "expected": "3"
+        },
+        {
+          "call": "my_max([7])",
+          "expected": "7"
+        }
+      ],
+      "rules": [],
+      "solution": "def my_max(nums):\n    best = nums[0]\n    for n in nums:\n        if n > best:\n            best = n\n    return best",
+      "explanation": "Стартовое значение 0 больше любого отрицательного числа. Начинаем с первого элемента списка."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Списки",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь: нужно убрать ВСЕ отрицательные числа.",
+      "code": "def remove_negatives(nums):\n    for n in nums:\n        if n < 0:\n            nums.remove(n)\n    return nums",
+      "tests": [
+        {
+          "call": "remove_negatives([-1, -2, 3])",
+          "expected": "[3]"
+        },
+        {
+          "call": "remove_negatives([1, -1, -1, 2])",
+          "expected": "[1, 2]"
+        },
+        {
+          "call": "remove_negatives([])",
+          "expected": "[]"
+        }
+      ],
+      "rules": [],
+      "solution": "def remove_negatives(nums):\n    return [n for n in nums if n >= 0]",
+      "explanation": "Удаление во время прохода сдвигает элементы, и цикл пропускает соседний. Собираем новый список."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Циклы",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь факториал.",
+      "code": "def factorial(n):\n    result = 1\n    for i in range(1, n):\n        result *= i\n    return result",
+      "tests": [
+        {
+          "call": "factorial(5)",
+          "expected": "120"
+        },
+        {
+          "call": "factorial(1)",
+          "expected": "1"
+        },
+        {
+          "call": "factorial(0)",
+          "expected": "1"
+        }
+      ],
+      "rules": [],
+      "solution": "def factorial(n):\n    result = 1\n    for i in range(1, n + 1):\n        result *= i\n    return result",
+      "explanation": "range(1, n) не включает n: 5! считался как 1·2·3·4."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Словари",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь: нужно посчитать, сколько раз встречается каждое слово.",
+      "code": "def word_count(text):\n    counts = {}\n    for word in text.split():\n        counts[word] = 1\n    return counts",
+      "tests": [
+        {
+          "call": "word_count(\"кот пёс кот\")",
+          "expected": "{'кот': 2, 'пёс': 1}"
+        },
+        {
+          "call": "word_count(\"\")",
+          "expected": "{}"
+        }
+      ],
+      "rules": [],
+      "solution": "def word_count(text):\n    counts = {}\n    for word in text.split():\n        counts[word] = counts.get(word, 0) + 1\n    return counts",
+      "explanation": "Каждый раз записывали 1 вместо того, чтобы прибавлять к уже набранному."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "ООП",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь: со счёта можно снять ВСЮ сумму, но не больше.",
+      "code": "class Account:\n    def __init__(self, balance):\n        self.balance = balance\n\n    def withdraw(self, amount):\n        if amount < self.balance:\n            self.balance -= amount\n            return True\n        return False",
+      "tests": [
+        {
+          "call": "Account(100).withdraw(100)",
+          "expected": "True"
+        },
+        {
+          "call": "Account(50).withdraw(80)",
+          "expected": "False"
+        },
+        {
+          "call": "Account(50).withdraw(20)",
+          "expected": "True"
+        }
+      ],
+      "rules": [],
+      "solution": "class Account:\n    def __init__(self, balance):\n        self.balance = balance\n\n    def withdraw(self, amount):\n        if amount <= self.balance:\n            self.balance -= amount\n            return True\n        return False",
+      "explanation": "Строгое < запрещало снять ровно весь баланс. Нужно <=."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Строки",
+      "difficulty": "medium",
+      "timeLimitSec": 240,
+      "language": "python",
+      "prompt": "Исправь: палиндром должен определяться без учёта пробелов и регистра.",
+      "code": "def is_palindrome(s):\n    return s == s[::-1]",
+      "tests": [
+        {
+          "call": "is_palindrome(\"А роза упала на лапу Азора\")",
+          "expected": "True"
+        },
+        {
+          "call": "is_palindrome(\"Кабак\")",
+          "expected": "True"
+        },
+        {
+          "call": "is_palindrome(\"Python\")",
+          "expected": "False"
+        }
+      ],
+      "rules": [],
+      "solution": "def is_palindrome(s):\n    clean = s.replace(\" \", \"\").lower()\n    return clean == clean[::-1]",
+      "explanation": "Сравнивали строку как есть — пробелы и заглавные буквы мешали."
+    }
+  ]
+}

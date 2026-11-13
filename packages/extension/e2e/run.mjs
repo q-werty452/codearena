@@ -177,6 +177,7 @@ if (SCENARIO === "teacherui") {
 // lesson: окошко над значком в строке состояния — ученик жмёт «Не понял», потом клик по значку.
 let hoverResult = null;
 const SHOTS = process.env.CODEARENA_E2E_SHOTS || tmp;
+mkdirSync(SHOTS, { recursive: true });
 if (SCENARIO === "lesson") {
   const { hoverBar } = await import("./hover-driver.mjs");
   const { existsSync } = await import("node:fs");

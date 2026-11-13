@@ -137,7 +137,7 @@ function PickBody({ g, task, meId }: { g: GameSnapshot; task: FindTask | BestTas
       <AnimatePresence>
         {!revealed && picked !== null && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-center gap-2 text-center font-semibold">
-            <span className="flex size-7 items-center justify-center rounded-full bg-accent text-white">
+            <span className="flex size-7 items-center justify-center rounded-full bg-accent text-on-accent">
               <Check size={16} strokeWidth={3} />
             </span>
             {t("game.accepted")} · <span className="font-normal text-muted">{t("game.acceptedHint")}</span>
@@ -185,7 +185,7 @@ function Explanation({ text }: { text?: string }) {
   if (!text) return null;
   return (
     <Card className="p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("bug.why")}</div>
+      <div className="text-[12px] font-medium text-muted">{t("bug.why")}</div>
       <p className="mt-1 text-[14px]">
         <CodeAwareText text={text} />
       </p>
@@ -220,7 +220,7 @@ function FixBody({ g, task, meId }: { g: GameSnapshot; task: FixTask; meId?: str
 
       <Card className="flex items-start gap-3 p-4">
         <Wrench size={18} className="mt-0.5 shrink-0 text-warning" />
-        <p className="whitespace-pre-wrap text-[15px] font-semibold leading-snug">
+        <p className="whitespace-pre-wrap text-[14px] font-semibold leading-snug">
           <CodeAwareText text={task.prompt} />
         </p>
       </Card>

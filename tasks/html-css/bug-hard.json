@@ -1,0 +1,388 @@
+{
+  "version": 1,
+  "game": "bug",
+  "title": "Найди баг: HTML и CSS — сложный уровень",
+  "author": "q-werty452",
+  "description": "20 заданий: строка с ошибкой, лучший вариант, исправь разметку или стили.",
+  "tasks": [
+    {
+      "type": "find_line",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".row {\n  display: flex;\n  justify-content: center;\n  align-items: middle;\n}",
+      "line": 4,
+      "explanation": "У align-items нет значения middle — нужно center."
+    },
+    {
+      "type": "find_line",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".grid {\n  display: grid;\n  grid-template-columns: repeat(3 1fr);\n  gap: 16px;\n}",
+      "line": 3,
+      "explanation": "В repeat аргументы через запятую: repeat(3, 1fr)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".badge {\n  position: absolute;\n  top: 0;\n  right: 0;\n  z-index: 10px;\n}",
+      "line": 5,
+      "explanation": "z-index — целое число без единиц: z-index: 10."
+    },
+    {
+      "type": "find_line",
+      "topic": "Переменные",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ":root {\n  --accent: #4f46e5;\n}\n.btn {\n  background: --accent;\n}",
+      "line": 5,
+      "explanation": "Переменную читают через var(--accent)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<form>\n  <label for=\"mail\">Почта</label>\n  <input id=\"email\" type=\"email\" required>\n  <button type=\"submit\">Войти</button>\n</form>",
+      "line": 3,
+      "explanation": "for=\"mail\", а id=\"email\" — подпись не связана с полем."
+    },
+    {
+      "type": "find_line",
+      "topic": "Семантика",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<ul>\n  <li>Главная</li>\n  <div>О нас</div>\n  <li>Контакты</li>\n</ul>",
+      "line": 3,
+      "explanation": "Прямыми детьми ul могут быть только li."
+    },
+    {
+      "type": "find_line",
+      "topic": "Адаптивность",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Найди строку с ошибкой",
+      "code": ".menu {\n  display: flex;\n}\n@media max-width: 600px {\n  .menu {\n    display: none;\n  }\n}",
+      "line": 4,
+      "explanation": "Условие медиазапроса пишется в скобках: @media (max-width: 600px)."
+    },
+    {
+      "type": "find_line",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Найди строку с ошибкой",
+      "code": "<a href=\"https://example.com\" target=\"_blank\">\n  <img src=\"logo.png\">\n</a>",
+      "line": 2,
+      "explanation": "У картинки-ссылки нет alt — читалка не скажет, куда ведёт ссылка."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Как отцентровать блок по горизонтали и вертикали внутри .parent?",
+      "variants": [
+        ".parent {\n  text-align: center;\n  vertical-align: middle;\n}",
+        ".parent {\n  margin: auto;\n}",
+        ".parent {\n  align: center;\n}",
+        ".parent {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}"
+      ],
+      "correct": 3,
+      "explanation": "Flex с justify-content и align-items — самый надёжный способ."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Как сделать адаптивную сетку карточек минимум по 200px, сколько влезет?",
+      "variants": [
+        ".cards {\n  columns: 200px;\n  display: table;\n}",
+        ".cards {\n  display: grid;\n  grid-template-columns: 200px 200px 200px;\n}",
+        ".cards {\n  display: flex;\n  width: 200px;\n}",
+        ".cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n}"
+      ],
+      "correct": 3,
+      "explanation": "auto-fill + minmax подстраивает число колонок под ширину."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Как правильно сделать кнопку-иконку без текста доступной?",
+      "variants": [
+        "<button>✕</button>",
+        "<div onclick=\"close()\">✕</div>",
+        "<button aria-label=\"Закрыть\">✕</button>",
+        "<span class=\"btn\">✕</span>"
+      ],
+      "correct": 2,
+      "explanation": "Настоящая кнопка (фокус, Enter) + aria-label, чтобы читалка сказала «Закрыть»."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Переменные",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "css",
+      "prompt": "Как задать цвет один раз и переиспользовать во всех стилях?",
+      "variants": [
+        "$brand: #4f46e5;\n.btn {\n  color: $brand;\n}",
+        ":root {\n  --brand: #4f46e5;\n}\n.btn {\n  color: var(--brand);\n}",
+        ".btn {\n  color: brand;\n}",
+        "@brand: #4f46e5;"
+      ],
+      "correct": 1,
+      "explanation": "CSS-переменные в :root. $ и @ — синтаксис препроцессоров, не CSS."
+    },
+    {
+      "type": "best_variant",
+      "topic": "Подключение",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "language": "html",
+      "prompt": "Где правильно подключить стили в HTML?",
+      "variants": [
+        "<body>\n  <style src=\"style.css\"></style>\n</body>",
+        "<head>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>",
+        "<link href=\"style.css\">",
+        "<head>\n  <script href=\"style.css\"></script>\n</head>"
+      ],
+      "correct": 1,
+      "explanation": "link rel=\"stylesheet\" в head."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "Сделай .nav flex-строкой: элементы по краям (space-between) и по центру по вертикали.",
+      "code": ".nav {\n  display: block;\n  justify-content: space-between;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".nav",
+          "css": {
+            "property": "display",
+            "value": "flex"
+          },
+          "label": ".nav { display: flex }"
+        },
+        {
+          "selector": ".nav",
+          "css": {
+            "property": "justify-content",
+            "value": "space-between"
+          },
+          "label": ".nav { justify-content: space-between }"
+        },
+        {
+          "selector": ".nav",
+          "css": {
+            "property": "align-items",
+            "value": "center"
+          },
+          "label": ".nav { align-items: center }"
+        }
+      ],
+      "solution": ".nav {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}",
+      "explanation": "justify-content работает только у flex/grid-контейнера; вертикаль — align-items."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "Сетка .gallery: 3 равные колонки и отступ 12px между ними.",
+      "code": ".gallery {\n  display: grid;\n  grid-template-columns: 1fr;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".gallery",
+          "css": {
+            "property": "grid-template-columns",
+            "value": "repeat(3, 1fr)"
+          },
+          "label": ".gallery { grid-template-columns: repeat(3, 1fr) }"
+        },
+        {
+          "selector": ".gallery",
+          "css": {
+            "property": "gap",
+            "value": "12px"
+          },
+          "label": ".gallery { gap: 12px }"
+        }
+      ],
+      "solution": ".gallery {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n}",
+      "explanation": "repeat(3, 1fr) и gap."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "Значок .badge должен стоять в правом верхнем углу .card. Сейчас он улетает в угол страницы.",
+      "code": ".card {\n  border: 1px solid #ddd;\n}\n.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".card",
+          "css": {
+            "property": "position",
+            "value": "relative"
+          },
+          "label": ".card { position: relative }"
+        },
+        {
+          "selector": ".badge",
+          "css": {
+            "property": "position",
+            "value": "absolute"
+          },
+          "label": ".badge { position: absolute }"
+        }
+      ],
+      "solution": ".card {\n  position: relative;\n  border: 1px solid #ddd;\n}\n.badge {\n  position: absolute;\n  top: 8px;\n  right: 8px;\n}",
+      "explanation": "absolute ищет ближайшего позиционированного предка — дайте .card position: relative."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Адаптивность",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "На экранах до 600px колонки .grid должны стать одной: grid-template-columns: 1fr внутри @media (max-width: 600px).",
+      "code": ".grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".grid",
+          "css": {
+            "property": "grid-template-columns",
+            "value": "1fr"
+          },
+          "label": "на узком экране .grid { grid-template-columns: 1fr }"
+        },
+        {
+          "selector": ".grid",
+          "css": {
+            "property": "display",
+            "value": "grid"
+          },
+          "label": ".grid { display: grid }"
+        }
+      ],
+      "solution": ".grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}\n@media (max-width: 600px) {\n  .grid {\n    grid-template-columns: 1fr;\n  }\n}",
+      "explanation": "Медиазапрос ниже основного правила переопределяет колонки на узком экране."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "html",
+      "prompt": "Свяжи подписи с полями: у каждого input свой id, у label — for с тем же значением.",
+      "code": "<form>\n  <label>Имя</label>\n  <input type=\"text\" name=\"name\">\n  <label>Почта</label>\n  <input type=\"email\" name=\"email\">\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "label[for=\"name\"]",
+          "label": "label for=\"name\""
+        },
+        {
+          "selector": "input#name",
+          "label": "input с id=\"name\""
+        },
+        {
+          "selector": "label[for=\"email\"]",
+          "label": "label for=\"email\""
+        },
+        {
+          "selector": "input#email",
+          "label": "input с id=\"email\""
+        }
+      ],
+      "solution": "<form>\n  <label for=\"name\">Имя</label>\n  <input id=\"name\" type=\"text\" name=\"name\">\n  <label for=\"email\">Почта</label>\n  <input id=\"email\" type=\"email\" name=\"email\">\n</form>",
+      "explanation": "label for + input id — клик по подписи ставит фокус в поле."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "html",
+      "prompt": "Кнопка закрытия — это div. Сделай настоящую кнопку <button> с aria-label «Закрыть».",
+      "code": "<div class=\"close\" onclick=\"closeModal()\">✕</div>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "button[aria-label=\"Закрыть\"]",
+          "label": "button с aria-label «Закрыть»"
+        },
+        {
+          "selector": "div.close",
+          "label": "нет div.close",
+          "exists": false
+        }
+      ],
+      "solution": "<button class=\"close\" type=\"button\" aria-label=\"Закрыть\" onclick=\"closeModal()\">✕</button>",
+      "explanation": "button доступна с клавиатуры, aria-label объясняет значок."
+    },
+    {
+      "type": "fix_bug",
+      "topic": "Переменные",
+      "difficulty": "hard",
+      "timeLimitSec": 240,
+      "language": "css",
+      "prompt": "Используй переменную: в :root объяви --accent: #4f46e5, а у .btn задай background: var(--accent).",
+      "code": ".btn {\n  background: #4f46e5;\n  color: white;\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ":root",
+          "css": {
+            "property": "--accent",
+            "value": "#4f46e5"
+          },
+          "label": ":root { --accent: #4f46e5 }"
+        },
+        {
+          "selector": ".btn",
+          "css": {
+            "property": "background",
+            "value": "var(--accent)"
+          },
+          "label": ".btn { background: var(--accent) }"
+        }
+      ],
+      "solution": ":root {\n  --accent: #4f46e5;\n}\n.btn {\n  background: var(--accent);\n  color: white;\n}",
+      "explanation": "Переменная в :root, чтение через var()."
+    }
+  ]
+}

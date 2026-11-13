@@ -119,7 +119,7 @@ export function QuizEditor({
         </div>
 
         <div>
-          <h1 className="text-title font-bold">{t("edit.title")}</h1>
+          <h1 className="text-title font-semibold">{t("edit.title")}</h1>
           <input
             value={set.title}
             onChange={(e) => onChange({ ...set, title: e.target.value })}
@@ -307,7 +307,7 @@ export function QuestionCard({
         placeholder={t("edit.promptPlaceholder")}
         aria-label={t("edit.prompt")}
         maxLength={500}
-        className="w-full resize-none overflow-hidden rounded-btn border border-border bg-input px-3 py-2 text-[15px] font-semibold leading-snug outline-none focus:border-[var(--ca-focus)]"
+        className="w-full resize-none overflow-hidden rounded-btn border border-border bg-input px-3 py-2 text-[14px] font-semibold leading-snug outline-none focus:border-[var(--ca-focus)]"
       />
 
       <div className="mt-3 flex flex-col gap-2">
@@ -321,7 +321,7 @@ export function QuestionCard({
                 title={t("edit.correctHint")}
                 aria-pressed={correct}
                 className={cn(
-                  "relative flex size-9 shrink-0 items-center justify-center rounded-[9px] text-white transition-transform hover:scale-105",
+                  "relative flex size-9 shrink-0 items-center justify-center rounded-[8px] text-white transition-[filter] hover:brightness-110",
                   correct && "ring-2 ring-success ring-offset-2 ring-offset-[var(--ca-surface)]",
                 )}
                 style={{ background: `var(--ca-opt-${i})` }}

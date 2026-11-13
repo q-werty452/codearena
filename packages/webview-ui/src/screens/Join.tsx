@@ -50,7 +50,7 @@ export function JoinScreen({ initialCode = "", initialName = "", busy, codeError
       <div className="flex flex-col items-center gap-3 text-center">
         <Logo size={44} withText={false} />
         <div>
-          <h1 className="text-title font-bold tracking-[-0.01em]">{t("join.title")}</h1>
+          <h1 className="text-title font-semibold tracking-[-0.01em]">{t("join.title")}</h1>
           <p className="mt-1 text-muted">{t("app.tagline")}</p>
         </div>
       </div>

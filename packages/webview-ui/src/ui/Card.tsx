@@ -9,7 +9,7 @@ export function Card({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
     <div className="mb-2 flex items-center justify-between gap-2">
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{children}</h3>
+      <h3 className="text-[12px] font-medium text-muted">{children}</h3>
       {action}
     </div>
   );

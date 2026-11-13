@@ -99,7 +99,7 @@ export function TeacherLobby({ session, onChooseGame }: { session: SessionSnapsh
         <section className="flex flex-col gap-3">
           <button
             onClick={() => setTeamsOpen((v) => !v)}
-            className="flex items-center gap-2 self-start rounded-[8px] px-1 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted hover:text-fg"
+            className="flex items-center gap-2 self-start rounded-[8px] px-1 py-1 text-[12px] font-medium text-muted hover:text-fg"
             aria-expanded={teamsOpen}
           >
             <ChevronDown size={14} className={cn("transition-transform", !teamsOpen && "-rotate-90")} />
@@ -167,12 +167,11 @@ function LessonHero({ code, link, players, lesson }: { code: string; link: strin
   return (
     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
       <Card className="relative overflow-hidden p-5">
-        <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full opacity-[0.12] blur-3xl" style={{ background: "var(--ca-success)" }} />
         <div className="relative">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+          <div className="text-[12px] font-medium text-muted">
             {t("lesson.title")}
           </div>
-          <motion.div key={done} initial={{ scale: 1.08 }} animate={{ scale: 1 }} className="mt-2 text-[34px] font-bold leading-none tabular">
+          <motion.div key={done} initial={{ scale: 1.08 }} animate={{ scale: 1 }} className="mt-2 text-[34px] font-semibold leading-none tabular">
             {t("lesson.doneOf", { n: done, total })}
           </motion.div>
           <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-surface-2">
@@ -208,8 +207,8 @@ function LessonHero({ code, link, players, lesson }: { code: string; link: strin
         </div>
       </Card>
       <Card className="p-5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("teacher.code")}</div>
-        <div className="mt-2 font-mono text-[44px] font-bold leading-none tracking-[0.06em] tabular">{prettyCode(code)}</div>
+        <div className="text-[12px] font-medium text-muted">{t("teacher.code")}</div>
+        <div className="mt-2 font-mono text-[44px] font-semibold leading-none tracking-[0.06em] tabular">{prettyCode(code)}</div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <CopyButton text={link} label={t("teacher.copyLink")} icon={<Link2 size={14} />} primary />
           <CopyButton text={code} label={t("teacher.copyCode")} icon={<Copy size={14} />} />
@@ -233,7 +232,7 @@ function LessonStudents({ players, lesson }: { players: PlayerInfo[]; lesson: Le
   return (
     <section>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+        <span className="text-[12px] font-medium text-muted">
           {t("lesson.students")} · {players.length}
         </span>
         <span className="text-[11px] text-muted">{t("live2.peekHint")}</span>
@@ -262,7 +261,7 @@ function LessonStudents({ players, lesson }: { players: PlayerInfo[]; lesson: Le
                 )}
                 <Avatar name={p.name} team={p.team} size={26} offline={!p.connected} />
                 <span className={cn("min-w-0 flex-1 truncate text-[13px] font-medium", !p.connected && "text-muted")}>{p.name}</span>
-                {pct(p) >= 0 && <span className="shrink-0 text-[12px] font-bold tabular text-muted">{pct(p)}%</span>}
+                {pct(p) >= 0 && <span className="shrink-0 text-[12px] font-semibold tabular text-muted">{pct(p)}%</span>}
                 <span className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ color: STATUS_COLOR[st], background: `color-mix(in srgb, ${STATUS_COLOR[st]} 14%, transparent)` }}>
                   {t(`lesson.status.${st}`)}
                 </span>
@@ -521,7 +520,7 @@ function ChipBody({
               key={ti}
               title={String(ti + 1)}
               onClick={() => onAssign(ti)}
-              className="flex size-5 items-center justify-center rounded-full text-white opacity-80 transition hover:scale-110 hover:opacity-100"
+              className="flex size-5 items-center justify-center rounded-full text-white opacity-80 transition-opacity hover:opacity-100"
               style={{ background: teamColor(ti) }}
             >
               <TeamIcon team={ti} size={10} />

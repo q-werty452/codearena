@@ -1,429 +1,425 @@
 {
   "version": 1,
   "game": "codewars",
-  "title": "Codewars: Dart — средний уровень",
+  "title": "Codewars: Dart — базовый уровень",
   "author": "q-werty452",
-  "description": "Функции на строки, List и Map, классы и каскады. Нужен Dart SDK или Flutter у ученика. 16 задач.",
+  "description": "16 задач на функции: напиши — тесты проверят.",
   "tasks": [
     {
       "type": "code",
-      "topic": "Строки",
-      "difficulty": "medium",
+      "topic": "Функции",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Посчитай гласные (русские и английские, любой регистр).",
-      "starter": "int countVowels(String s) {\n  return 0;\n}",
+      "prompt": "Верни площадь прямоугольника со сторонами a и b.",
+      "starter": "int area(int a, int b) {\n  return 0;\n}",
       "tests": [
         {
-          "call": "countVowels('Привет')",
-          "expected": "2"
+          "call": "area(3, 4)",
+          "expected": "12"
         },
         {
-          "call": "countVowels('DART')",
-          "expected": "1"
+          "call": "area(5, 5)",
+          "expected": "25"
         },
         {
-          "call": "countVowels('')",
+          "call": "area(0, 7)",
           "expected": "0"
         }
       ],
       "rules": [],
-      "solution": "int countVowels(String s) {\n  const vowels = 'aeiouyаеёиоуыэюя';\n  return s.toLowerCase().split('').where((c) => vowels.contains(c)).length;\n}",
-      "explanation": "toLowerCase, потом where по буквам."
-    },
-    {
-      "type": "code",
-      "topic": "List",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "dart",
-      "prompt": "Верни квадраты нечётных чисел.",
-      "starter": "List<int> oddSquares(List<int> nums) {\n  return [];\n}",
-      "tests": [
-        {
-          "call": "oddSquares([1, 2, 3, 4])",
-          "expected": "[1, 9]"
-        },
-        {
-          "call": "oddSquares([2, 4])",
-          "expected": "[]"
-        },
-        {
-          "call": "oddSquares([-3])",
-          "expected": "[9]"
-        }
-      ],
-      "rules": [],
-      "solution": "List<int> oddSquares(List<int> nums) {\n  return nums.where((n) => n.isOdd).map((n) => n * n).toList();\n}",
-      "explanation": "where → map → toList."
-    },
-    {
-      "type": "code",
-      "topic": "Строки",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "dart",
-      "prompt": "Сделай первую букву каждого слова заглавной.",
-      "starter": "String capitalizeWords(String s) {\n  return s;\n}",
-      "tests": [
-        {
-          "call": "capitalizeWords('привет мир')",
-          "expected": "'Привет Мир'"
-        },
-        {
-          "call": "capitalizeWords('dart')",
-          "expected": "'Dart'"
-        },
-        {
-          "call": "capitalizeWords('')",
-          "expected": "''"
-        }
-      ],
-      "rules": [],
-      "solution": "String capitalizeWords(String s) {\n  return s.split(' ').map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1)).join(' ');\n}",
-      "explanation": "split(' ') → изменить каждое слово → join(' '). Пустые слова (двойной пробел) не трогаем."
-    },
-    {
-      "type": "code",
-      "topic": "Map",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "dart",
-      "prompt": "Посчитай, сколько раз встречается каждая буква.",
-      "starter": "Map<String, int> charCount(String s) {\n  return {};\n}",
-      "tests": [
-        {
-          "call": "charCount('мама')",
-          "expected": "{'м': 2, 'а': 2}"
-        },
-        {
-          "call": "charCount('')",
-          "expected": "{}"
-        }
-      ],
-      "rules": [],
-      "solution": "Map<String, int> charCount(String s) {\n  final m = <String, int>{};\n  for (final c in s.split('')) {\n    m[c] = (m[c] ?? 0) + 1;\n  }\n  return m;\n}",
-      "explanation": "(m[c] ?? 0) + 1 — для новой буквы стартуем с нуля."
-    },
-    {
-      "type": "code",
-      "topic": "Map",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "dart",
-      "prompt": "Заказы — список Map {'user', 'amount'}. Верни имя того, кто потратил больше всех в сумме (урок 13).",
-      "starter": "String topUser(List<Map<String, dynamic>> orders) {\n  return '';\n}",
-      "tests": [
-        {
-          "call": "topUser([{'user': 'Айгерим', 'amount': 500}, {'user': 'Мээримай', 'amount': 1500}, {'user': 'Айгерим', 'amount': 1200}])",
-          "expected": "'Айгерим'"
-        },
-        {
-          "call": "topUser([{'user': 'Татты', 'amount': 700}])",
-          "expected": "'Татты'"
-        }
-      ],
-      "rules": [],
-      "solution": "String topUser(List<Map<String, dynamic>> orders) {\n  final totals = <String, int>{};\n  for (final o in orders) {\n    totals[o['user']] = (totals[o['user']] ?? 0) + (o['amount'] as int);\n  }\n  return totals.entries.reduce((a, b) => a.value >= b.value ? a : b).key;\n}",
-      "explanation": "Сначала суммы по каждому, потом максимум по entries. Самый большой одиночный заказ — ловушка."
-    },
-    {
-      "type": "code",
-      "topic": "Циклы",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "dart",
-      "prompt": "Простое ли число?",
-      "starter": "bool isPrime(int n) {\n  return false;\n}",
-      "tests": [
-        {
-          "call": "isPrime(2)",
-          "expected": "true"
-        },
-        {
-          "call": "isPrime(1)",
-          "expected": "false"
-        },
-        {
-          "call": "isPrime(97)",
-          "expected": "true"
-        },
-        {
-          "call": "isPrime(91)",
-          "expected": "false"
-        }
-      ],
-      "rules": [],
-      "solution": "bool isPrime(int n) {\n  if (n < 2) return false;\n  for (var i = 2; i * i <= n; i++) {\n    if (n % i == 0) return false;\n  }\n  return true;\n}",
-      "explanation": "Делители достаточно искать до корня из n."
-    },
-    {
-      "type": "code",
-      "topic": "Циклы",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "dart",
-      "prompt": "Верни первые n чисел Фибоначчи: 0, 1, 1, 2, 3, …",
-      "starter": "List<int> fibonacci(int n) {\n  return [];\n}",
-      "tests": [
-        {
-          "call": "fibonacci(7)",
-          "expected": "[0, 1, 1, 2, 3, 5, 8]"
-        },
-        {
-          "call": "fibonacci(0)",
-          "expected": "[]"
-        },
-        {
-          "call": "fibonacci(1)",
-          "expected": "[0]"
-        }
-      ],
-      "rules": [],
-      "solution": "List<int> fibonacci(int n) {\n  final out = <int>[];\n  var a = 0, b = 1;\n  for (var i = 0; i < n; i++) {\n    out.add(a);\n    final next = a + b;\n    a = b;\n    b = next;\n  }\n  return out;\n}",
-      "explanation": "Две переменные двигаются вперёд, каждое число — сумма двух предыдущих."
+      "solution": "int area(int a, int b) {\n  return a * b;\n}",
+      "explanation": "Площадь — произведение сторон."
     },
     {
       "type": "code",
       "topic": "Условия",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Оценка по баллам: 90+ → 5, 75+ → 4, 60+ → 3, иначе 2.",
-      "starter": "int grade(int score) {\n  return 0;\n}",
+      "prompt": "Верни большее из двух чисел (не используя max).",
+      "starter": "int bigger(int a, int b) {\n  return 0;\n}",
       "tests": [
         {
-          "call": "grade(90)",
+          "call": "bigger(3, 8)",
+          "expected": "8"
+        },
+        {
+          "call": "bigger(10, 2)",
+          "expected": "10"
+        },
+        {
+          "call": "bigger(5, 5)",
           "expected": "5"
-        },
-        {
-          "call": "grade(89)",
-          "expected": "4"
-        },
-        {
-          "call": "grade(60)",
-          "expected": "3"
-        },
-        {
-          "call": "grade(0)",
-          "expected": "2"
         }
       ],
       "rules": [],
-      "solution": "int grade(int score) {\n  if (score >= 90) return 5;\n  if (score >= 75) return 4;\n  if (score >= 60) return 3;\n  return 2;\n}",
-      "explanation": "Проверяем от большего к меньшему, границы включительно."
+      "solution": "int bigger(int a, int b) {\n  if (a > b) return a;\n  return b;\n}",
+      "explanation": "Сравнение через if."
     },
     {
       "type": "code",
-      "topic": "Set",
-      "difficulty": "medium",
+      "topic": "Условия",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Верни уникальные слова по алфавиту.",
-      "starter": "List<String> uniqueSorted(List<String> words) {\n  return words;\n}",
+      "prompt": "Верни true, если число чётное.",
+      "starter": "bool isEven(int n) {\n  return false;\n}",
       "tests": [
         {
-          "call": "uniqueSorted(['груша', 'яблоко', 'груша', 'арбуз'])",
-          "expected": "['арбуз', 'груша', 'яблоко']"
+          "call": "isEven(4)",
+          "expected": "true"
         },
         {
-          "call": "uniqueSorted([])",
-          "expected": "[]"
+          "call": "isEven(7)",
+          "expected": "false"
+        },
+        {
+          "call": "isEven(0)",
+          "expected": "true"
         }
       ],
       "rules": [],
-      "solution": "List<String> uniqueSorted(List<String> words) {\n  return words.toSet().toList()..sort();\n}",
-      "explanation": "toSet убирает повторы, каскад ..sort() сортирует и возвращает список."
+      "solution": "bool isEven(int n) => n % 2 == 0;",
+      "explanation": "Остаток от деления на 2 (или n.isEven)."
+    },
+    {
+      "type": "code",
+      "topic": "Операции",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "dart",
+      "prompt": "Переведи градусы Цельсия в Фаренгейты: F = C × 9 / 5 + 32.",
+      "starter": "double toFahrenheit(double c) {\n  return 0;\n}",
+      "tests": [
+        {
+          "call": "toFahrenheit(0)",
+          "expected": "32.0"
+        },
+        {
+          "call": "toFahrenheit(100)",
+          "expected": "212.0"
+        },
+        {
+          "call": "toFahrenheit(-40)",
+          "expected": "-40.0"
+        }
+      ],
+      "rules": [],
+      "solution": "double toFahrenheit(double c) => c * 9 / 5 + 32;",
+      "explanation": "Формула из условия."
     },
     {
       "type": "code",
       "topic": "Строки",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Сожми строку: 'aaabccdd' → 'a3b1c2d2'.",
-      "starter": "String compress(String s) {\n  return s;\n}",
+      "prompt": "Верни слово задом наперёд.",
+      "starter": "String reverse(String word) {\n  return '';\n}",
       "tests": [
         {
-          "call": "compress('aaabccdd')",
-          "expected": "'a3b1c2d2'"
+          "call": "reverse('кот')",
+          "expected": "'ток'"
         },
         {
-          "call": "compress('')",
+          "call": "reverse('a')",
+          "expected": "'a'"
+        },
+        {
+          "call": "reverse('')",
           "expected": "''"
-        },
-        {
-          "call": "compress('z')",
-          "expected": "'z1'"
         }
       ],
       "rules": [],
-      "solution": "String compress(String s) {\n  final b = StringBuffer();\n  var i = 0;\n  while (i < s.length) {\n    var j = i;\n    while (j < s.length && s[j] == s[i]) j++;\n    b.write('${s[i]}${j - i}');\n    i = j;\n  }\n  return b.toString();\n}",
-      "explanation": "Считаем длину каждой серии одинаковых символов. StringBuffer быстрее, чем += в цикле."
+      "solution": "String reverse(String word) => word.split('').reversed.join();",
+      "explanation": "split на буквы, reversed, join."
     },
     {
       "type": "code",
-      "topic": "ООП",
-      "difficulty": "medium",
+      "topic": "Строки",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Класс BankAccount(начальный баланс): deposit(сумма), withdraw(сумма) — не снимает больше, чем есть; геттер balance.",
-      "starter": "class BankAccount {\n  // поле, конструктор, deposit, withdraw, геттер balance\n}",
+      "prompt": "Верни количество гласных русских букв в слове (строчные).",
+      "starter": "int vowels(String word) {\n  return 0;\n}",
       "tests": [
         {
-          "call": "(BankAccount(100)..deposit(50)).balance",
-          "expected": "150"
+          "call": "vowels('молоко')",
+          "expected": "3"
         },
         {
-          "call": "(BankAccount(100)..withdraw(500)).balance",
-          "expected": "100"
+          "call": "vowels('ткч')",
+          "expected": "0"
         },
         {
-          "call": "(BankAccount(100)..withdraw(100)).balance",
+          "call": "vowels('ёлка')",
+          "expected": "2"
+        }
+      ],
+      "rules": [],
+      "solution": "int vowels(String word) => word.split('').where((ch) => 'аеёиоуыэюя'.contains(ch)).length;",
+      "explanation": "where отбирает гласные, length считает."
+    },
+    {
+      "type": "code",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "dart",
+      "prompt": "Верни сумму чисел списка (без reduce и fold).",
+      "starter": "int total(List<int> nums) {\n  return 0;\n}",
+      "tests": [
+        {
+          "call": "total([1, 2, 3])",
+          "expected": "6"
+        },
+        {
+          "call": "total([])",
+          "expected": "0"
+        },
+        {
+          "call": "total([-5, 5])",
           "expected": "0"
         }
       ],
       "rules": [],
-      "solution": "class BankAccount {\n  int _balance;\n  BankAccount(this._balance);\n\n  int get balance => _balance;\n\n  void deposit(int amount) => _balance += amount;\n\n  void withdraw(int amount) {\n    if (amount <= _balance) _balance -= amount;\n  }\n}",
-      "explanation": "Поле с _ закрыто снаружи, баланс читается через геттер. Тесты используют каскад: (BankAccount(100)..deposit(50)).balance."
+      "solution": "int total(List<int> nums) {\n  var s = 0;\n  for (var n in nums) {\n    s += n;\n  }\n  return s;\n}",
+      "explanation": "Накопитель и цикл for-in."
     },
     {
       "type": "code",
-      "topic": "Наследование",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Класс Rectangle(width, height) с геттерами area и isSquare, и Square(side) — наследник Rectangle.",
-      "starter": "class Rectangle {\n}\n\nclass Square {\n}",
+      "prompt": "Верни среднее арифметическое (список не пустой).",
+      "starter": "double average(List<int> nums) {\n  return 0;\n}",
       "tests": [
         {
-          "call": "Rectangle(3, 4).area",
-          "expected": "12"
+          "call": "average([2, 4])",
+          "expected": "3.0"
         },
         {
-          "call": "Rectangle(3, 4).isSquare",
-          "expected": "false"
+          "call": "average([5])",
+          "expected": "5.0"
         },
         {
-          "call": "Square(4).area",
-          "expected": "16"
-        },
-        {
-          "call": "Square(4).isSquare",
-          "expected": "true"
+          "call": "average([1, 2, 3, 4])",
+          "expected": "2.5"
         }
       ],
       "rules": [],
-      "solution": "class Rectangle {\n  final int width, height;\n  Rectangle(this.width, this.height);\n\n  int get area => width * height;\n  bool get isSquare => width == height;\n}\n\nclass Square extends Rectangle {\n  Square(int side) : super(side, side);\n}",
-      "explanation": "Square вызывает конструктор родителя через super(side, side) и получает area и isSquare бесплатно."
+      "solution": "double average(List<int> nums) => nums.reduce((a, b) => a + b) / nums.length;",
+      "explanation": "Сумма / количество; / в Dart даёт double."
+    },
+    {
+      "type": "code",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "dart",
+      "prompt": "Верни новый список: каждое число умножено на 2.",
+      "starter": "List<int> doubled(List<int> nums) {\n  return [];\n}",
+      "tests": [
+        {
+          "call": "doubled([1, 2, 3])",
+          "expected": "[2, 4, 6]"
+        },
+        {
+          "call": "doubled([])",
+          "expected": "[]"
+        },
+        {
+          "call": "doubled([-1])",
+          "expected": "[-2]"
+        }
+      ],
+      "rules": [],
+      "solution": "List<int> doubled(List<int> nums) => nums.map((n) => n * 2).toList();",
+      "explanation": "map и toList."
+    },
+    {
+      "type": "code",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "dart",
+      "prompt": "Верни количество положительных чисел в списке.",
+      "starter": "int countPositive(List<int> nums) {\n  return 0;\n}",
+      "tests": [
+        {
+          "call": "countPositive([1, -2, 3, 0])",
+          "expected": "2"
+        },
+        {
+          "call": "countPositive([])",
+          "expected": "0"
+        },
+        {
+          "call": "countPositive([-1, -2])",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "int countPositive(List<int> nums) => nums.where((n) => n > 0).length;",
+      "explanation": "where и length."
+    },
+    {
+      "type": "code",
+      "topic": "Условия",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "dart",
+      "prompt": "Верни оценку по баллу: 90+ → 5, 75–89 → 4, 60–74 → 3, ниже → 2.",
+      "starter": "int mark(int score) {\n  return 0;\n}",
+      "tests": [
+        {
+          "call": "mark(95)",
+          "expected": "5"
+        },
+        {
+          "call": "mark(75)",
+          "expected": "4"
+        },
+        {
+          "call": "mark(60)",
+          "expected": "3"
+        },
+        {
+          "call": "mark(10)",
+          "expected": "2"
+        }
+      ],
+      "rules": [],
+      "solution": "int mark(int score) {\n  if (score >= 90) return 5;\n  if (score >= 75) return 4;\n  if (score >= 60) return 3;\n  return 2;\n}",
+      "explanation": "Проверяем от большего к меньшему."
     },
     {
       "type": "code",
       "topic": "Циклы",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Сумма цифр, пока не останется одна цифра: 9875 → 29 → 11 → 2.",
-      "starter": "int digitalRoot(int n) {\n  return n;\n}",
+      "prompt": "Верни факториал n (n ≥ 0): 5! = 120, 0! = 1.",
+      "starter": "int factorial(int n) {\n  return 0;\n}",
       "tests": [
         {
-          "call": "digitalRoot(9875)",
-          "expected": "2"
+          "call": "factorial(5)",
+          "expected": "120"
         },
         {
-          "call": "digitalRoot(7)",
-          "expected": "7"
+          "call": "factorial(0)",
+          "expected": "1"
         },
         {
-          "call": "digitalRoot(10)",
+          "call": "factorial(1)",
           "expected": "1"
         }
       ],
       "rules": [],
-      "solution": "int digitalRoot(int n) {\n  while (n >= 10) {\n    n = n.toString().split('').map(int.parse).reduce((a, b) => a + b);\n  }\n  return n;\n}",
-      "explanation": "Пока число двузначное — заменяем его суммой цифр."
+      "solution": "int factorial(int n) {\n  var r = 1;\n  for (var i = 2; i <= n; i++) {\n    r *= i;\n  }\n  return r;\n}",
+      "explanation": "Перемножаем числа от 2 до n."
     },
     {
       "type": "code",
-      "topic": "Стек",
-      "difficulty": "medium",
+      "topic": "Map",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Проверь, правильно ли расставлены скобки ()[]{}.",
-      "starter": "bool isBalanced(String s) {\n  return false;\n}",
+      "prompt": "Верни Map «слово → длина»: lengths(['кот', 'ёж']) → {'кот': 3, 'ёж': 2}.",
+      "starter": "Map<String, int> lengths(List<String> words) {\n  return {};\n}",
       "tests": [
         {
-          "call": "isBalanced('([]{})')",
-          "expected": "true"
+          "call": "lengths(['кот', 'ёж'])",
+          "expected": "{'кот': 3, 'ёж': 2}"
         },
         {
-          "call": "isBalanced('([)]')",
-          "expected": "false"
-        },
-        {
-          "call": "isBalanced('((')",
-          "expected": "false"
-        },
-        {
-          "call": "isBalanced('')",
-          "expected": "true"
+          "call": "lengths([])",
+          "expected": "{}"
         }
       ],
       "rules": [],
-      "solution": "bool isBalanced(String s) {\n  const pairs = {')': '(', ']': '[', '}': '{'};\n  final stack = <String>[];\n  for (final c in s.split('')) {\n    if ('([{'.contains(c)) {\n      stack.add(c);\n    } else if (pairs.containsKey(c)) {\n      if (stack.isEmpty || stack.removeLast() != pairs[c]) return false;\n    }\n  }\n  return stack.isEmpty;\n}",
-      "explanation": "Стек: открывающая кладётся, закрывающая должна совпасть с последней открытой."
+      "solution": "Map<String, int> lengths(List<String> words) => {for (var w in words) w: w.length};",
+      "explanation": "Коллекционный for внутри литерала Map."
     },
     {
       "type": "code",
       "topic": "Строки",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Переведи секунды в строку 'ЧЧ:ММ:СС'.",
-      "starter": "String toClock(int seconds) {\n  return '';\n}",
+      "prompt": "Верни true, если слово — палиндром (регистр не важен).",
+      "starter": "bool isPalindrome(String word) {\n  return false;\n}",
       "tests": [
         {
-          "call": "toClock(3725)",
-          "expected": "'01:02:05'"
+          "call": "isPalindrome('Шалаш')",
+          "expected": "true"
         },
         {
-          "call": "toClock(0)",
-          "expected": "'00:00:00'"
+          "call": "isPalindrome('кот')",
+          "expected": "false"
         },
         {
-          "call": "toClock(86399)",
-          "expected": "'23:59:59'"
+          "call": "isPalindrome('а')",
+          "expected": "true"
         }
       ],
       "rules": [],
-      "solution": "String toClock(int seconds) {\n  String two(int n) => n.toString().padLeft(2, '0');\n  return '${two(seconds ~/ 3600)}:${two(seconds % 3600 ~/ 60)}:${two(seconds % 60)}';\n}",
-      "explanation": "~/ и % делят на часы, минуты, секунды; padLeft(2, '0') дописывает ноль."
+      "solution": "bool isPalindrome(String word) {\n  final w = word.toLowerCase();\n  return w == w.split('').reversed.join();\n}",
+      "explanation": "Сравниваем с перевёрнутым, приведя к одному регистру."
     },
     {
       "type": "code",
-      "topic": "List",
-      "difficulty": "medium",
+      "topic": "Циклы",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "dart",
-      "prompt": "Второе по величине РАЗНОЕ число списка (в списке минимум два разных числа).",
-      "starter": "int secondLargest(List<int> nums) {\n  return 0;\n}",
+      "prompt": "Верни таблицу умножения n до 5: table(3) → [3, 6, 9, 12, 15].",
+      "starter": "List<int> table(int n) {\n  return [];\n}",
       "tests": [
         {
-          "call": "secondLargest([3, 1, 4, 4, 2])",
-          "expected": "3"
+          "call": "table(3)",
+          "expected": "[3, 6, 9, 12, 15]"
         },
         {
-          "call": "secondLargest([10, 20])",
-          "expected": "10"
+          "call": "table(1)",
+          "expected": "[1, 2, 3, 4, 5]"
         },
         {
-          "call": "secondLargest([-1, -5, -3])",
-          "expected": "-3"
+          "call": "table(0)",
+          "expected": "[0, 0, 0, 0, 0]"
         }
       ],
       "rules": [],
-      "solution": "int secondLargest(List<int> nums) {\n  final sorted = nums.toSet().toList()..sort();\n  return sorted[sorted.length - 2];\n}",
-      "explanation": "toSet убирает повторы, потом сортировка и предпоследний элемент."
+      "solution": "List<int> table(int n) => [for (var i = 1; i <= 5; i++) n * i];",
+      "explanation": "Коллекционный for в литерале списка."
+    },
+    {
+      "type": "code",
+      "topic": "Null",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "dart",
+      "prompt": "Верни имя или «гость», если имени нет (null или пустая строка).",
+      "starter": "String displayName(String? name) {\n  return '';\n}",
+      "tests": [
+        {
+          "call": "displayName('Айбек')",
+          "expected": "'Айбек'"
+        },
+        {
+          "call": "displayName(null)",
+          "expected": "'гость'"
+        },
+        {
+          "call": "displayName('')",
+          "expected": "'гость'"
+        }
+      ],
+      "rules": [],
+      "solution": "String displayName(String? name) {\n  if (name == null || name.isEmpty) return 'гость';\n  return name;\n}",
+      "explanation": "Проверяем и null, и пустую строку."
     }
   ]
 }

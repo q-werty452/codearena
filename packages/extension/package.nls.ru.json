@@ -24,8 +24,8 @@
   "config.serverUrl": "Адрес игрового сервера. По умолчанию — бесплатный общий сервер CodeArena. Меняйте, только если у школы свой сервер (см. [README](https://github.com/q-werty452/codearena#self-hosting)).",
   "config.ai.model": "Модель Gemini для заданий, например `gemini-3.6-flash`. Пусто — автоматически самая новая стабильная *flash*-модель, доступная вашему ключу.",
   "config.ai.endpoint": "Адрес Gemini API. Пусто — `https://generativelanguage.googleapis.com`. Меняйте только для прокси.",
-  "description": "Kahoot + Codewars в VS Code: режим урока, викторина, перетягивание каната, Codewars, гонка и «Найди баг» для уроков программирования.",
-  "displayName": "CodeArena — игры по программированию для класса",
+  "description": "Уроки программирования в VS Code: видно, кто написал и кто застрял, ваш код рядом у каждого ученика, подсказки на строке, класс с телефона и игры — викторина, канат, Codewars. Бесплатно, без аккаунтов.",
+  "displayName": "CodeArena — уроки и игры по программированию",
   "command.hintLine": "Урок: подсказка ученику на этой строке",
   "color.hintBackground": "Фон строки с подсказкой учителя",
   "color.hintForeground": "Текст подсказки учителя"

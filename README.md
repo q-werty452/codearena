@@ -24,7 +24,7 @@ Built for frontend teachers: **HTML/CSS → JavaScript → Python**. HTML and CS
 | [`packages/webview-ui`](packages/webview-ui) | All game UI inside VS Code (student and teacher panels) | React, Vite, Tailwind CSS, Motion |
 | [`packages/server`](packages/server) | Rooms, players, teams, scores, timers, answer checking | Cloudflare Workers, Durable Objects (SQLite), WebSocket Hibernation |
 | [`packages/shared`](packages/shared) | Message protocol, task schemas, scoring logic | TypeScript, Zod |
-| [`tasks/`](tasks) | Open task bank: HTML/CSS and JavaScript sets for every game (148 tasks), validated by tests — send yours as a pull request | JSON |
+| [`tasks/`](tasks) | Open task bank: 737 tasks in HTML/CSS, JavaScript, Python and Dart for every game (basic, medium, hard), validated by tests — send yours as a pull request | JSON |
 
 ## Development
 

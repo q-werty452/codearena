@@ -41,7 +41,7 @@ export function OptionTile({
       <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-black/15">
         <Shape shape={shape} size={18} />
       </span>
-      <span className="min-w-0 flex-1 text-[15px] font-semibold leading-snug">{children}</span>
+      <span className="min-w-0 flex-1 text-[14px] font-semibold leading-snug">{children}</span>
       {state === "correct" && <Check className="shrink-0" size={22} strokeWidth={3} />}
       {state === "wrong" && <X className="shrink-0" size={22} strokeWidth={3} />}
       {state === "idle" && (

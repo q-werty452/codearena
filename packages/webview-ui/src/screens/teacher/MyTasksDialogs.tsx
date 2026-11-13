@@ -51,11 +51,11 @@ export function Modal({ open, onClose, icon: Icon, title, hint, children, width 
             aria-modal="true"
           >
             <div className="flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-accent/15 text-accent">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-surface-2 text-muted">
                 <Icon size={18} />
               </span>
               <div className="min-w-0 flex-1">
-                <h2 className="text-[18px] font-bold leading-tight">{title}</h2>
+                <h2 className="text-[18px] font-semibold leading-tight">{title}</h2>
                 {hint && <p className="mt-0.5 text-[12px] text-muted">{hint}</p>}
               </div>
               <button onClick={onClose} className="flex size-8 shrink-0 items-center justify-center rounded-[8px] text-muted hover:bg-hover hover:text-fg" aria-label="close">
@@ -258,7 +258,7 @@ function AiProgress() {
   return (
     <div className="rounded-btn border border-border bg-surface px-3 py-3">
       <div className="flex items-center gap-2 text-[13px] font-semibold">
-        <Loader2 size={15} className="animate-spin text-accent" />
+        <Loader2 size={15} className="animate-spin text-muted" />
         {t(`ai.stage.${ai.stage ?? "model"}` as MessageKey, { done: ai.done ?? 0, total: ai.total ?? 0 })}
         <button onClick={() => host.post({ type: "ai_cancel" })} className="ml-auto text-[12px] font-normal text-muted hover:text-fg">
           {t("ai.cancel")}
@@ -310,12 +310,12 @@ export function AiDialog({ open, game, onClose }: { open: boolean; game: AiReque
     <Modal open={open} onClose={onClose} icon={Wand2} title={t("ai.title")} hint={t("ai.hint")} width={640}>
       {!ai.hasKey ? (
         <Card className="mb-4 flex flex-wrap items-center gap-3 p-4">
-          <KeyRound size={20} className="text-accent" />
+          <KeyRound size={20} className="text-muted" />
           <div className="min-w-0 flex-1">
             <div className="text-[14px] font-semibold">{t("ai.noKey")}</div>
             <div className="text-[12px] text-muted">{t("ai.noKeyHint")}</div>
           </div>
-          <ExternalA href={AI_KEY_URL} className="inline-flex items-center gap-1 text-[13px] font-semibold text-accent hover:underline">
+          <ExternalA href={AI_KEY_URL} className="inline-flex items-center gap-1 text-[13px] font-semibold text-link hover:underline">
             {t("ai.getKey")} <ExternalLink size={12} />
           </ExternalA>
           <Button variant="primary" size="sm" icon={<KeyRound size={14} />} onClick={() => host.post({ type: "ai_set_key" })}>
@@ -418,7 +418,7 @@ export function MyTasksCard({ onPaste, onAi }: { onPaste: () => void; onAi: () =
   return (
     <Card className="p-5">
       <div className="mb-1 flex flex-wrap items-center gap-2">
-        <h2 className="text-[15px] font-bold">{t("my.title")}</h2>
+        <h2 className="text-[14px] font-semibold">{t("my.title")}</h2>
         {all.length > 0 && <span className="text-[12px] text-muted">· {t.count("task", all.length)}</span>}
         <div className="ml-auto flex flex-wrap gap-1.5">
           {(Object.entries(counts) as [GameKind, number][]).map(([g, c]) => (
@@ -442,7 +442,7 @@ export function MyTasksCard({ onPaste, onAi }: { onPaste: () => void; onAi: () =
               accent ? "border-accent/50 bg-accent/[0.07] hover:border-accent" : "border-border bg-surface-2/40 hover:border-[var(--ca-accent)]",
             )}
           >
-            <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-[10px]", accent ? "bg-accent text-white" : "bg-surface-2 text-fg")}>
+            <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-[10px]", accent ? "bg-accent text-on-accent" : "bg-surface-2 text-fg")}>
               <Icon size={18} />
             </span>
             <span>

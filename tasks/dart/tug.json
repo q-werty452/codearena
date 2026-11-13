@@ -1,249 +1,309 @@
 {
   "version": 1,
   "game": "tug",
-  "title": "Канат: Dart — средний уровень",
+  "title": "Канат: Dart — базовый уровень",
   "author": "q-werty452",
-  "description": "Быстрые ответы: ~/ и % с отрицательными числами, методы строк и коллекций, null, ключевые слова. 20 заданий.",
+  "description": "25 коротких вопросов: ответ — число или одно слово.",
   "tasks": [
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `10 ~/ 4`?",
+      "prompt": "Что выведет `print(9 ~/ 4);`?",
       "answers": [
         "2"
       ],
       "caseSensitive": false,
-      "explanation": "~/ — целая часть от деления."
+      "explanation": "Целочисленное деление."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `7 / 2`?",
-      "answers": [
-        "3.5"
-      ],
-      "caseSensitive": false,
-      "explanation": "/ всегда даёт double."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `-7 ~/ 2`?",
-      "answers": [
-        "-3"
-      ],
-      "caseSensitive": false,
-      "explanation": "~/ в Dart отбрасывает дробную часть (к нулю), а не округляет вниз, как // в Python."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `-7 % 2`?",
+      "prompt": "Что выведет `print(9 % 4);`?",
       "answers": [
         "1"
       ],
       "caseSensitive": false,
-      "explanation": "Остаток в Dart всегда неотрицательный."
+      "explanation": "Остаток: 9 = 4·2 + 1."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Строки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `(2.5).round()`?",
+      "prompt": "Что выведет `print('кот'.length);`?",
       "answers": [
         "3"
       ],
       "caseSensitive": false,
-      "explanation": "Dart округляет .5 от нуля (в Python round(2.5) = 2)."
+      "explanation": "Три буквы."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Строки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `(3.9).toInt()`?",
+      "prompt": "Что выведет `print('abc'[2]);`?",
+      "answers": [
+        "c"
+      ],
+      "caseSensitive": false,
+      "explanation": "Индекс 2 — третий символ."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('Dart'.toLowerCase());`?",
+      "answers": [
+        "dart"
+      ],
+      "caseSensitive": false,
+      "explanation": "Строчные буквы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('a-b-c'.split('-').length);`?",
       "answers": [
         "3"
       ],
       "caseSensitive": false,
-      "explanation": "toInt отбрасывает дробную часть."
+      "explanation": "split по дефису даёт 3 части."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Строки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `'Flutter'.length`?",
-      "answers": [
-        "7"
-      ],
-      "caseSensitive": false,
-      "explanation": "7 букв."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `'hello'.indexOf('l')`?",
+      "prompt": "Что выведет `print('  hi  '.trim().length);`?",
       "answers": [
         "2"
       ],
       "caseSensitive": false,
-      "explanation": "Первое вхождение, индексы с нуля."
+      "explanation": "trim убирает пробелы по краям."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `'a,b,,c'.split(',').length`?",
+      "prompt": "Что выведет `print([1, 2, 3, 4].length);`?",
       "answers": [
         "4"
       ],
       "caseSensitive": false,
-      "explanation": "Между двумя запятыми — пустая строка, она тоже элемент."
+      "explanation": "Четыре элемента."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `{1, 2, 3}.contains(4)`?",
+      "prompt": "Что выведет `print([10, 20, 30].last);`?",
+      "answers": [
+        "30"
+      ],
+      "caseSensitive": false,
+      "explanation": "last — последний элемент."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print([10, 20, 30].first);`?",
+      "answers": [
+        "10"
+      ],
+      "caseSensitive": false,
+      "explanation": "first — первый элемент."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print([3, 1, 2].reduce((a, b) => a + b));`?",
+      "answers": [
+        "6"
+      ],
+      "caseSensitive": false,
+      "explanation": "reduce складывает элементы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print([5, 2, 9].indexOf(9));`?",
+      "answers": [
+        "2"
+      ],
+      "caseSensitive": false,
+      "explanation": "indexOf — индекс элемента."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(int.parse('7') * 3);`?",
+      "answers": [
+        "21"
+      ],
+      "caseSensitive": false,
+      "explanation": "Строку в число и умножить."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(double.parse('2.5') * 2);`?",
+      "answers": [
+        "5.0"
+      ],
+      "caseSensitive": false,
+      "explanation": "double.parse даёт double."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(10.runtimeType);`?",
+      "answers": [
+        "int"
+      ],
+      "caseSensitive": false,
+      "explanation": "Целое число — int."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('5'.runtimeType);`?",
+      "answers": [
+        "String"
+      ],
+      "caseSensitive": false,
+      "explanation": "В кавычках — String."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Логика",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(4 > 7);`?",
       "answers": [
         "false"
       ],
       "caseSensitive": false,
-      "explanation": "4 в множестве нет."
+      "explanation": "Сравнение даёт true или false."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `[5, 1, 4].reduce((a, b) => a > b ? a : b)`?",
+      "prompt": "Что выведет `print(-7.abs());`?",
       "answers": [
-        "5"
+        "-7"
       ],
       "caseSensitive": false,
-      "explanation": "reduce сравнивает попарно и оставляет большее — это максимум."
+      "explanation": "Унарный минус применяется после вызова: -(7.abs())."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `int.tryParse('abc')`?",
+      "prompt": "Что выведет `print((-7).abs());`?",
       "answers": [
-        "null"
+        "7"
       ],
       "caseSensitive": false,
-      "explanation": "tryParse не падает, а возвращает null."
+      "explanation": "abs — модуль числа."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `'abc'.split('').reversed.join()`?",
+      "prompt": "Что выведет `print(2.6.round());`?",
       "answers": [
-        "cba"
+        "3"
       ],
       "caseSensitive": false,
-      "explanation": "split('') даёт буквы, reversed переворачивает, join склеивает."
+      "explanation": "round — ближайшее целое."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Циклы",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `[1, 2, 3].sublist(1).length`?",
+      "prompt": "Что выведет код?\n```dart\nvar x = 1;\nfor (var i = 0; i < 3; i++) {\n  x *= 2;\n}\nprint(x);\n```",
+      "answers": [
+        "8"
+      ],
+      "caseSensitive": false,
+      "explanation": "1 → 2 → 4 → 8."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Map",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print({'a': 1, 'b': 2}.length);`?",
       "answers": [
         "2"
       ],
       "caseSensitive": false,
-      "explanation": "sublist(1) — с индекса 1 до конца: [2, 3]."
+      "explanation": "Две пары."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Map",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `'Dart'.toUpperCase()`?",
+      "prompt": "Что выведет `print({'x': 5}['x']);`?",
       "answers": [
-        "DART"
+        "5"
       ],
       "caseSensitive": false,
-      "explanation": "Все буквы заглавные."
+      "explanation": "Значение по ключу."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Map",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Какой оператор подставляет значение, если слева null?",
+      "prompt": "Что выведет `print({'x': 5}.containsKey('y'));`?",
       "answers": [
-        "??"
+        "false"
       ],
       "caseSensitive": false,
-      "explanation": "a ?? b — если a равно null, берётся b."
+      "explanation": "Ключа y нет."
     },
     {
       "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
+      "topic": "Null",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Каким словом класс наследует другой класс?",
+      "prompt": "Что выведет код?\n```dart\nint? n;\nprint(n ?? 0);\n```",
       "answers": [
-        "extends"
+        "0"
       ],
       "caseSensitive": false,
-      "explanation": "class Cat extends Animal { … }"
-    },
-    {
-      "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Какое слово объявляет константу времени компиляции?",
-      "answers": [
-        "const"
-      ],
-      "caseSensitive": false,
-      "explanation": "const pi = 3.14; — значение известно до запуска."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Какой тип у `[1, 'a']`?",
-      "answers": [
-        "List<Object>"
-      ],
-      "caseSensitive": false,
-      "explanation": "Общий тип int и String — Object."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Dart",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `[3, 1, 2].length + {'a': 1}.length`?",
-      "answers": [
-        "4"
-      ],
-      "caseSensitive": false,
-      "explanation": "3 элемента в списке + 1 пара в Map."
+      "explanation": "n — null, ?? подставляет 0."
     }
   ]
 }

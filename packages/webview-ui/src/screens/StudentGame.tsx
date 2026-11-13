@@ -26,7 +26,7 @@ export function StudentGame({ session }: { session: SessionSnapshot }) {
     <div className="flex min-h-full flex-col">
       <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-2.5">
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-accent/15 px-2.5 py-1 text-[12px] font-semibold text-accent">{t(`game.${g.kind}` as MessageKey)}</span>
+          <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] font-medium text-fg">{t(`game.${g.kind}` as MessageKey)}</span>
           {g.kind === "quiz" && g.index >= 0 && g.phase !== "over" && <span className="text-[13px] text-muted tabular">{t("game.question", { n: g.index + 1, total: g.count })}</span>}
         </div>
         <div className="flex items-center gap-2">
@@ -112,7 +112,7 @@ function Question({ g, left }: { g: GameSnapshot; left: number }) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 500, damping: 20 }}
-              className="flex size-10 items-center justify-center rounded-full bg-accent text-white"
+              className="flex size-10 items-center justify-center rounded-full bg-accent text-on-accent"
             >
               <Check size={22} strokeWidth={3} />
             </motion.span>
@@ -155,10 +155,10 @@ function Reveal({ g, meId }: { g: GameSnapshot; meId?: string }) {
           <Icon size={28} strokeWidth={3} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-[22px] font-bold leading-tight">{title}</div>
+          <div className="text-[20px] font-bold leading-tight">{title}</div>
           {place > 0 && <div className="text-[14px] opacity-90">{t("game.place", { n: place })}</div>}
         </div>
-        {ok && r && <div className="text-[26px] font-bold tabular">+{r.points}</div>}
+        {ok && r && <div className="text-[28px] font-bold tabular">+{r.points}</div>}
       </motion.div>
 
       <QuestionView
@@ -169,13 +169,13 @@ function Reveal({ g, meId }: { g: GameSnapshot; meId?: string }) {
 
       {g.reveal?.explanation && (
         <Card className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("game.why")}</div>
+          <div className="text-[12px] font-medium text-muted">{t("game.why")}</div>
           <p className="mt-1 text-[14px]">{g.reveal.explanation}</p>
         </Card>
       )}
 
       <div>
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">{t("game.top")}</div>
+        <div className="mb-2 text-[12px] font-medium text-muted">{t("game.top")}</div>
         <Leaderboard rows={g.leaders} limit={5} meId={meId} compact />
       </div>
     </div>
@@ -192,23 +192,23 @@ function StudentResults({ g, meId, teamNames }: { g: GameSnapshot; meId?: string
   }, []);
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-center text-[26px] font-bold">{t("game.results")}</h1>
+      <h1 className="text-center text-[28px] font-bold">{t("game.results")}</h1>
       {(g.kind === "tug" || (g.kind === "race" && g.teamScores.length > 0)) && <WinnerBanner winner={g.winner} names={teamNames} />}
       <Podium rows={g.leaders} />
       {me && (
         <Card className="flex items-center gap-4 p-4">
-          <span className="flex size-11 items-center justify-center rounded-full bg-accent text-white">
+          <span className="flex size-11 items-center justify-center rounded-full bg-accent text-on-accent">
             <Trophy size={22} />
           </span>
           <div className="flex-1">
             <div className="text-[12px] text-muted">{t("game.yourPlace")}</div>
-            <div className="text-[22px] font-bold tabular">
+            <div className="text-[20px] font-bold tabular">
               {idx + 1} <span className="text-[14px] font-medium text-muted">/ {g.leaders.length}</span>
             </div>
           </div>
           <div className="text-right">
             <div className="text-[12px] text-muted">{t("game.score")}</div>
-            <div className="text-[22px] font-bold tabular">{me.score}</div>
+            <div className="text-[20px] font-bold tabular">{me.score}</div>
           </div>
         </Card>
       )}

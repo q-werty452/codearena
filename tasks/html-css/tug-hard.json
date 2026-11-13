@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "game": "tug",
+  "title": "Канат: HTML и CSS — сложный уровень",
+  "author": "q-werty452",
+  "description": "22 быстрых вопросов: свойство, значение или тег одним словом.",
+  "tasks": [
+    {
+      "type": "short_answer",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Какое значение display делает контейнер flex?",
+      "answers": [
+        "flex"
+      ],
+      "caseSensitive": false,
+      "explanation": "display: flex."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Свойство для переноса flex-элементов на новую строку?",
+      "answers": [
+        "flex-wrap"
+      ],
+      "caseSensitive": false,
+      "explanation": "flex-wrap: wrap."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Какое свойство меняет направление flex на столбец?",
+      "answers": [
+        "flex-direction"
+      ],
+      "caseSensitive": false,
+      "explanation": "flex-direction: column."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Значение justify-content, при котором элементы по центру?",
+      "answers": [
+        "center"
+      ],
+      "caseSensitive": false,
+      "explanation": "justify-content: center."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Свойство для отступа между элементами flex/grid?",
+      "answers": [
+        "gap"
+      ],
+      "caseSensitive": false,
+      "explanation": "gap."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Единица «доля свободного места» в grid?",
+      "answers": [
+        "fr"
+      ],
+      "caseSensitive": false,
+      "explanation": "1fr, 2fr…"
+    },
+    {
+      "type": "short_answer",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Функция, повторяющая колонки: ___(3, 1fr)",
+      "answers": [
+        "repeat"
+      ],
+      "caseSensitive": false,
+      "explanation": "repeat(3, 1fr)."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Блочная модель",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Значение box-sizing, при котором padding входит в width?",
+      "answers": [
+        "border-box"
+      ],
+      "caseSensitive": false,
+      "explanation": "box-sizing: border-box."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Какое значение position прилипает при прокрутке?",
+      "answers": [
+        "sticky"
+      ],
+      "caseSensitive": false,
+      "explanation": "position: sticky."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Свойство, задающее порядок слоёв по оси Z?",
+      "answers": [
+        "z-index"
+      ],
+      "caseSensitive": false,
+      "explanation": "z-index."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Единицы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Сколько px в 2rem, если у html font-size 16px?",
+      "answers": [
+        "32",
+        "32px"
+      ],
+      "caseSensitive": false,
+      "explanation": "2 × 16."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Единицы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Единица: 1% ширины окна браузера?",
+      "answers": [
+        "vw"
+      ],
+      "caseSensitive": false,
+      "explanation": "vw — viewport width."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Переменные",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Как прочитать CSS-переменную --gap? ___(--gap)",
+      "answers": [
+        "var"
+      ],
+      "caseSensitive": false,
+      "explanation": "var(--gap)."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Псевдоклассы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Псевдокласс при наведении мыши?",
+      "answers": [
+        ":hover",
+        "hover"
+      ],
+      "caseSensitive": false,
+      "explanation": ":hover."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Псевдоклассы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Псевдокласс для поля в фокусе?",
+      "answers": [
+        ":focus",
+        "focus"
+      ],
+      "caseSensitive": false,
+      "explanation": ":focus."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Псевдоэлементы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Псевдоэлемент «перед содержимым»?",
+      "answers": [
+        "::before",
+        ":before",
+        "before"
+      ],
+      "caseSensitive": false,
+      "explanation": "::before с content."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут картинки с описанием для незрячих?",
+      "answers": [
+        "alt"
+      ],
+      "caseSensitive": false,
+      "explanation": "alt."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Формы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Атрибут label, связывающий его с полем по id?",
+      "answers": [
+        "for"
+      ],
+      "caseSensitive": false,
+      "explanation": "<label for=\"email\">."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Формы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Тип input для ввода email?",
+      "answers": [
+        "email"
+      ],
+      "caseSensitive": false,
+      "explanation": "type=\"email\"."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Формы",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Тег для группы полей формы с рамкой?",
+      "answers": [
+        "fieldset",
+        "<fieldset>"
+      ],
+      "caseSensitive": false,
+      "explanation": "fieldset + legend."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Анимация",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "Свойство плавной анимации изменения стилей?",
+      "answers": [
+        "transition"
+      ],
+      "caseSensitive": false,
+      "explanation": "transition: all .2s."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Адаптивность",
+      "difficulty": "hard",
+      "timeLimitSec": 60,
+      "prompt": "At-правило для адаптивной вёрстки?",
+      "answers": [
+        "@media",
+        "media"
+      ],
+      "caseSensitive": false,
+      "explanation": "@media (max-width: …)."
+    }
+  ]
+}

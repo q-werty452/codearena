@@ -1,255 +1,309 @@
 {
   "version": 1,
   "game": "tug",
-  "title": "Канат: Python — средний уровень",
+  "title": "Канат: Python — базовый уровень",
   "author": "q-werty452",
-  "description": "Быстрые ответы: срезы, операторы с подвохом, методы строк, списков и словарей, исключения. 20 заданий.",
+  "description": "25 коротких вопросов: ответ — число или одно слово.",
   "tasks": [
     {
       "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `len(\"привет мир\")`?",
-      "answers": [
-        "10"
-      ],
-      "caseSensitive": false,
-      "explanation": "Пробел — тоже символ: 6 + 1 + 3."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `\"abc\"[::-1]`?",
-      "answers": [
-        "cba",
-        "'cba'",
-        "\"cba\""
-      ],
-      "caseSensitive": false,
-      "explanation": "Шаг -1 идёт с конца — строка переворачивается."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `2 ** 3 ** 2`?",
-      "answers": [
-        "512"
-      ],
-      "caseSensitive": false,
-      "explanation": "Степень считается справа налево: 3 ** 2 = 9, потом 2 ** 9 = 512."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `-7 // 2`?",
-      "answers": [
-        "-4"
-      ],
-      "caseSensitive": false,
-      "explanation": "// округляет вниз, к меньшему числу: -3.5 → -4."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `int(3.9) + int(\"12\")`?",
-      "answers": [
-        "15"
-      ],
-      "caseSensitive": false,
-      "explanation": "int отбрасывает дробную часть, не округляет: 3 + 12."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `len([1, [2, 3], 4])`?",
+      "prompt": "Что выведет `print(10 // 3)`?",
       "answers": [
         "3"
       ],
       "caseSensitive": false,
-      "explanation": "Вложенный список — один элемент."
+      "explanation": "// — целочисленное деление."
     },
     {
       "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `\"banana\".find(\"n\")`?",
+      "prompt": "Что выведет `print(10 % 4)`?",
       "answers": [
         "2"
       ],
       "caseSensitive": false,
-      "explanation": "Индексы с нуля: b-0, a-1, n-2."
+      "explanation": "Остаток: 10 = 4·2 + 2."
     },
     {
       "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `\"banana\".count(\"an\")`?",
+      "prompt": "Что выведет `print(3 ** 2)`?",
+      "answers": [
+        "9"
+      ],
+      "caseSensitive": false,
+      "explanation": "3 в квадрате."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(len('кот'))`?",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false,
+      "explanation": "Три буквы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('abc'[1])`?",
+      "answers": [
+        "b"
+      ],
+      "caseSensitive": false,
+      "explanation": "Индекс 1 — второй символ."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('мама'.count('м'))`?",
       "answers": [
         "2"
       ],
       "caseSensitive": false,
-      "explanation": "«an» встречается два раза: b·an·an·a."
+      "explanation": "count считает вхождения."
     },
     {
       "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `round(2.5)`?",
+      "prompt": "Что выведет `print(len([1, 2, 3, 4]))`?",
       "answers": [
-        "2"
+        "4"
       ],
       "caseSensitive": false,
-      "explanation": "Python округляет .5 к ближайшему чётному: round(2.5) = 2, round(3.5) = 4."
+      "explanation": "Четыре элемента."
     },
     {
       "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `sum(range(1, 5))`?",
+      "prompt": "Что выведет `print([10, 20, 30][-1])`?",
       "answers": [
-        "10"
+        "30"
       ],
       "caseSensitive": false,
-      "explanation": "range(1, 5) — это 1, 2, 3, 4. Пятёрка не входит."
+      "explanation": "-1 — последний элемент."
     },
     {
       "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 60,
-      "prompt": "Что вернёт `bool([])`?",
-      "answers": [
-        "False"
-      ],
-      "caseSensitive": false,
-      "explanation": "Пустой список — ложь."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `len({\"a\": 1, \"b\": 2, \"a\": 3})`?",
-      "answers": [
-        "2"
-      ],
-      "caseSensitive": false,
-      "explanation": "Ключи словаря уникальны: второй «a» перезаписал первый."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `max([3, 7, 2], key=lambda x: -x)`?",
-      "answers": [
-        "2"
-      ],
-      "caseSensitive": false,
-      "explanation": "Сравниваются -3, -7, -2: наибольшее -2, значит вернётся 2."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `\"Hello World\".lower().count(\"o\")`?",
-      "answers": [
-        "2"
-      ],
-      "caseSensitive": false,
-      "explanation": "После lower «o» встречается в hello и в world."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Какое исключение будет при `10 / 0`?",
-      "answers": [
-        "ZeroDivisionError"
-      ],
-      "caseSensitive": false,
-      "explanation": "Деление на ноль — ZeroDivisionError."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Какое исключение будет при `int(\"abc\")`?",
-      "answers": [
-        "ValueError"
-      ],
-      "caseSensitive": false,
-      "explanation": "Тип правильный (строка), но значение не число — ValueError."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Каким словом вызвать метод родителя в наследнике?",
-      "answers": [
-        "super",
-        "super()"
-      ],
-      "caseSensitive": false,
-      "explanation": "super().__init__(...) вызывает конструктор родителя."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Какой метод словаря возвращает пары ключ-значение?",
-      "answers": [
-        "items",
-        "items()",
-        ".items()"
-      ],
-      "caseSensitive": false,
-      "explanation": "for key, value in d.items(): …"
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `\"a-b-c\".split(\"-\", 1)[1]`?",
-      "answers": [
-        "b-c",
-        "'b-c'"
-      ],
-      "caseSensitive": false,
-      "explanation": "Второй аргумент — сколько раз резать. Один разрез: ['a', 'b-c']."
-    },
-    {
-      "type": "short_answer",
-      "topic": "Python",
-      "difficulty": "medium",
-      "timeLimitSec": 60,
-      "prompt": "Что вернёт `[1, 2, 3][-1] * 2`?",
+      "prompt": "Что выведет `print(sum([1, 2, 3]))`?",
       "answers": [
         "6"
       ],
       "caseSensitive": false,
-      "explanation": "-1 — последний элемент, 3 * 2."
+      "explanation": "sum складывает элементы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Функции",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(max(4, 9, 2))`?",
+      "answers": [
+        "9"
+      ],
+      "caseSensitive": false,
+      "explanation": "Наибольшее из чисел."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Функции",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(abs(-7))`?",
+      "answers": [
+        "7"
+      ],
+      "caseSensitive": false,
+      "explanation": "abs — модуль числа."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Функции",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(round(2.6))`?",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false,
+      "explanation": "Округление до ближайшего целого."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(int('42') * 2)`?",
+      "answers": [
+        "84"
+      ],
+      "caseSensitive": false,
+      "explanation": "Сначала строку в число."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(str(5) + '0')`?",
+      "answers": [
+        "50"
+      ],
+      "caseSensitive": false,
+      "explanation": "Склеивание строк."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(type(3.0).__name__)`?",
+      "answers": [
+        "float"
+      ],
+      "caseSensitive": false,
+      "explanation": "Число с точкой — float."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Типы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(type('3').__name__)`?",
+      "answers": [
+        "str"
+      ],
+      "caseSensitive": false,
+      "explanation": "В кавычках — строка."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Логика",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(5 > 3)`?",
+      "answers": [
+        "True"
+      ],
+      "caseSensitive": false,
+      "explanation": "Сравнение даёт True или False."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Логика",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(not True)`?",
+      "answers": [
+        "False"
+      ],
+      "caseSensitive": false,
+      "explanation": "not меняет значение на противоположное."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Циклы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(len(range(5)))`?",
+      "answers": [
+        "5"
+      ],
+      "caseSensitive": false,
+      "explanation": "range(5): 0, 1, 2, 3, 4."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Циклы",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет код?\n```python\nx = 1\nfor i in range(3):\n    x *= 2\nprint(x)\n```",
+      "answers": [
+        "8"
+      ],
+      "caseSensitive": false,
+      "explanation": "1 → 2 → 4 → 8."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('Привет'.lower())`?",
+      "answers": [
+        "привет"
+      ],
+      "caseSensitive": false,
+      "explanation": "lower — строчные буквы."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print('a,b,c'.split(',')[2])`?",
+      "answers": [
+        "c"
+      ],
+      "caseSensitive": false,
+      "explanation": "split режет по запятой: ['a', 'b', 'c']."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Словари",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print({'x': 5}['x'])`?",
+      "answers": [
+        "5"
+      ],
+      "caseSensitive": false,
+      "explanation": "Значение по ключу x."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Словари",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(len({'a': 1, 'b': 2}))`?",
+      "answers": [
+        "2"
+      ],
+      "caseSensitive": false,
+      "explanation": "Две пары ключ-значение."
+    },
+    {
+      "type": "short_answer",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 60,
+      "prompt": "Что выведет `print(min([7, 3, 5]))`?",
+      "answers": [
+        "3"
+      ],
+      "caseSensitive": false,
+      "explanation": "Наименьший элемент."
     }
   ]
 }

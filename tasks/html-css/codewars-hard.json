@@ -1,0 +1,580 @@
+{
+  "version": 1,
+  "game": "codewars",
+  "title": "Codewars: HTML и CSS — сложный уровень",
+  "author": "q-werty452",
+  "description": "16 задач на вёрстку: сверстай — правила проверят.",
+  "tasks": [
+    {
+      "type": "code",
+      "topic": "Flexbox",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Шапка .header: flex, логотип слева, меню справа (space-between), всё по центру по вертикали, отступ между пунктами меню .menu — gap 24px (тоже flex).",
+      "starter": ".header {\n\n}\n.menu {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".header",
+          "css": {
+            "property": "display",
+            "value": "flex"
+          },
+          "label": ".header { display: flex }"
+        },
+        {
+          "selector": ".header",
+          "css": {
+            "property": "justify-content",
+            "value": "space-between"
+          },
+          "label": ".header { justify-content: space-between }"
+        },
+        {
+          "selector": ".header",
+          "css": {
+            "property": "align-items",
+            "value": "center"
+          },
+          "label": ".header { align-items: center }"
+        },
+        {
+          "selector": ".menu",
+          "css": {
+            "property": "display",
+            "value": "flex"
+          },
+          "label": ".menu { display: flex }"
+        },
+        {
+          "selector": ".menu",
+          "css": {
+            "property": "gap",
+            "value": "24px"
+          },
+          "label": ".menu { gap: 24px }"
+        }
+      ],
+      "solution": ".header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n.menu {\n  display: flex;\n  gap: 24px;\n}",
+      "explanation": "Два flex-контейнера: внешний раскидывает, внутренний — с gap."
+    },
+    {
+      "type": "code",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Сетка .cards: колонки repeat(auto-fill, minmax(220px, 1fr)) и gap 16px.",
+      "starter": ".cards {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".cards",
+          "css": {
+            "property": "display",
+            "value": "grid"
+          },
+          "label": ".cards { display: grid }"
+        },
+        {
+          "selector": ".cards",
+          "css": {
+            "property": "grid-template-columns",
+            "value": "repeat(auto-fill, minmax(220px, 1fr))"
+          },
+          "label": ".cards { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) }"
+        },
+        {
+          "selector": ".cards",
+          "css": {
+            "property": "gap",
+            "value": "16px"
+          },
+          "label": ".cards { gap: 16px }"
+        }
+      ],
+      "solution": ".cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));\n  gap: 16px;\n}",
+      "explanation": "Адаптивная сетка без медиазапросов."
+    },
+    {
+      "type": "code",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Раскладка страницы .layout на grid: колонки 240px и 1fr, строки auto 1fr auto, высота минимум 100vh.",
+      "starter": ".layout {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".layout",
+          "css": {
+            "property": "display",
+            "value": "grid"
+          },
+          "label": ".layout { display: grid }"
+        },
+        {
+          "selector": ".layout",
+          "css": {
+            "property": "grid-template-columns",
+            "value": "240px 1fr"
+          },
+          "label": ".layout { grid-template-columns: 240px 1fr }"
+        },
+        {
+          "selector": ".layout",
+          "css": {
+            "property": "grid-template-rows",
+            "value": "auto 1fr auto"
+          },
+          "label": ".layout { grid-template-rows: auto 1fr auto }"
+        },
+        {
+          "selector": ".layout",
+          "css": {
+            "property": "min-height",
+            "value": "100vh"
+          },
+          "label": ".layout { min-height: 100vh }"
+        }
+      ],
+      "solution": ".layout {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n  grid-template-rows: auto 1fr auto;\n  min-height: 100vh;\n}",
+      "explanation": "Классический каркас: меню слева, контент справа, подвал внизу."
+    },
+    {
+      "type": "code",
+      "topic": "Grid",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Заголовок .hero растянут на 2 колонки сетки (span 2) и выровнен по центру текстом.",
+      "starter": ".hero {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".hero",
+          "css": {
+            "property": "grid-column",
+            "value": "span 2"
+          },
+          "label": ".hero { grid-column: span 2 }"
+        },
+        {
+          "selector": ".hero",
+          "css": {
+            "property": "text-align",
+            "value": "center"
+          },
+          "label": ".hero { text-align: center }"
+        }
+      ],
+      "solution": ".hero {\n  grid-column: span 2;\n  text-align: center;\n}",
+      "explanation": "grid-column: span 2."
+    },
+    {
+      "type": "code",
+      "topic": "Позиционирование",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Модальное окно: .overlay закрывает весь экран (fixed, inset 0, полупрозрачный фон rgba(0, 0, 0, 0.5)), а .modal по центру — через flex у .overlay.",
+      "starter": ".overlay {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "position",
+            "value": "fixed"
+          },
+          "label": ".overlay { position: fixed }"
+        },
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "inset",
+            "value": "0"
+          },
+          "label": ".overlay { inset: 0 }"
+        },
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "background",
+            "value": "rgba(0, 0, 0, 0.5)"
+          },
+          "label": ".overlay { background: rgba(0, 0, 0, 0.5) }"
+        },
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "display",
+            "value": "flex"
+          },
+          "label": ".overlay { display: flex }"
+        },
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "justify-content",
+            "value": "center"
+          },
+          "label": ".overlay { justify-content: center }"
+        },
+        {
+          "selector": ".overlay",
+          "css": {
+            "property": "align-items",
+            "value": "center"
+          },
+          "label": ".overlay { align-items: center }"
+        }
+      ],
+      "solution": ".overlay {\n  position: fixed;\n  inset: 0;\n  background: rgba(0, 0, 0, 0.5);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}",
+      "explanation": "fixed + inset: 0 растягивает на весь экран, flex центрирует окно."
+    },
+    {
+      "type": "code",
+      "topic": "Анимация",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Кнопка .btn: плавная смена фона за 0.2s (transition: background 0.2s), при наведении фон #4338ca.",
+      "starter": ".btn {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".btn",
+          "css": {
+            "property": "transition",
+            "value": "background 0.2s"
+          },
+          "label": ".btn { transition: background 0.2s }"
+        },
+        {
+          "selector": ".btn:hover",
+          "css": {
+            "property": "background",
+            "value": "#4338ca"
+          },
+          "label": ".btn:hover { background: #4338ca }"
+        }
+      ],
+      "solution": ".btn {\n  background: #4f46e5;\n  transition: background 0.2s;\n}\n.btn:hover {\n  background: #4338ca;\n}",
+      "explanation": "transition на самой кнопке, новый фон — в :hover."
+    },
+    {
+      "type": "code",
+      "topic": "Переменные",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Тема через переменные: в :root --bg: #ffffff и --text: #111111; у body фон var(--bg) и цвет var(--text).",
+      "starter": ":root {\n\n}\nbody {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ":root",
+          "css": {
+            "property": "--bg",
+            "value": "#ffffff"
+          },
+          "label": ":root { --bg: #ffffff }"
+        },
+        {
+          "selector": ":root",
+          "css": {
+            "property": "--text",
+            "value": "#111111"
+          },
+          "label": ":root { --text: #111111 }"
+        },
+        {
+          "selector": "body",
+          "css": {
+            "property": "background",
+            "value": "var(--bg)"
+          },
+          "label": "body { background: var(--bg) }"
+        },
+        {
+          "selector": "body",
+          "css": {
+            "property": "color",
+            "value": "var(--text)"
+          },
+          "label": "body { color: var(--text) }"
+        }
+      ],
+      "solution": ":root {\n  --bg: #ffffff;\n  --text: #111111;\n}\nbody {\n  background: var(--bg);\n  color: var(--text);\n}",
+      "explanation": "Переменные в :root, чтение через var()."
+    },
+    {
+      "type": "code",
+      "topic": "Псевдоклассы",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Полоски в таблице: у нечётных строк tr:nth-child(odd) фон #f4f4f5, у строки при наведении tr:hover — #e0e7ff.",
+      "starter": "tr:nth-child(odd) {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "tr:nth-child(odd)",
+          "css": {
+            "property": "background",
+            "value": "#f4f4f5"
+          },
+          "label": "tr:nth-child(odd) { background: #f4f4f5 }"
+        },
+        {
+          "selector": "tr:hover",
+          "css": {
+            "property": "background",
+            "value": "#e0e7ff"
+          },
+          "label": "tr:hover { background: #e0e7ff }"
+        }
+      ],
+      "solution": "tr:nth-child(odd) {\n  background: #f4f4f5;\n}\ntr:hover {\n  background: #e0e7ff;\n}",
+      "explanation": "nth-child(odd) и :hover."
+    },
+    {
+      "type": "code",
+      "topic": "Адаптивность",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Адаптивность: .sidebar по умолчанию width 280px, а в @media (max-width: 768px) — display: none.",
+      "starter": ".sidebar {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".sidebar",
+          "css": {
+            "property": "width",
+            "value": "280px"
+          },
+          "label": ".sidebar { width: 280px }"
+        },
+        {
+          "selector": ".sidebar",
+          "css": {
+            "property": "display",
+            "value": "none"
+          },
+          "label": "на узком экране .sidebar { display: none }"
+        }
+      ],
+      "solution": ".sidebar {\n  width: 280px;\n}\n@media (max-width: 768px) {\n  .sidebar {\n    display: none;\n  }\n}",
+      "explanation": "Медиазапрос прячет боковую панель на узком экране."
+    },
+    {
+      "type": "code",
+      "topic": "Формы",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Обязательная галочка-согласие: <input type=\"checkbox\" id=\"agree\" required> и <label for=\"agree\"> с текстом «Согласен с правилами», плюс кнопка submit.",
+      "starter": "<form>\n\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "input[type=\"checkbox\"]#agree[required]",
+          "label": "обязательный чекбокс #agree"
+        },
+        {
+          "selector": "label[for=\"agree\"]",
+          "label": "подпись «Согласен с правилами»",
+          "text": "Согласен с правилами"
+        },
+        {
+          "selector": "button[type=\"submit\"]",
+          "label": "кнопка submit"
+        }
+      ],
+      "solution": "<form>\n  <input type=\"checkbox\" id=\"agree\" required>\n  <label for=\"agree\">Согласен с правилами</label>\n  <button type=\"submit\">Отправить</button>\n</form>",
+      "explanation": "required не даст отправить без галочки, label for — кликабельная подпись."
+    },
+    {
+      "type": "code",
+      "topic": "Формы",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Поле телефона: <input type=\"tel\"> с id=\"phone\", шаблоном pattern=\"[0-9]{10}\", подсказкой placeholder и подписью label for=\"phone\".",
+      "starter": "<form>\n\n</form>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "input[type=\"tel\"]#phone[pattern=\"[0-9]{10}\"]",
+          "label": "tel с pattern из 10 цифр"
+        },
+        {
+          "selector": "input#phone[placeholder]",
+          "label": "есть placeholder"
+        },
+        {
+          "selector": "label[for=\"phone\"]",
+          "label": "подпись к полю"
+        }
+      ],
+      "solution": "<form>\n  <label for=\"phone\">Телефон</label>\n  <input type=\"tel\" id=\"phone\" pattern=\"[0-9]{10}\" placeholder=\"0555123456\">\n</form>",
+      "explanation": "pattern проверяет формат прямо в браузере."
+    },
+    {
+      "type": "code",
+      "topic": "Доступность",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Навигация: <nav aria-label=\"Главное меню\"> со списком ul из 3 ссылок; текущая ссылка с aria-current=\"page\".",
+      "starter": "<nav>\n\n</nav>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "nav[aria-label=\"Главное меню\"]",
+          "label": "nav с aria-label"
+        },
+        {
+          "selector": "nav ul li a",
+          "label": "3 ссылки в списке",
+          "minCount": 3
+        },
+        {
+          "selector": "a[aria-current=\"page\"]",
+          "label": "текущая ссылка aria-current=\"page\""
+        }
+      ],
+      "solution": "<nav aria-label=\"Главное меню\">\n  <ul>\n    <li><a href=\"/\" aria-current=\"page\">Главная</a></li>\n    <li><a href=\"/about\">О нас</a></li>\n    <li><a href=\"/contacts\">Контакты</a></li>\n  </ul>\n</nav>",
+      "explanation": "aria-current подсказывает читалке, где пользователь сейчас."
+    },
+    {
+      "type": "code",
+      "topic": "Семантика",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Картинка с подписью: <figure> с <img> (alt обязателен) и <figcaption> «Иссык-Куль летом».",
+      "starter": "<!-- картинка с подписью -->",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "figure img",
+          "label": "картинка внутри figure",
+          "everyHasAttr": "alt"
+        },
+        {
+          "selector": "figure figcaption",
+          "label": "подпись «Иссык-Куль летом»",
+          "text": "Иссык-Куль летом"
+        }
+      ],
+      "solution": "<figure>\n  <img src=\"lake.jpg\" alt=\"Озеро Иссык-Куль в солнечный день\">\n  <figcaption>Иссык-Куль летом</figcaption>\n</figure>",
+      "explanation": "figure + figcaption — семантическая подпись к изображению."
+    },
+    {
+      "type": "code",
+      "topic": "Таблицы",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Таблица с заголовком: <table> с <caption> «Расписание», шапкой thead с 3 th и минимум 2 строками в tbody.",
+      "starter": "<table>\n\n</table>",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "table caption",
+          "label": "caption «Расписание»",
+          "text": "Расписание"
+        },
+        {
+          "selector": "thead th",
+          "label": "3 заголовка th",
+          "minCount": 3
+        },
+        {
+          "selector": "tbody tr",
+          "label": "минимум 2 строки",
+          "minCount": 2
+        }
+      ],
+      "solution": "<table>\n  <caption>Расписание</caption>\n  <thead>\n    <tr><th>День</th><th>Пара</th><th>Кабинет</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>Пн</td><td>HTML</td><td>204</td></tr>\n    <tr><td>Вт</td><td>Python</td><td>301</td></tr>\n  </tbody>\n</table>",
+      "explanation": "caption озаглавливает таблицу для всех, включая читалки."
+    },
+    {
+      "type": "code",
+      "topic": "Анимация",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "css",
+      "prompt": "Карточка .card приподнимается при наведении: border-radius 12px, box-shadow 0 4px 12px rgba(0, 0, 0, 0.1), transition transform 0.2s; у .card:hover — transform translateY(-4px).",
+      "starter": ".card {\n\n}",
+      "tests": [],
+      "rules": [
+        {
+          "selector": ".card",
+          "css": {
+            "property": "border-radius",
+            "value": "12px"
+          },
+          "label": ".card { border-radius: 12px }"
+        },
+        {
+          "selector": ".card",
+          "css": {
+            "property": "box-shadow",
+            "value": "0 4px 12px rgba(0, 0, 0, 0.1)"
+          },
+          "label": ".card { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) }"
+        },
+        {
+          "selector": ".card",
+          "css": {
+            "property": "transition",
+            "value": "transform 0.2s"
+          },
+          "label": ".card { transition: transform 0.2s }"
+        },
+        {
+          "selector": ".card:hover",
+          "css": {
+            "property": "transform",
+            "value": "translateY(-4px)"
+          },
+          "label": ".card:hover { transform: translateY(-4px) }"
+        }
+      ],
+      "solution": ".card {\n  border-radius: 12px;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);\n  transition: transform 0.2s;\n}\n.card:hover {\n  transform: translateY(-4px);\n}",
+      "explanation": "transform двигает карточку без перестройки страницы, transition делает это плавно."
+    },
+    {
+      "type": "code",
+      "topic": "Медиа",
+      "difficulty": "hard",
+      "timeLimitSec": 420,
+      "language": "html",
+      "prompt": "Видео урока: <video> с controls и источником <source src=\"lesson.mp4\" type=\"video/mp4\">, плюс субтитры <track kind=\"captions\" srclang=\"ru\">.",
+      "starter": "<!-- видео -->",
+      "tests": [],
+      "rules": [
+        {
+          "selector": "video[controls]",
+          "label": "video с controls"
+        },
+        {
+          "selector": "video source[type=\"video/mp4\"]",
+          "label": "источник mp4"
+        },
+        {
+          "selector": "video track[kind=\"captions\"][srclang=\"ru\"]",
+          "label": "русские субтитры"
+        }
+      ],
+      "solution": "<video controls>\n  <source src=\"lesson.mp4\" type=\"video/mp4\">\n  <track kind=\"captions\" src=\"lesson.vtt\" srclang=\"ru\" label=\"Русский\">\n</video>",
+      "explanation": "Субтитры через track делают видео доступным для неслышащих."
+    }
+  ]
+}

@@ -1,409 +1,425 @@
 {
   "version": 1,
   "game": "codewars",
-  "title": "Codewars: Python — средний уровень",
+  "title": "Codewars: Python — базовый уровень",
   "author": "q-werty452",
-  "description": "Функции на списки, строки и словари, рекурсия, классы. Задачи из практики колледжа: заказы, меню, пароли. 16 задач.",
+  "description": "16 задач на функции: напиши — тесты проверят.",
   "tasks": [
     {
       "type": "code",
-      "topic": "Списки",
-      "difficulty": "medium",
+      "topic": "Функции",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "Верни второе по величине РАЗНОЕ число списка (в списке минимум два разных числа).",
-      "starter": "def second_largest(nums):\n    pass",
+      "prompt": "Верни площадь прямоугольника со сторонами a и b.",
+      "starter": "def area(a, b):\n    pass",
       "tests": [
         {
-          "call": "second_largest([3, 1, 4, 4, 2])",
-          "expected": "3"
+          "call": "area(3, 4)",
+          "expected": "12"
         },
         {
-          "call": "second_largest([10, 20])",
+          "call": "area(5, 5)",
+          "expected": "25"
+        },
+        {
+          "call": "area(0, 7)",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "def area(a, b):\n    return a * b",
+      "explanation": "Площадь — произведение сторон."
+    },
+    {
+      "type": "code",
+      "topic": "Условия",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни большее из двух чисел (не используя max).",
+      "starter": "def bigger(a, b):\n    pass",
+      "tests": [
+        {
+          "call": "bigger(3, 8)",
+          "expected": "8"
+        },
+        {
+          "call": "bigger(10, 2)",
           "expected": "10"
         },
         {
-          "call": "second_largest([-1, -5, -3])",
-          "expected": "-3"
+          "call": "bigger(5, 5)",
+          "expected": "5"
         }
       ],
       "rules": [],
-      "solution": "def second_largest(nums):\n    return sorted(set(nums))[-2]",
-      "explanation": "Повторы убираем через set, потом сортируем. Вариант без сортировки — один проход с двумя переменными."
+      "solution": "def bigger(a, b):\n    if a > b:\n        return a\n    return b",
+      "explanation": "Обычное сравнение через if."
     },
     {
       "type": "code",
-      "topic": "Словари",
-      "difficulty": "medium",
+      "topic": "Условия",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "Верни словарь: слово → его длина.",
-      "starter": "def word_lengths(text):\n    pass",
+      "prompt": "Верни True, если число чётное, иначе False.",
+      "starter": "def is_even(n):\n    pass",
       "tests": [
         {
-          "call": "word_lengths(\"кот и собака\")",
-          "expected": "{'кот': 3, 'и': 1, 'собака': 6}"
-        },
-        {
-          "call": "word_lengths(\"\")",
-          "expected": "{}"
-        }
-      ],
-      "rules": [],
-      "solution": "def word_lengths(text):\n    return {word: len(word) for word in text.split()}",
-      "explanation": "Генератор словаря: {ключ: значение for …}."
-    },
-    {
-      "type": "code",
-      "topic": "Строки",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Сожми строку: «aaabccdd» → «a3b1c2d2».",
-      "starter": "def compress(s):\n    pass",
-      "tests": [
-        {
-          "call": "compress(\"aaabccdd\")",
-          "expected": "'a3b1c2d2'"
-        },
-        {
-          "call": "compress(\"\")",
-          "expected": "''"
-        },
-        {
-          "call": "compress(\"z\")",
-          "expected": "'z1'"
-        }
-      ],
-      "rules": [],
-      "solution": "def compress(s):\n    result = \"\"\n    i = 0\n    while i < len(s):\n        j = i\n        while j < len(s) and s[j] == s[i]:\n            j += 1\n        result += s[i] + str(j - i)\n        i = j\n    return result",
-      "explanation": "Считаем длину каждой серии одинаковых символов."
-    },
-    {
-      "type": "code",
-      "topic": "Строки",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Проверь, анаграммы ли строки (без учёта регистра и пробелов).",
-      "starter": "def is_anagram(a, b):\n    pass",
-      "tests": [
-        {
-          "call": "is_anagram(\"Листок\", \"Столик\")",
+          "call": "is_even(4)",
           "expected": "True"
         },
         {
-          "call": "is_anagram(\"кот\", \"ток \")",
-          "expected": "True"
-        },
-        {
-          "call": "is_anagram(\"кот\", \"кит\")",
+          "call": "is_even(7)",
           "expected": "False"
+        },
+        {
+          "call": "is_even(0)",
+          "expected": "True"
         }
       ],
       "rules": [],
-      "solution": "def is_anagram(a, b):\n    norm = lambda s: sorted(s.replace(\" \", \"\").lower())\n    return norm(a) == norm(b)",
-      "explanation": "Отсортированные буквы анаграмм совпадают."
+      "solution": "def is_even(n):\n    return n % 2 == 0",
+      "explanation": "Остаток от деления на 2."
     },
     {
       "type": "code",
-      "topic": "Циклы",
-      "difficulty": "medium",
+      "topic": "Операции",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "FizzBuzz: верни список строк от 1 до n; кратные 3 → «Fizz», кратные 5 → «Buzz», кратные 15 → «FizzBuzz».",
-      "starter": "def fizzbuzz(n):\n    pass",
+      "prompt": "Переведи градусы Цельсия в Фаренгейты: F = C × 9 / 5 + 32.",
+      "starter": "def to_fahrenheit(c):\n    pass",
       "tests": [
         {
-          "call": "fizzbuzz(5)",
-          "expected": "['1', '2', 'Fizz', '4', 'Buzz']"
+          "call": "to_fahrenheit(0)",
+          "expected": "32.0"
         },
         {
-          "call": "fizzbuzz(15)[-1]",
-          "expected": "'FizzBuzz'"
+          "call": "to_fahrenheit(100)",
+          "expected": "212.0"
         },
         {
-          "call": "fizzbuzz(0)",
+          "call": "to_fahrenheit(-40)",
+          "expected": "-40.0"
+        }
+      ],
+      "rules": [],
+      "solution": "def to_fahrenheit(c):\n    return c * 9 / 5 + 32",
+      "explanation": "Формула из условия."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни строку, повторённую n раз через пробел: repeat('ха', 3) → 'ха ха ха'.",
+      "starter": "def repeat(word, n):\n    pass",
+      "tests": [
+        {
+          "call": "repeat('ха', 3)",
+          "expected": "'ха ха ха'"
+        },
+        {
+          "call": "repeat('да', 1)",
+          "expected": "'да'"
+        },
+        {
+          "call": "repeat('a', 0)",
+          "expected": "''"
+        }
+      ],
+      "rules": [],
+      "solution": "def repeat(word, n):\n    return ' '.join([word] * n)",
+      "explanation": "Список из n одинаковых слов и join через пробел."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни количество гласных русских букв в слове (строчные).",
+      "starter": "def vowels(word):\n    pass",
+      "tests": [
+        {
+          "call": "vowels('молоко')",
+          "expected": "3"
+        },
+        {
+          "call": "vowels('ткч')",
+          "expected": "0"
+        },
+        {
+          "call": "vowels('ёлка')",
+          "expected": "2"
+        }
+      ],
+      "rules": [],
+      "solution": "def vowels(word):\n    return sum(1 for ch in word if ch in 'аеёиоуыэюя')",
+      "explanation": "Перебираем буквы и считаем те, что входят в строку гласных."
+    },
+    {
+      "type": "code",
+      "topic": "Строки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни слово задом наперёд.",
+      "starter": "def reverse(word):\n    pass",
+      "tests": [
+        {
+          "call": "reverse('кот')",
+          "expected": "'ток'"
+        },
+        {
+          "call": "reverse('a')",
+          "expected": "'a'"
+        },
+        {
+          "call": "reverse('')",
+          "expected": "''"
+        }
+      ],
+      "rules": [],
+      "solution": "def reverse(word):\n    return word[::-1]",
+      "explanation": "Срез с шагом -1."
+    },
+    {
+      "type": "code",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни сумму всех чисел списка (не используя sum).",
+      "starter": "def total(nums):\n    pass",
+      "tests": [
+        {
+          "call": "total([1, 2, 3])",
+          "expected": "6"
+        },
+        {
+          "call": "total([])",
+          "expected": "0"
+        },
+        {
+          "call": "total([-5, 5])",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "def total(nums):\n    s = 0\n    for n in nums:\n        s += n\n    return s",
+      "explanation": "Накопитель и цикл."
+    },
+    {
+      "type": "code",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни среднее арифметическое списка (список не пустой).",
+      "starter": "def average(nums):\n    pass",
+      "tests": [
+        {
+          "call": "average([2, 4])",
+          "expected": "3.0"
+        },
+        {
+          "call": "average([5])",
+          "expected": "5.0"
+        },
+        {
+          "call": "average([1, 2, 3, 4])",
+          "expected": "2.5"
+        }
+      ],
+      "rules": [],
+      "solution": "def average(nums):\n    return sum(nums) / len(nums)",
+      "explanation": "Сумма, делённая на количество."
+    },
+    {
+      "type": "code",
+      "topic": "Списки",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни новый список, в котором каждое число умножено на 2.",
+      "starter": "def doubled(nums):\n    pass",
+      "tests": [
+        {
+          "call": "doubled([1, 2, 3])",
+          "expected": "[2, 4, 6]"
+        },
+        {
+          "call": "doubled([])",
           "expected": "[]"
+        },
+        {
+          "call": "doubled([-1])",
+          "expected": "[-2]"
         }
       ],
       "rules": [],
-      "solution": "def fizzbuzz(n):\n    out = []\n    for i in range(1, n + 1):\n        if i % 15 == 0:\n            out.append(\"FizzBuzz\")\n        elif i % 3 == 0:\n            out.append(\"Fizz\")\n        elif i % 5 == 0:\n            out.append(\"Buzz\")\n        else:\n            out.append(str(i))\n    return out",
-      "explanation": "Проверку на 15 ставим первой, иначе сработает «Fizz»."
+      "solution": "def doubled(nums):\n    return [n * 2 for n in nums]",
+      "explanation": "Генератор списка или цикл с append."
     },
     {
       "type": "code",
-      "topic": "Рекурсия",
-      "difficulty": "medium",
+      "topic": "Списки",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "Разверни вложенные списки любой глубины в один: [1, [2, [3]]] → [1, 2, 3].",
-      "starter": "def flatten(items):\n    pass",
+      "prompt": "Верни количество положительных чисел в списке.",
+      "starter": "def count_positive(nums):\n    pass",
       "tests": [
         {
-          "call": "flatten([1, [2, [3, [4]]]])",
-          "expected": "[1, 2, 3, 4]"
-        },
-        {
-          "call": "flatten([[1, 2], [], [3]])",
-          "expected": "[1, 2, 3]"
-        },
-        {
-          "call": "flatten([])",
-          "expected": "[]"
-        }
-      ],
-      "rules": [],
-      "solution": "def flatten(items):\n    out = []\n    for x in items:\n        if isinstance(x, list):\n            out.extend(flatten(x))\n        else:\n            out.append(x)\n    return out",
-      "explanation": "Рекурсия: если элемент — список, разворачиваем его той же функцией."
-    },
-    {
-      "type": "code",
-      "topic": "Словари",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Сгруппируй слова по первой букве: словарь буква → список слов в исходном порядке.",
-      "starter": "def group_by_letter(words):\n    pass",
-      "tests": [
-        {
-          "call": "group_by_letter([\"арбуз\", \"банан\", \"абрикос\"])",
-          "expected": "{'а': ['арбуз', 'абрикос'], 'б': ['банан']}"
-        },
-        {
-          "call": "group_by_letter([])",
-          "expected": "{}"
-        }
-      ],
-      "rules": [],
-      "solution": "def group_by_letter(words):\n    groups = {}\n    for w in words:\n        groups.setdefault(w[0], []).append(w)\n    return groups",
-      "explanation": "setdefault создаёт пустой список для новой буквы."
-    },
-    {
-      "type": "code",
-      "topic": "Словари",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Заказы — список словарей {'user': имя, 'amount': сумма}. Верни имя того, кто потратил больше всех в сумме.",
-      "starter": "def top_customer(orders):\n    pass",
-      "tests": [
-        {
-          "call": "top_customer([{'user': 'Айгерим', 'amount': 500}, {'user': 'Мээрим', 'amount': 1500}, {'user': 'Айгерим', 'amount': 1200}])",
-          "expected": "'Айгерим'"
-        },
-        {
-          "call": "top_customer([{'user': 'Татты', 'amount': 1}])",
-          "expected": "'Татты'"
-        }
-      ],
-      "rules": [],
-      "solution": "def top_customer(orders):\n    totals = {}\n    for o in orders:\n        totals[o[\"user\"]] = totals.get(o[\"user\"], 0) + o[\"amount\"]\n    return max(totals, key=totals.get)",
-      "explanation": "Сначала суммы по каждому, потом максимум. Самый большой ОДИН заказ — ловушка: Айгерим выигрывает суммой двух."
-    },
-    {
-      "type": "code",
-      "topic": "Циклы",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Сумма цифр числа, пока не останется одна цифра: 9875 → 29 → 11 → 2.",
-      "starter": "def digital_root(n):\n    pass",
-      "tests": [
-        {
-          "call": "digital_root(9875)",
+          "call": "count_positive([1, -2, 3, 0])",
           "expected": "2"
         },
         {
-          "call": "digital_root(7)",
-          "expected": "7"
+          "call": "count_positive([])",
+          "expected": "0"
         },
         {
-          "call": "digital_root(10)",
+          "call": "count_positive([-1, -2])",
+          "expected": "0"
+        }
+      ],
+      "rules": [],
+      "solution": "def count_positive(nums):\n    return len([n for n in nums if n > 0])",
+      "explanation": "Отбираем n > 0 и считаем."
+    },
+    {
+      "type": "code",
+      "topic": "Условия",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни оценку по баллу: 90+ → 5, 75–89 → 4, 60–74 → 3, ниже → 2.",
+      "starter": "def mark(score):\n    pass",
+      "tests": [
+        {
+          "call": "mark(95)",
+          "expected": "5"
+        },
+        {
+          "call": "mark(75)",
+          "expected": "4"
+        },
+        {
+          "call": "mark(60)",
+          "expected": "3"
+        },
+        {
+          "call": "mark(10)",
+          "expected": "2"
+        }
+      ],
+      "rules": [],
+      "solution": "def mark(score):\n    if score >= 90:\n        return 5\n    if score >= 75:\n        return 4\n    if score >= 60:\n        return 3\n    return 2",
+      "explanation": "Проверяем от большего к меньшему."
+    },
+    {
+      "type": "code",
+      "topic": "Циклы",
+      "difficulty": "easy",
+      "timeLimitSec": 420,
+      "language": "python",
+      "prompt": "Верни факториал n (n ≥ 0): 5! = 120, 0! = 1.",
+      "starter": "def factorial(n):\n    pass",
+      "tests": [
+        {
+          "call": "factorial(5)",
+          "expected": "120"
+        },
+        {
+          "call": "factorial(0)",
+          "expected": "1"
+        },
+        {
+          "call": "factorial(1)",
           "expected": "1"
         }
       ],
       "rules": [],
-      "solution": "def digital_root(n):\n    while n >= 10:\n        n = sum(int(d) for d in str(n))\n    return n",
-      "explanation": "Повторяем сумму цифр, пока число двузначное и больше."
-    },
-    {
-      "type": "code",
-      "topic": "Списки",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Убери подряд идущие повторы: «AAABBBCCDAABBB» → ['A', 'B', 'C', 'D', 'A', 'B'].",
-      "starter": "def unique_in_order(s):\n    pass",
-      "tests": [
-        {
-          "call": "unique_in_order(\"AAABBBCCDAABBB\")",
-          "expected": "['A', 'B', 'C', 'D', 'A', 'B']"
-        },
-        {
-          "call": "unique_in_order(\"\")",
-          "expected": "[]"
-        }
-      ],
-      "rules": [],
-      "solution": "def unique_in_order(s):\n    out = []\n    for ch in s:\n        if not out or out[-1] != ch:\n            out.append(ch)\n    return out",
-      "explanation": "Сравниваем с последним добавленным, а не со всеми — повтор через промежуток остаётся."
+      "solution": "def factorial(n):\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result",
+      "explanation": "Перемножаем числа от 2 до n."
     },
     {
       "type": "code",
       "topic": "Словари",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "Меню — список словарей {'name', 'price', 'category'}. Верни словарь категория → количество блюд.",
-      "starter": "def count_by_category(menu):\n    pass",
+      "prompt": "Верни словарь «слово → длина»: lengths(['кот', 'ёж']) → {'кот': 3, 'ёж': 2}.",
+      "starter": "def lengths(words):\n    pass",
       "tests": [
         {
-          "call": "count_by_category([{'name': 'Плов', 'price': 250, 'category': 'горячее'}, {'name': 'Торт', 'price': 180, 'category': 'десерт'}, {'name': 'Манты', 'price': 200, 'category': 'горячее'}])",
-          "expected": "{'горячее': 2, 'десерт': 1}"
+          "call": "lengths(['кот', 'ёж'])",
+          "expected": "{'кот': 3, 'ёж': 2}"
         },
         {
-          "call": "count_by_category([])",
+          "call": "lengths([])",
           "expected": "{}"
         }
       ],
       "rules": [],
-      "solution": "def count_by_category(menu):\n    counts = {}\n    for dish in menu:\n        counts[dish[\"category\"]] = counts.get(dish[\"category\"], 0) + 1\n    return counts",
-      "explanation": "Классический подсчёт через get(ключ, 0) + 1."
-    },
-    {
-      "type": "code",
-      "topic": "lambda",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Верни названия n самых дешёвых блюд, от дешёвого к дорогому.",
-      "starter": "def cheapest(menu, n):\n    pass",
-      "tests": [
-        {
-          "call": "cheapest([{'name': 'Плов', 'price': 250}, {'name': 'Чай', 'price': 50}, {'name': 'Самса', 'price': 80}], 2)",
-          "expected": "['Чай', 'Самса']"
-        },
-        {
-          "call": "cheapest([{'name': 'Чай', 'price': 50}], 5)",
-          "expected": "['Чай']"
-        }
-      ],
-      "rules": [],
-      "solution": "def cheapest(menu, n):\n    return [d[\"name\"] for d in sorted(menu, key=lambda d: d[\"price\"])[:n]]",
-      "explanation": "sorted с key=lambda по цене, потом срез и названия."
-    },
-    {
-      "type": "code",
-      "topic": "ООП",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Класс Rectangle(width, height) с методами area() и is_square().",
-      "starter": "class Rectangle:\n    pass",
-      "tests": [
-        {
-          "call": "Rectangle(3, 4).area()",
-          "expected": "12"
-        },
-        {
-          "call": "Rectangle(5, 5).is_square()",
-          "expected": "True"
-        },
-        {
-          "call": "Rectangle(2, 7).is_square()",
-          "expected": "False"
-        }
-      ],
-      "rules": [],
-      "solution": "class Rectangle:\n    def __init__(self, width, height):\n        self.width = width\n        self.height = height\n\n    def area(self):\n        return self.width * self.height\n\n    def is_square(self):\n        return self.width == self.height",
-      "explanation": "Данные — в __init__ через self, методы читают self.width и self.height."
+      "solution": "def lengths(words):\n    return {w: len(w) for w in words}",
+      "explanation": "Генератор словаря."
     },
     {
       "type": "code",
       "topic": "Строки",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "Оцени пароль: «сильный» — от 8 символов, есть цифра и заглавная буква; «средний» — от 8 символов; иначе «слабый».",
-      "starter": "def strength(password):\n    pass",
+      "prompt": "Верни True, если слово — палиндром (читается одинаково с обеих сторон, регистр не важен).",
+      "starter": "def is_palindrome(word):\n    pass",
       "tests": [
         {
-          "call": "strength(\"abc\")",
-          "expected": "'слабый'"
-        },
-        {
-          "call": "strength(\"password\")",
-          "expected": "'средний'"
-        },
-        {
-          "call": "strength(\"Passw0rd\")",
-          "expected": "'сильный'"
-        },
-        {
-          "call": "strength(\"PASSWORD\")",
-          "expected": "'средний'"
-        }
-      ],
-      "rules": [],
-      "solution": "def strength(password):\n    if len(password) < 8:\n        return \"слабый\"\n    has_digit = any(c.isdigit() for c in password)\n    has_upper = any(c.isupper() for c in password)\n    return \"сильный\" if has_digit and has_upper else \"средний\"",
-      "explanation": "any(...) проверяет, есть ли хоть один подходящий символ."
-    },
-    {
-      "type": "code",
-      "topic": "Стек",
-      "difficulty": "medium",
-      "timeLimitSec": 420,
-      "language": "python",
-      "prompt": "Проверь, правильно ли расставлены скобки ()[]{}.",
-      "starter": "def is_balanced(s):\n    pass",
-      "tests": [
-        {
-          "call": "is_balanced(\"([]{})\")",
+          "call": "is_palindrome('Шалаш')",
           "expected": "True"
         },
         {
-          "call": "is_balanced(\"([)]\")",
+          "call": "is_palindrome('кот')",
           "expected": "False"
         },
         {
-          "call": "is_balanced(\"((\")",
-          "expected": "False"
-        },
-        {
-          "call": "is_balanced(\"\")",
+          "call": "is_palindrome('а')",
           "expected": "True"
         }
       ],
       "rules": [],
-      "solution": "def is_balanced(s):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in s:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif ch in pairs:\n            if not stack or stack.pop() != pairs[ch]:\n                return False\n    return not stack",
-      "explanation": "Стек: открывающая скобка кладётся, закрывающая должна совпасть с последней открытой."
+      "solution": "def is_palindrome(word):\n    w = word.lower()\n    return w == w[::-1]",
+      "explanation": "Сравниваем слово с перевёрнутым, приведя к одному регистру."
     },
     {
       "type": "code",
-      "topic": "f-строки",
-      "difficulty": "medium",
+      "topic": "Циклы",
+      "difficulty": "easy",
       "timeLimitSec": 420,
       "language": "python",
-      "prompt": "Переведи секунды в строку «ЧЧ:ММ:СС».",
-      "starter": "def to_clock(seconds):\n    pass",
+      "prompt": "Верни таблицу умножения числа n до 5 списком: table(3) → [3, 6, 9, 12, 15].",
+      "starter": "def table(n):\n    pass",
       "tests": [
         {
-          "call": "to_clock(3725)",
-          "expected": "'01:02:05'"
+          "call": "table(3)",
+          "expected": "[3, 6, 9, 12, 15]"
         },
         {
-          "call": "to_clock(0)",
-          "expected": "'00:00:00'"
+          "call": "table(1)",
+          "expected": "[1, 2, 3, 4, 5]"
         },
         {
-          "call": "to_clock(86399)",
-          "expected": "'23:59:59'"
+          "call": "table(0)",
+          "expected": "[0, 0, 0, 0, 0]"
         }
       ],
       "rules": [],
-      "solution": "def to_clock(seconds):\n    h, rest = divmod(seconds, 3600)\n    m, s = divmod(rest, 60)\n    return f\"{h:02}:{m:02}:{s:02}\"",
-      "explanation": "divmod даёт частное и остаток сразу, :02 дополняет нулём."
+      "solution": "def table(n):\n    return [n * i for i in range(1, 6)]",
+      "explanation": "range(1, 6) — множители от 1 до 5."
     }
   ]
 }

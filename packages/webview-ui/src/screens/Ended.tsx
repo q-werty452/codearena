@@ -18,7 +18,7 @@ export function EndedScreen({ reason, onAgain }: { reason: "kicked" | "room_clos
         <Icon size={26} className="text-muted" />
       </div>
       <div>
-        <h1 className="text-[18px] font-bold">{reason === "kicked" ? t("ended.kicked") : t("ended.closed")}</h1>
+        <h1 className="text-[18px] font-semibold">{reason === "kicked" ? t("ended.kicked") : t("ended.closed")}</h1>
         <p className="mt-1 text-muted">{t("ended.hint")}</p>
       </div>
       <Button variant="primary" size="lg" block onClick={onAgain}>

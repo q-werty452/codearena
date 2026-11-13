@@ -31,7 +31,7 @@ export function QuestionView({
   const total = stats?.reduce((a, b) => a + b, 0) ?? 0;
   return (
     <div className="flex flex-col gap-5">
-      <h2 className={cn("whitespace-pre-wrap text-center font-bold leading-snug", big ? "text-[26px]" : "text-[20px]")}>
+      <h2 className={cn("whitespace-pre-wrap text-center font-bold leading-snug", big ? "text-[28px]" : "text-[20px]")}>
         <CodeAwareText text={prompt} />
       </h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -67,7 +67,7 @@ export function CodeAwareText({ text }: { text: string }) {
           p.startsWith("```") ? (
             <pre
               key={i}
-              className="mx-auto my-3 block w-fit max-w-full overflow-x-auto whitespace-pre rounded-[8px] border border-border bg-black/15 px-4 py-3 text-left font-mono text-[15px] font-normal leading-relaxed"
+              className="mx-auto my-3 block w-fit max-w-full overflow-x-auto whitespace-pre rounded-[8px] border border-border bg-black/15 px-4 py-3 text-left font-mono text-[14px] font-normal leading-relaxed"
             >
               {p.replace(/^```[^\n`]*\n/, "").replace(/\n?```$/, "")}
             </pre>
@@ -108,7 +108,7 @@ export function Countdown({ left, title }: { left: number; title: string }) {
   }, [n]);
   return (
     <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-4">
-      <div className="text-[13px] font-semibold uppercase tracking-[0.12em] text-muted">{title}</div>
+      <div className="text-[13px] font-medium text-muted">{title}</div>
       <AnimatePresence mode="popLayout">
         <motion.div
           key={label}
@@ -116,7 +116,7 @@ export function Countdown({ left, title }: { left: number; title: string }) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 1.6, opacity: 0 }}
           transition={{ type: "spring", stiffness: 380, damping: 22 }}
-          className="font-bold leading-none text-accent tabular"
+          className="font-bold leading-none text-fg tabular"
           style={{ fontSize: label.length > 2 ? 64 : 120 }}
         >
           {label}

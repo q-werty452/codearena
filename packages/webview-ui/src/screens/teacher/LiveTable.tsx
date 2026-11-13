@@ -77,7 +77,7 @@ export function LiveTable({ session, g }: { session: SessionSnapshot; g: GameSna
             >
               <div className="flex items-center gap-3 border-b border-border px-5 py-3.5">
                 <Users size={18} className="text-muted" />
-                <h2 className="flex-1 text-[16px] font-bold">
+                <h2 className="flex-1 text-[16px] font-semibold">
                   {t("live.title")} · {players.length}
                 </h2>
                 <button onClick={() => setOpen(false)} className="flex size-8 items-center justify-center rounded-[8px] text-muted hover:bg-hover hover:text-fg" aria-label={t("live.close")}>
@@ -122,7 +122,7 @@ function Row({ p, g, score, open, onToggle }: { p: PlayerInfo; g: GameSnapshot; 
         <span className="w-[74px] text-right text-[12px] font-semibold" style={{ color: STATUS_COLOR[st] }}>
           {t(`live.status.${st}` as MessageKey)}
         </span>
-        <span className="w-12 text-right text-[13px] font-bold tabular">{score}</span>
+        <span className="w-12 text-right text-[13px] font-semibold tabular">{score}</span>
         <ChevronDown size={14} className={cn("text-muted transition-transform", open && "rotate-180")} />
       </button>
       <AnimatePresence>

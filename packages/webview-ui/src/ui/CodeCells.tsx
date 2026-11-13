@@ -55,7 +55,7 @@ export function CodeCells({ value, onChange, onComplete, length = 6, error, auto
               key={i}
               className={cn(
                 "relative flex aspect-[4/5] max-h-14 items-center justify-center rounded-btn border bg-input",
-                "font-mono text-[22px] font-semibold tabular transition-colors duration-150",
+                "font-mono text-[20px] font-semibold tabular transition-colors duration-150",
                 error ? "border-error" : isActive ? "border-accent" : ch ? "border-border" : "border-border",
               )}
               style={isActive ? { boxShadow: "0 0 0 3px color-mix(in srgb, var(--ca-accent) 22%, transparent)" } : undefined}

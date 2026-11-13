@@ -111,7 +111,7 @@ export function RaceEditor({
         </div>
 
         <div>
-          <h1 className="text-title font-bold">{t("race.editTitle")}</h1>
+          <h1 className="text-title font-semibold">{t("race.editTitle")}</h1>
           <input
             value={set.title}
             onChange={(e) => onChange({ ...set, title: e.target.value })}
