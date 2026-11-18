@@ -22,6 +22,15 @@ const L = {
   browse: () => (ru() ? "$(folder-opened) Выбрать файл…" : "$(folder-opened) Browse…"),
   chosen: (f: string) => (ru() ? `Файл урока: ${f}. Прогресс считается автоматически.` : `Lesson file: ${f}. Progress is tracked automatically.`),
   choose: () => (ru() ? "Выбрать файл" : "Choose file"),
+  noRef: () =>
+    ru()
+      ? "Чекпоинт: откройте файл с кодом урока (или покажите его классу) — он станет эталоном шага"
+      : "Checkpoint: open the lesson file (or show it to the class) — it becomes the reference for this step",
+  refSet: (n: number, f: string, lines: number) =>
+    ru()
+      ? `Чекпоинт ${n}: эталон — ${f} (${lines} строк). Ученики видят процент по своему ${f}.`
+      : `Checkpoint ${n}: the reference is ${f} (${lines} lines). Students see their percentage for their own ${f}.`,
+  switched: (f: string) => (ru() ? `$(file) Файл урока: ${f}` : `$(file) Lesson file: ${f}`),
   needFile: (f: string) =>
     ru() ? `Учитель поставил чекпоинт по ${f}. Выбери свой файл урока, чтобы считался прогресс.` : `The teacher set a checkpoint for ${f}. Choose your lesson file to track progress.`,
 };
@@ -32,12 +41,15 @@ export class LessonLive implements vscode.Disposable {
 
   // Учитель
   private sharedDoc: vscode.TextDocument | null = null;
+  /** Последний файл с кодом, в котором был учитель (панель забирает фокус у редактора). */
+  private lastFileDoc: vscode.TextDocument | null = null;
   private shareTimer: NodeJS.Timeout | null = null;
 
   // Ученик
   private teacherUri: vscode.Uri | null = null;
   private openedTeacherOnce = false;
   private refCode: string | null = null;
+  private refFile = "";
   private lastSentPercent: number | null = null;
   private lastSentAt = 0;
   private progressTimer: NodeJS.Timeout | null = null;
@@ -57,6 +69,9 @@ export class LessonLive implements vscode.Disposable {
       vscode.commands.registerCommand("codearena.chooseLessonFile", () => this.chooseLessonFile()),
       vscode.commands.registerCommand("codearena.peek", (playerId: string) => session.send({ type: "peek", playerId })),
       vscode.workspace.onDidChangeTextDocument((e) => this.onDocChange(e.document)),
+      vscode.window.onDidChangeActiveTextEditor((ed) => {
+        if (ed?.document.uri.scheme === "file") this.lastFileDoc = ed.document;
+      }),
       vscode.window.onDidChangeTextEditorSelection((e) => e.textEditor.document === this.sharedDoc && this.scheduleShare()),
       vscode.workspace.onDidCloseTextDocument((d) => d === this.sharedDoc && this.stopShare()),
       session.onMessage((m) => (m.type === "server" ? this.onServer(m.msg) : m.type === "session" && this.onSession())),
@@ -109,8 +124,20 @@ export class LessonLive implements vscode.Disposable {
   /** Чекпоинт: текущий код показываемого файла — эталон шага. */
   private checkpoint(): void {
     if (this.role !== "teacher") return;
-    const doc = this.sharedDoc ?? (vscode.window.activeTextEditor?.document.uri.scheme === "file" ? vscode.window.activeTextEditor.document : null);
-    this.session.send({ type: "checkpoint_set", code: doc?.getText().slice(0, 100_000), fileName: doc ? basename(doc.fileName) : undefined });
+    // Кнопка в панели забирает фокус у редактора — берём показываемый файл,
+    // иначе активный, иначе последний файл с кодом, иначе любой открытый.
+    const active = vscode.window.activeTextEditor?.document;
+    const doc =
+      this.sharedDoc ??
+      (active?.uri.scheme === "file" ? active : null) ??
+      (this.lastFileDoc && !this.lastFileDoc.isClosed ? this.lastFileDoc : null) ??
+      vscode.window.visibleTextEditors.map((e) => e.document).find((d) => d.uri.scheme === "file") ??
+      null;
+    const code = doc?.getText().slice(0, 100_000) ?? "";
+    if (!doc || !code.trim()) return void vscode.window.showWarningMessage(L.noRef());
+    const name = basename(doc.fileName);
+    this.session.send({ type: "checkpoint_set", code, fileName: name });
+    void vscode.window.showInformationMessage(L.refSet(this.session.snapshot.lesson.checkpoint + 1, name, doc.lineCount));
   }
 
   /* ─────────────── Ученик ─────────────── */
@@ -127,6 +154,7 @@ export class LessonLive implements vscode.Disposable {
     if (msg.type === "lesson_share_off") this.openedTeacherOnce = false;
     if (msg.type === "checkpoint" && this.role === "student") {
       this.refCode = msg.code;
+      this.refFile = msg.fileName;
       this.lastSentPercent = null;
       void this.ensureLessonFile(msg.fileName, msg.checkpoint).then(() => this.computeProgress(true));
     }
@@ -171,23 +199,35 @@ export class LessonLive implements vscode.Disposable {
     return saved ? vscode.Uri.parse(saved) : null;
   }
 
-  private async setLessonFile(uri: vscode.Uri): Promise<void> {
+  private async setLessonFile(uri: vscode.Uri, quiet = false): Promise<void> {
     await this.ctx.workspaceState.update(LESSON_FILE_KEY, uri.toString());
     this.session.patchLesson({ myFile: vscode.workspace.asRelativePath(uri) });
-    void vscode.window.showInformationMessage(L.chosen(vscode.workspace.asRelativePath(uri)));
+    if (quiet) void vscode.window.setStatusBarMessage(L.switched(vscode.workspace.asRelativePath(uri)), 5000);
+    else void vscode.window.showInformationMessage(L.chosen(vscode.workspace.asRelativePath(uri)));
     this.computeProgress(true);
   }
 
   /** Файл урока выбирается один раз: по умолчанию — файл с тем же именем, что у учителя. */
   private async ensureLessonFile(refFile: string, checkpoint: number): Promise<void> {
     const existing = this.lessonFile();
-    if (existing) {
+    // Запомненный файл подходит, только если называется как файл учителя
+    // (на прошлом уроке был другой index.html или учитель показывает уже style.css).
+    if (existing && (!refFile || basename(existing.path) === refFile)) {
       this.session.patchLesson({ myFile: vscode.workspace.asRelativePath(existing) });
       return;
     }
     if (!refFile) return;
-    const found = await vscode.workspace.findFiles(`**/${refFile}`, "**/node_modules/**", 5);
-    if (found.length === 1) return this.setLessonFile(found[0]!);
+    const same = (u: vscode.Uri) => u.scheme === "file" && basename(u.path) === refFile;
+    // Сначала то, что ученик держит открытым, потом поиск по проекту.
+    const open = [vscode.window.activeTextEditor?.document.uri, ...vscode.window.visibleTextEditors.map((e) => e.document.uri)].find((u) => u && same(u));
+    if (open) return this.setLessonFile(open, true);
+    const found = await vscode.workspace.findFiles(`**/${refFile}`, "**/node_modules/**", 20);
+    if (found.length === 1) return this.setLessonFile(found[0]!, true);
+    if (found.length > 1) {
+      // Несколько одноимённых файлов — берём тот, что правили последним; «Сменить» в панели, если не тот.
+      const stats = await Promise.all(found.map(async (u) => ({ u, t: (await vscode.workspace.fs.stat(u).then((st) => st.mtime, () => 0)) })));
+      return this.setLessonFile(stats.sort((a, b) => b.t - a.t)[0]!.u, true);
+    }
     if (this.askedForFile === checkpoint) return;
     this.askedForFile = checkpoint;
     const choice = await vscode.window.showInformationMessage(L.needFile(refFile), L.choose());
@@ -211,7 +251,9 @@ export class LessonLive implements vscode.Disposable {
   private onDocChange(doc: vscode.TextDocument): void {
     if (doc === this.sharedDoc) return this.scheduleShare();
     const lf = this.lessonFile();
-    if (this.role === "student" && lf && doc.uri.toString() === lf.toString()) this.computeProgress(false);
+    if (this.role !== "student") return;
+    if (lf && doc.uri.toString() === lf.toString()) return this.computeProgress(false);
+    if (this.refCode !== null && this.refFile && doc.uri.scheme === "file" && basename(doc.fileName) === this.refFile) void this.setLessonFile(doc.uri, true);
   }
 
   /** Процент по чекпоинту: только при изменении и не чаще раза в 2 секунды. */

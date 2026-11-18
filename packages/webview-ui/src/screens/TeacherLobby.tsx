@@ -23,6 +23,7 @@ import { cn } from "../lib/cn.ts";
 import { prettyCode, useT } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
 import { WatchDialog } from "../ui/WatchDialog.tsx";
+import { WaitOrb } from "../ui/WaitOrb.tsx";
 
 type Assignment = Record<string, TeamIndex | null>;
 const NONE = "none";
@@ -300,9 +301,8 @@ function EmptyState({ link }: { link: string }) {
   const t = useT();
   return (
     <Card className="flex flex-col items-center gap-3 border-dashed px-6 py-14 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-surface-2">
-        <Users size={22} className="text-muted" />
-      </div>
+      {/* Ждём учеников: сфера «подключение» вместо статичной иконки. */}
+      <WaitOrb state="connecting" size={64} delayMs={0} />
       <div>
         <div className="text-[16px] font-semibold">{t("teacher.empty")}</div>
         <p className="mt-1 text-muted">{t("teacher.emptyHint")}</p>

@@ -70,7 +70,7 @@ function tokenize(code: string, lang: string): Tok[] {
 }
 
 /** Токены, разбитые по строкам (многострочные комментарии и строки не ломаются). */
-function lines(code: string, lang: string): Tok[][] {
+export function lines(code: string, lang: string): Tok[][] {
   const result: Tok[][] = [[]];
   for (const tk of tokenize(code.replace(/\s+$/, ""), lang)) {
     const parts = tk.v.split("\n");
@@ -94,7 +94,7 @@ const COLOR: Record<Kind, string | undefined> = {
   txt: undefined,
 };
 
-function Line({ toks }: { toks: Tok[] }) {
+export function Line({ toks }: { toks: Tok[] }) {
   if (toks.length === 0) return <>{" "}</>;
   return (
     <>

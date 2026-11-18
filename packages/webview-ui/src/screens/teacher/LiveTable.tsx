@@ -7,6 +7,7 @@ import { CodeBlock } from "../../ui/Code.tsx";
 import { FlagBadges, flagCount, flagText, FLAG_KINDS } from "../../ui/Flags.tsx";
 import { cn } from "../../lib/cn.ts";
 import { useT, type MessageKey } from "../../lib/i18n.ts";
+import { HintableCode } from "../../ui/HintableCode.tsx";
 
 type Status = "thinking" | "submitted" | "solved" | "wrong";
 const STATUS_COLOR: Record<Status, string> = { thinking: "var(--ca-muted)", submitted: "var(--ca-accent)", solved: "var(--ca-success)", wrong: "var(--ca-error)" };
@@ -137,7 +138,7 @@ function Row({ p, g, score, open, onToggle }: { p: PlayerInfo; g: GameSnapshot; 
             ) : (
               <p className="mb-2 text-[12px] text-muted">{t("live.noFlags")}</p>
             )}
-            {sub?.code && <CodeBlock code={sub.code} lang={lang} lineNumbers />}
+            {sub?.code && <HintableCode code={sub.code} lang={lang} playerId={p.id} />}
             {sub?.report && sub.report.failures.length > 0 && (
               <ul className="mt-1.5 flex flex-col gap-0.5 font-mono text-[12px] text-error">
                 {sub.report.failures.slice(0, 5).map((f, i) => (

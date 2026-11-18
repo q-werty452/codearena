@@ -15,6 +15,7 @@ import { StudentBugBody } from "./StudentBug.tsx";
 import { StudentRaceBody } from "./StudentRace.tsx";
 import { WinnerBanner } from "./teacher/TeacherGame.tsx";
 import { host } from "../lib/session.ts";
+import { WaitOrb } from "../ui/WaitOrb.tsx";
 
 /** Панель игры ученика (вкладка в области редактора). */
 export function StudentGame({ session }: { session: SessionSnapshot }) {
@@ -117,7 +118,9 @@ function Question({ g, left }: { g: GameSnapshot; left: number }) {
               <Check size={22} strokeWidth={3} />
             </motion.span>
             <div className="text-[16px] font-bold">{t("game.accepted")}</div>
-            <div className="text-muted">{t("game.acceptedHint")}</div>
+            <div className="text-muted">
+              <WaitOrb state="breathing">{t("game.acceptedHint")}</WaitOrb>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -25,6 +25,9 @@ import { host } from "../../lib/session.ts";
 import { readUiState, writeState } from "../../lib/game.ts";
 import { countsByGame, showImportResult, useMyTasks } from "../../lib/myTasks.ts";
 import { GAMES } from "./GamePicker.tsx";
+import { BorderBeam } from "border-beam";
+import { WaitOrb } from "../../ui/WaitOrb.tsx";
+import { useVsTheme } from "../../lib/vsTheme.ts";
 
 /* ───────────────────────── Общее окно ───────────────────────── */
 
@@ -253,12 +256,14 @@ const AI_GAMES: AiRequest["game"][] = ["quiz", "bug", "tug", "codewars", "race"]
 function AiProgress() {
   const t = useT();
   const { ai } = useMyTasks();
+  const theme = useVsTheme();
   if (!ai.busy) return null;
   const pct = ai.stage === "verify" && ai.total ? (ai.done ?? 0) / ai.total : ai.stage === "generate" ? 0.35 : ai.stage === "repair" ? 0.8 : 0.1;
   return (
+    <BorderBeam active={ai.busy} colorVariant="mono" theme={theme} strength={0.8}>
     <div className="rounded-btn border border-border bg-surface px-3 py-3">
       <div className="flex items-center gap-2 text-[13px] font-semibold">
-        <Loader2 size={15} className="animate-spin text-muted" />
+        <WaitOrb state="composing" delayMs={0} />
         {t(`ai.stage.${ai.stage ?? "model"}` as MessageKey, { done: ai.done ?? 0, total: ai.total ?? 0 })}
         <button onClick={() => host.post({ type: "ai_cancel" })} className="ml-auto text-[12px] font-normal text-muted hover:text-fg">
           {t("ai.cancel")}
@@ -269,6 +274,7 @@ function AiProgress() {
       </div>
       {ai.model && <div className="mt-1.5 font-mono text-[11px] text-muted">{t("ai.model", { m: ai.model })}</div>}
     </div>
+    </BorderBeam>
   );
 }
 

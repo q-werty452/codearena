@@ -45,7 +45,7 @@ const GAMES = {
 // Эталон урока для сценариев livestudent / liveteacher.
 const REF = "<!doctype html>\n<html>\n<head>\n  <title>Урок</title>\n</head>\n<body>\n  <h1>Привет</h1>\n  <p>Абзац</p>\n  <ul>\n    <li>Один</li>\n    <li>Два</li>\n  </ul>\n</body>\n</html>\n";
 const LIVE = SCENARIO === "livestudent" || SCENARIO === "liveteacher";
-const OFFLINE = SCENARIO === "mytasks" || SCENARIO === "teacherui"; // без бота-учителя
+const OFFLINE = SCENARIO === "mytasks" || SCENARIO === "teacherui" || SCENARIO === "teacherbug"; // без бота-учителя
 const { code, teacherToken } = OFFLINE ? { code: "", teacherToken: "" } : await (await fetch(`http://${server}/rooms`, { method: "POST" })).json();
 console.log("scenario", SCENARIO, "room", code);
 const feed = [];
@@ -218,12 +218,38 @@ if (SCENARIO === "liveteacher") {
       if (m.type === "lesson_share") { live.shares++; live.shareTexts.push(m.text); }
       if (m.type === "lesson_share_off") live.off = true;
       if (m.type === "checkpoint") {
-        live.checkpoint = { n: m.checkpoint, fileName: m.fileName, sameAsShare: m.code === live.shareTexts.at(-1) };
+        (live.checkpoints ??= []).push({ n: m.checkpoint, fileName: m.fileName, len: m.code.length });
+        if (!live.checkpoint) live.checkpoint = { n: m.checkpoint, fileName: m.fileName, sameAsShare: m.code === live.shareTexts.at(-1) };
         bot.send(JSON.stringify({ type: "progress", checkpoint: m.checkpoint, percent: 40 }));
       }
       if (m.type === "peek_request") bot.send(JSON.stringify({ type: "peek_reply", fileName: "index.html", text: "<p>BOT CODE</p>" }));
       if (m.type === "hint") live.hint = { line: m.line, text: m.text, fileName: m.fileName };
     });
+  }, 200);
+}
+// teacherbug: учитель — VS Code, ведёт «Найди баг»; три бота: неверное решение (+ флаг вставки), верное, молчит.
+const tb = { hint: null, joined: 0 };
+if (SCENARIO === "teacherbug") {
+  const poll = setInterval(() => {
+    let room;
+    try { room = readFileSync(handoff, "utf8").trim(); } catch { return; }
+    clearInterval(poll);
+    for (const name of ["Wrong", "Right", "Idle"]) {
+      const b = new WebSocket(`ws://${server}/rooms/${room}/ws`);
+      b.on("open", () => b.send(JSON.stringify({ type: "join", name })));
+      b.on("message", (d) => {
+        const m = JSON.parse(d);
+        if (m.type === "joined") tb.joined++;
+        if (m.type === "task" && name === "Wrong") {
+          b.send(JSON.stringify({ type: "flag", kind: "paste", detail: "80" }));
+          b.send(JSON.stringify({ type: "submit", taskId: m.taskId, code: "def add(a, b):\n    return a * b", report: { passed: 1, total: 2, failures: [{ name: "add(2, 3)", expected: "5", got: "6" }] } }));
+        }
+        if (m.type === "task" && name === "Right") {
+          setTimeout(() => b.send(JSON.stringify({ type: "submit", taskId: m.taskId, code: "def add(a, b):\n    return a + b", report: { passed: 2, total: 2, failures: [] } })), 400);
+        }
+        if (m.type === "hint" && name === "Wrong") tb.hint = { line: m.line, text: m.text };
+      });
+    }
   }, 200);
 }
 // Тесты ходят на локальный сервер, а не на публичный.
@@ -253,9 +279,12 @@ if (SCENARIO === "livestudent") {
 } else if (SCENARIO === "liveteacher") {
   const last = live.shareTexts.at(-1) ?? "";
   console.log(`bot student got ${live.shares} lesson_share message(s) for 10 keystrokes; last has all edits: ${last.includes("<!-- 0123456789 -->")}; checkpoint: ${JSON.stringify(live.checkpoint)}; share stopped: ${live.off}`);
-  console.log("bot student got hint:", JSON.stringify(live.hint));
   liveOk = live.shares >= 2 && live.shares <= 6 && last.includes("<!-- 0123456789 -->") && live.checkpoint?.n === 1 && live.checkpoint.sameAsShare && live.off &&
     live.hint?.line === 1 && live.hint.text === "закрой тег <p>" && live.hint.fileName === "index.html";
+  console.log("bot student got hint:", JSON.stringify(live.hint), "| checkpoints:", JSON.stringify(live.checkpoints));
+  // Второй чекпоинт — из панели, без показа файла: эталон всё равно index.html, не пустой.
+  const cp2 = live.checkpoints?.[1];
+  if (!(cp2?.n === 2 && cp2.fileName === "index.html" && cp2.len > 50)) { console.log("checkpoint from the panel without sharing: FAILED"); liveOk = false; }
   bot?.close();
 } else if (SCENARIO === "teacherui") {
   console.log((uiResult?.results ?? ["driver did not run"]).map((r) => "  ▸ " + r).join("\n"));
@@ -276,6 +305,9 @@ if (SCENARIO === "livestudent") {
   } catch {}
   console.log("  ▸ watch link from the extension accepted by the server: " + watchOk);
   liveOk = uiResult?.ok === true && watchOk;
+} else if (SCENARIO === "teacherbug") {
+  console.log("bot «Wrong» got hint:", JSON.stringify(tb.hint));
+  liveOk = tb.hint?.line === 2 && tb.hint.text === "проверь знак операции";
 } else if (SCENARIO === "mytasks") {
   console.log("gemini calls:", gemini.calls.map((c) => `${c.path} (key ${c.key})`).join(", "), "| key in URL:", gemini.keyInUrl);
   liveOk = !gemini.keyInUrl && gemini.calls.some((c) => c.path.includes("gemini-3.6-flash:generateContent"));

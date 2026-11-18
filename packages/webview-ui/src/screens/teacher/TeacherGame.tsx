@@ -23,6 +23,7 @@ import { resultsCsv } from "../../lib/csv.ts";
 import { FlagBadges } from "../../ui/Flags.tsx";
 import { LiveTable } from "./LiveTable.tsx";
 import { host } from "../../lib/session.ts";
+import { HintableCode } from "../../ui/HintableCode.tsx";
 
 /** Экран учителя во время игры: та же картинка, что у учеников, плюс управление. */
 export function TeacherGame({ session, tasks, onAgain }: { session: SessionSnapshot; tasks: Task[]; onAgain: () => void }) {
@@ -538,7 +539,7 @@ export function SubmissionsTable({
                       ))}
                     </ul>
                   )}
-                  <CodeBlock code={sub.code} lang={lang} lineNumbers />
+                  <HintableCode code={sub.code} lang={lang} playerId={p.id} />
                 </motion.div>
               )}
             </AnimatePresence>

@@ -14,6 +14,7 @@ import { useT, type MessageKey } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
 import { NoPython, TestRow, noRuntime } from "./StudentCodewars.tsx";
 import { formatClock } from "./StudentTug.tsx";
+import { WaitOrb } from "../ui/WaitOrb.tsx";
 
 type AnyTask = NonNullable<GameSnapshot["task"]>;
 type FindTask = Extract<AnyTask, { type: "find_line" }>;
@@ -282,7 +283,13 @@ function FixBody({ g, task, meId }: { g: GameSnapshot; task: FixTask; meId?: str
               </Button>
             </div>
             <p className="text-center text-[12px] text-muted">
-              {t("cw.writeInEditor")} · <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>
+              {run?.running ? (
+                <WaitOrb state="solving">{t("cw.checking")}</WaitOrb>
+              ) : (
+                <>
+                  {t("cw.writeInEditor")} · <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>
+                </>
+              )}
             </p>
           </div>
         )

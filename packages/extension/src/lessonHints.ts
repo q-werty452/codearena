@@ -23,6 +23,8 @@ const L = {
   howTo: () => (ru() ? "$(comment) Поставьте курсор на строку и нажмите 💬 вверху — подсказка ученику" : "$(comment) Put the cursor on a line and press 💬 above to send the student a hint"),
   got: (line: number, text: string) => (ru() ? `Учитель: строка ${line} — «${text}»` : `Teacher: line ${line} — «${text}»`),
   show: () => (ru() ? "Показать" : "Show"),
+  hover: (n: number) => (ru() ? `💬 Подсказать на строке ${n}` : `💬 Hint on line ${n}`),
+  lens: (name: string) => (ru() ? `💬 Подсказать ${name} — наведите на строку с ошибкой или нажмите здесь` : `💬 Hint ${name} — hover the line with the mistake or click here`),
   inline: (text: string) => `  💬 ${ru() ? "Учитель" : "Teacher"}: ${text.length > 110 ? text.slice(0, 107) + "…" : text}`,
 };
 
@@ -40,6 +42,7 @@ export class LessonHints implements vscode.Disposable {
   private owners = new Map<string, PeekOwner>();
   private sent = new Map<string, { line: number; text: string }[]>();
 
+  private lensChanged = new vscode.EventEmitter<void>();
   private deco = vscode.window.createTextEditorDecorationType({
     isWholeLine: true,
     backgroundColor: new vscode.ThemeColor("codearena.hintBackground"),
@@ -54,6 +57,26 @@ export class LessonHints implements vscode.Disposable {
     this.disposables.push(
       this.deco,
       vscode.commands.registerCommand("codearena.hintLine", (args?: { line?: number; text?: string }) => this.hintLine(args)),
+      this.lensChanged,
+      // Код ученика у учителя: наведение на строку — «💬 Подсказать на строке N».
+      vscode.languages.registerHoverProvider({ scheme: LessonFs.scheme }, {
+        provideHover: (doc, pos) => {
+          if (this.session.snapshot.role !== "teacher" || !this.owners.has(doc.uri.toString())) return undefined;
+          const args = encodeURIComponent(JSON.stringify([{ line: pos.line + 1, uri: doc.uri.toString() }]));
+          const md = new vscode.MarkdownString(`[${L.hover(pos.line + 1)}](command:codearena.hintLine?${args})`);
+          md.isTrusted = { enabledCommands: ["codearena.hintLine"] };
+          return new vscode.Hover(md, doc.lineAt(pos.line).range);
+        },
+      }),
+      // …и строка над кодом, чтобы возможность было видно сразу.
+      vscode.languages.registerCodeLensProvider({ scheme: LessonFs.scheme }, {
+        onDidChangeCodeLenses: this.lensChanged.event,
+        provideCodeLenses: (doc) => {
+          const owner = this.owners.get(doc.uri.toString());
+          if (this.session.snapshot.role !== "teacher" || !owner) return [];
+          return [new vscode.CodeLens(new vscode.Range(0, 0, 0, 0), { title: L.lens(owner.name), command: "codearena.hintLine", arguments: [{ uri: doc.uri.toString() }] })];
+        },
+      }),
       vscode.workspace.onDidChangeTextDocument((e) => this.onDocChange(e.document)),
       vscode.window.onDidChangeVisibleTextEditors(() => this.decorateAll()),
       session.onMessage((m) => {
@@ -73,6 +96,7 @@ export class LessonHints implements vscode.Disposable {
     if (msg.type === "peek_code" && role === "teacher") {
       const uri = LessonFs.uri(`/students/${msg.name}/${msg.fileName || "code.txt"}`).toString();
       this.owners.set(uri, { playerId: msg.playerId, name: msg.name, fileName: msg.fileName });
+      this.lensChanged.fire();
       void vscode.window.setStatusBarMessage(L.howTo(), 8000);
       setTimeout(() => this.decorateAll(), 300);
     }
@@ -82,8 +106,12 @@ export class LessonHints implements vscode.Disposable {
 
   /* ─────────────── Учитель ─────────────── */
 
-  private async hintLine(args?: { line?: number; text?: string }): Promise<void> {
-    const ed = vscode.window.activeTextEditor;
+  private async hintLine(args?: { line?: number; text?: string; uri?: string }): Promise<void> {
+    // Из наведения/CodeLens приходит uri: редактор с кодом ученика может быть не в фокусе.
+    const ed =
+      (args?.uri && vscode.window.visibleTextEditors.find((e) => e.document.uri.toString() === args.uri)) ||
+      vscode.window.activeTextEditor ||
+      vscode.window.visibleTextEditors.find((e) => this.owners.has(e.document.uri.toString()));
     const owner = ed && this.owners.get(ed.document.uri.toString());
     if (!ed || !owner) return void vscode.window.showInformationMessage(L.notStudentCode());
     const line = args?.line ?? ed.selection.active.line + 1;
@@ -109,6 +137,11 @@ export class LessonHints implements vscode.Disposable {
   /** Файл, к которому относится подсказка: файл урока, иначе открытый файл с тем же именем. */
   private async target(fileName: string): Promise<vscode.TextDocument | null> {
     const same = (d: vscode.TextDocument) => !fileName || basename(d.fileName) === fileName;
+    // Во время игры подсказка — к файлу задачи, который сейчас открыт у ученика.
+    const g = this.session.snapshot.game;
+    const playing = !!g && g.phase !== "over";
+    const activeDoc = vscode.window.activeTextEditor?.document;
+    if (playing && !fileName && activeDoc?.uri.scheme === "file") return activeDoc;
     const saved = this.ctx.workspaceState.get<string>(LESSON_FILE_KEY);
     const lesson = saved ? await vscode.workspace.openTextDocument(vscode.Uri.parse(saved)).then((d) => d, () => null) : null;
     if (lesson && same(lesson)) return lesson;

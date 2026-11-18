@@ -90,8 +90,11 @@ export async function drive(port, handoff) {
   await check("AI dialog: every control + key link", `${openGame("Викторина|Quiz")} __h.btn(/^(AI|ИИ)$/)?.click(); await __h.wait(900);
     const s1 = await __h.sweep(${dlg}, ${DENY});
     const a = document.querySelector('[role=dialog] a'); let nav = null;
+    // Ключ Gemini уже сохранён (например, у учителя на этом компьютере) — ссылки «получить ключ» нет, и это правильно.
+    const keySaved = !a && /Сменить ключ|Change key/.test(document.querySelector('[role=dialog]')?.innerText || '');
     if (a) { const e = new MouseEvent('click',{bubbles:true,cancelable:true,button:0}); a.dispatchEvent(e); nav = e.defaultPrevented; }
-    const res = { ...s1, link: a?.href, linkStaysInPanel: nav, fail: !a || nav !== true || s1.clicked < 8 }; ${esc}`);
+    window.__keySaved = keySaved;
+    const res = { ...s1, link: a?.href, linkStaysInPanel: nav, keySaved, fail: keySaved ? s1.clicked < 3 : !a || nav !== true || s1.clicked < 8 }; ${esc}`);
   for (const g of ["Викторина|Quiz", "Перетягивание|Tug", "Codewars", "Найди баг|Find the bug", "Гонка|Race"]) {
     await check(`${g.split("|")[0]}: editor controls`, `${openGame(g)} const ed = document.getElementById('root'); const h1 = document.querySelector('h1')?.textContent; const gc = [...document.querySelectorAll('button')].find(x=>/^(${g})/.test(x.querySelector('div')?.textContent||'')); if (gc?.disabled) { var res = { disabledCard: gc.textContent.slice(0,60) }; } else { var res = { h1, ...await __h.sweep(() => ed, ${DENY}) }; res.fail = res.clicked < 3 || /Выберите игру|Choose a game/.test(h1||'') || !h1; } ${esc}`);
     await check(`${g.split("|")[0]}: bank dialog`, `${openGame(g)} const o = __h.btn(/^(Из банка|From the bank)/); o?.click(); await __h.wait(900); const res = o ? await __h.sweep(${dlg}, ${DENY}) : { skipped: true, fail: /Викторина|Quiz/.test('${g}') }; ${esc}`);
@@ -100,7 +103,9 @@ export async function drive(port, handoff) {
   await check("picker: AI dialog from My tasks", `${back} __h.btn(/Создать с ИИ|Generate with AI/)?.click(); await __h.wait(900); const res = await __h.sweep(${dlg}, ${DENY}); ${esc}`);
 
   // Ссылка должна дойти до расширения (vscode.env.openExternal), а не уйти в webview.
-  if (handoff) {
+  const keySaved = await ev("!!window.__keySaved");
+  if (handoff && keySaved) results.push("key link check skipped: a Gemini key is already saved");
+  else if (handoff) {
     const { readFileSync, existsSync } = await import("node:fs");
     await sleep(1500);
     const urls = existsSync(handoff + ".urls") ? readFileSync(handoff + ".urls", "utf8") : "";

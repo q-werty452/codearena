@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.1
+
+- **Fixed: the teacher didn't see students' submissions in «Find the bug» and Codewars** — everyone stayed
+  «thinking» and the counter stuck at 0. Submissions (including failed ones) and anti-cheat flags now reach the
+  teacher panel. The fix counter also shows how many students tried.
+- **Checkpoint works as expected**:
+  - progress counts words and symbols, not whole lines — one typo costs a word, a half-typed line counts partly;
+  - the «Checkpoint» button in the panel takes the file you last worked in (it used to send an empty reference
+    when the panel had focus), warns if there is no file, and tells you which file became the reference;
+  - each student's lesson file follows the teacher's file name (a new lesson, another folder, style.css) and
+    switches to the file the student is actually typing in;
+  - an empty reference no longer marks everyone done.
+- **Hints are easy to find**: hover any line of a student's code for «💬 Hint on line N», plus a hint line above
+  the code. In games, click a line number in a student's code to send a hint on that line.
+- Waiting states show a small thinking orb (AI generation, long code checks, «waiting for others», no students
+  yet), and the AI generation card gets a quiet beam while it works.
+
 ## 0.4.0
 
 - **Clear store page**: what CodeArena solves, a 2-minute start, and how to use each feature with screenshots — including a step-by-step checkpoint example.

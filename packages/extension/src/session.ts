@@ -283,7 +283,11 @@ export class Session implements vscode.Disposable {
       case "result":
       case "state":
       case "game_over":
-      case "game_reset": {
+      case "game_reset":
+      // Учителю: отправки учеников (в т.ч. неверные) и флаги анти-чита — без них
+      // панель учителя показывала всех «думающими» и пустую таблицу нарушений.
+      case "teacher_feed":
+      case "flags": {
         const wasIdle = !this.state.game || this.state.game.phase === "over";
         const next = applyGameMessage(this.state.game, msg, this.clock);
         if (next !== undefined) this.set({ game: next });

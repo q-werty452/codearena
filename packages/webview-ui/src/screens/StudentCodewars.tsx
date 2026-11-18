@@ -13,6 +13,7 @@ import { play, secondsLeft, useNow } from "../lib/game.ts";
 import { useT } from "../lib/i18n.ts";
 import { host } from "../lib/session.ts";
 import { formatClock } from "./StudentTug.tsx";
+import { WaitOrb } from "../ui/WaitOrb.tsx";
 
 export const LANG_LABEL: Record<string, string> = { html: "HTML", css: "CSS", javascript: "JavaScript", python: "Python", dart: "Dart" };
 
@@ -107,7 +108,13 @@ export function StudentCodewarsBody({ session, g }: { session: SessionSnapshot; 
             </Button>
           </div>
           <p className="text-center text-[12px] text-muted">
-            {t("cw.writeInEditor")} · <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>
+            {run?.running ? (
+              <WaitOrb state="solving">{t("cw.checking")}</WaitOrb>
+            ) : (
+              <>
+                {t("cw.writeInEditor")} · <Kbd>Ctrl</Kbd>+<Kbd>Enter</Kbd>
+              </>
+            )}
           </p>
         </div>
       )}

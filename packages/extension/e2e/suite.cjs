@@ -124,6 +124,35 @@ async function liveStudentScenario(session, step, api) {
   step("student fixed the line → hint gone");
 }
 
+// Учитель ведёт «Найди баг»: отправки учеников (и неверные) и флаги должны дойти до панели учителя.
+async function teacherBugScenario(session, step) {
+  await session.createRoom();
+  await waitFor("room", () => session.snapshot.code && session.snapshot.status === "online");
+  fs.writeFileSync(process.env.CODEARENA_E2E_HANDOFF, session.snapshot.code);
+  const players = await waitFor("3 bots", () => session.snapshot.lobby?.players.length === 3 && session.snapshot.lobby.players);
+  const id = (n) => players.find((p) => p.name === n).id;
+  step("teacher room " + session.snapshot.code + ", bots joined");
+  session.send({ type: "start_game", game: "bug", settings: {}, tasks: [{ type: "fix_bug", topic: "t", language: "python", prompt: "Исправь: сумма двух чисел.",
+    code: "def add(a, b):\n    return a - b", tests: [{ call: "add(2, 3)", expected: "5" }, { call: "add(1, 1)", expected: "2" }], solution: "def add(a, b):\n    return a + b" }] });
+  await waitFor("game", () => session.snapshot.game);
+  session.send({ type: "next" });
+  const subs = await waitFor("both submissions at the teacher", () => {
+    const s = session.snapshot.game?.submissions ?? {};
+    return Object.keys(s).length === 2 && s;
+  }, 15000);
+  step("teacher sees submissions: Wrong=" + (subs[id("Wrong")].correct ? "solved" : "wrong") + ", Right=" + (subs[id("Right")].correct ? "solved" : "wrong") + ", Idle=" + (subs[id("Idle")] ? "?" : "thinking"));
+  if (subs[id("Wrong")].correct || !subs[id("Right")].correct || subs[id("Idle")]) throw new Error("wrong statuses");
+  if (!subs[id("Wrong")].code?.includes("a * b") || subs[id("Wrong")].report?.passed !== 1) throw new Error("wrong code/report");
+  const flags = await waitFor("paste flag at the teacher", () => session.snapshot.game?.flags?.[id("Wrong")]?.paste, 8000);
+  step("teacher sees anti-cheat flag for Wrong: paste ×" + flags.count);
+  // Подсказка на строке 2 кода ученика (как кнопка в таблице отправок).
+  session.send({ type: "hint", playerId: id("Wrong"), line: 2, text: "проверь знак операции" });
+  await sleep(1000);
+  step("hint sent to Wrong on line 2");
+  session.send({ type: "end_game" });
+  await sleep(500);
+}
+
 async function liveTeacherScenario(session, step) {
   await session.createRoom();
   await waitFor("room", () => session.snapshot.code && session.snapshot.status === "online");
@@ -163,10 +192,24 @@ async function liveTeacherScenario(session, step) {
   await vscode.commands.executeCommand("codearena.hintLine", { line: 1, text: "закрой тег <p>" });
   step("hint sent from the student's code (line 1)");
   await sleep(800);
+  // Возможность подсказать видно: наведение на строку и строка над кодом.
+  const hovers = await vscode.commands.executeCommand("vscode.executeHoverProvider", peek.document.uri, new vscode.Position(0, 2));
+  const hoverText = (hovers ?? []).flatMap((h) => h.contents.map((c) => (typeof c === "string" ? c : c.value))).join(" ");
+  const lenses = await vscode.commands.executeCommand("vscode.executeCodeLensProvider", peek.document.uri);
+  const lensTitle = (lenses ?? []).map((l) => l.command?.title ?? "").join(" ");
+  step("hover on student's line: " + /Hint on line 1|Подсказать на строке 1/.test(hoverText) + "; lens: " + JSON.stringify(lensTitle.slice(0, 40)));
+  if (!/codearena\.hintLine/.test(hoverText) || !/Bot/.test(lensTitle)) throw new Error("hint affordances missing");
 
   await vscode.commands.executeCommand("codearena.stopShare");
   await waitFor("share off", () => !session.snapshot.lesson.share);
   step("share stopped");
+  // Чекпоинт кнопкой в панели: фокус в панели, файл не показывается — эталон из последнего файла.
+  await vscode.window.showTextDocument(ed.document, { viewColumn: vscode.ViewColumn.One });
+  await vscode.commands.executeCommand("codearena.openPanel");
+  await sleep(600);
+  await vscode.commands.executeCommand("codearena.checkpoint");
+  await waitFor("checkpoint 2", () => session.snapshot.lesson.checkpoint === 2);
+  step("checkpoint 2 from the panel (no share, editor not focused): active editor = " + (vscode.window.activeTextEditor ? "file" : "none (panel)"));
   await sleep(800);
 }
 
@@ -239,7 +282,18 @@ exports.run = async function run() {
       return;
     }
     if (SCENARIO === "mytasks") {
-      await myTasksScenario(api, step);
+      // Сценарий сохраняет тестовые ключи Gemini — всегда убрать за собой:
+      // в новых VS Code хранилище секретов может быть общим с обычным VS Code.
+      try {
+        await myTasksScenario(api, step);
+      } finally {
+        await api.myTasks.clearKey();
+      }
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
+    if (SCENARIO === "teacherbug") {
+      await teacherBugScenario(session, step);
       fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
       return;
     }

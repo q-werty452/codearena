@@ -23,11 +23,13 @@
     "@codearena/shared": "*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/utilities": "^3.2.2",
+    "border-beam": "1.4.1",
     "canvas-confetti": "^1.9.4",
     "lucide-react": "^1.71.0",
     "motion": "^14.11.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "thinking-orbs": "0.3.2",
     "uqr": "0.1.3"
   }
 }

@@ -30,6 +30,8 @@ export function TeacherBug({ session, g, teamNames }: { session: SessionSnapshot
   const lastPlace = g.index + 1 >= g.count;
   const isFix = task?.type === "fix_bug";
   const solved = Object.values(g.submissions).filter((x) => x.correct).length;
+  // Отправили хоть раз (в том числе с непрошедшими тестами) — видно, что работают.
+  const tried = Object.keys(g.submissions).length;
   const total = (g.limitMs ?? 20000) / 1000;
 
   // Ответ мог показаться сам (все ответили) — короткая блокировка от случайного клика.
@@ -74,7 +76,7 @@ export function TeacherBug({ session, g, teamNames }: { session: SessionSnapshot
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <div className="flex items-center gap-1.5 text-[13px] text-muted">
                     <Users size={14} />
-                    <span className="tabular">{isFix ? t("bug.fixedCount", { n: solved }) + ` / ${g.total}` : t("game.answered", { n: g.answered, total: g.total })}</span>
+                    <span className="tabular">{isFix ? t("bug.fixedCount", { n: solved }) + ` / ${g.total}` + (tried > solved ? ` · ${t("bug.tried", { n: tried })}` : "") : t("game.answered", { n: g.answered, total: g.total })}</span>
                   </div>
                   <div className="h-2 w-full max-w-[360px] overflow-hidden rounded-full bg-surface-2">
                     <motion.div className="h-full rounded-full bg-accent" animate={{ width: `${g.total ? Math.min(100, ((isFix ? solved : g.answered) / g.total) * 100) : 0}%` }} />

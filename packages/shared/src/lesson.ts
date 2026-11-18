@@ -1,7 +1,7 @@
 /**
- * Прогресс ученика по чекпоинту урока: какая доля строк эталона учителя
+ * Прогресс ученика по чекпоинту урока: какая доля эталона учителя (слов и знаков кода)
  * уже есть в файле ученика — в том же порядке (наибольшая общая подпоследовательность).
- * Пробелы, отступы и пустые строки не важны; лишние строки ученика не штрафуются.
+ * Пробелы, отступы и пустые строки не важны; лишнее у ученика не штрафуется.
  */
 export function normalizeLines(text: string): string[] {
   return text
@@ -23,10 +23,31 @@ function lcs(a: string[], b: string[]): number {
   return prev[b.length]!;
 }
 
-/** Процент 0…100. Пустой эталон — 100 (сравнивать не с чем). */
+/**
+ * Слова и знаки кода без пробелов: «<li class="a">» → < li class = " a " >.
+ * Сравнение по ним даёт частичный процент внутри строки: одна опечатка
+ * стоит одного слова, а не всей строки.
+ */
+export function codeTokens(text: string): string[] {
+  return text.match(/[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]/gu) ?? [];
+}
+
+/** Больше — считаем по строкам, чтобы не тормозить на огромных файлах. */
+const MAX_TOKENS = 5000;
+
+/**
+ * Процент 0…100: какая доля эталона учителя уже есть у ученика, в том же порядке.
+ * Лишнее у ученика не штрафуется, пробелы и отступы не важны.
+ * Пустой эталон — 0: сравнивать не с чем, «готово» никому не ставим.
+ */
 export function lessonProgress(reference: string, mine: string): number {
-  const ref = normalizeLines(reference);
-  if (ref.length === 0) return 100;
-  const my = normalizeLines(mine).slice(0, 2000);
-  return Math.round((lcs(ref.slice(0, 2000), my) / Math.min(ref.length, 2000)) * 100);
+  const ref = codeTokens(reference);
+  if (ref.length === 0) return 0;
+  const my = codeTokens(mine);
+  if (ref.length <= MAX_TOKENS && my.length <= MAX_TOKENS) {
+    return Math.min(100, Math.floor((lcs(ref, my) / ref.length) * 100));
+  }
+  const refLines = normalizeLines(reference).slice(0, 2000);
+  if (refLines.length === 0) return 0;
+  return Math.floor((lcs(refLines, normalizeLines(mine).slice(0, 2000)) / refLines.length) * 100);
 }
