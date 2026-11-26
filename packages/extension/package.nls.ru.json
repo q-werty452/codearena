@@ -28,5 +28,6 @@
   "displayName": "CodeArena — уроки и игры по программированию",
   "command.hintLine": "Урок: подсказка ученику на этой строке",
   "color.hintBackground": "Фон строки с подсказкой учителя",
-  "color.hintForeground": "Текст подсказки учителя"
+  "color.hintForeground": "Текст подсказки учителя",
+  "command.diagnose": "Проверить соединение с сервером"
 }

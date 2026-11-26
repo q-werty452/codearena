@@ -2,7 +2,7 @@
   "name": "codearena",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "publisher": "q-werty452",
   "author": {
     "name": "q-werty452",
@@ -84,6 +84,11 @@
       {
         "command": "codearena.createRoom",
         "title": "%command.createRoom%",
+        "category": "CodeArena"
+      },
+      {
+        "command": "codearena.diagnose",
+        "title": "%command.diagnose%",
         "category": "CodeArena"
       },
       {
@@ -376,7 +381,7 @@
     "test": "vitest run",
     "sweep": "node e2e/gallery-sweep.mjs",
     "load": "node e2e/load.mjs",
-    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs dartcw && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher && node e2e/run.mjs teacherbug && node e2e/run.mjs mytasks && node e2e/run.mjs teacherui && node e2e/watch-page.mjs"
+    "e2e": "node e2e/run.mjs codewars && node e2e/run.mjs dartcw && node e2e/run.mjs fixbug && node e2e/run.mjs lesson && node e2e/run.mjs anticheat && node e2e/run.mjs livestudent && node e2e/run.mjs liveteacher && node e2e/run.mjs teacherbug && node e2e/run.mjs flaky && node e2e/run.mjs mytasks && node e2e/run.mjs teacherui && node e2e/watch-page.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

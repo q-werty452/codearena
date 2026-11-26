@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import WebSocket from "ws";
+import { classify, fetchJson, NetError } from "./net.ts";
 import {
   ClientMessage,
   CreateRoomResponse,
@@ -36,6 +37,12 @@ type Listener = (msg: HostToUi) => void;
  * Сессия: одно соединение с комнатой. Переподключается сама,
  * сохраняет токен, раздаёт снимок состояния всем webview.
  */
+/** Что ученик досылает после обрыва. Команды учителя не копим — их поздний повтор опасен. */
+const QUEUED = new Set<ClientMessage["type"]>(["submit", "status", "confused", "progress", "flag"]);
+const OUTBOX_TTL_MS = 3 * 60_000;
+const PING_EVERY_MS = 15_000;
+const DEAD_AFTER_MS = 35_000;
+
 export class Session implements vscode.Disposable {
   private state: SessionSnapshot;
   private ws: WebSocket | null = null;
@@ -44,6 +51,15 @@ export class Session implements vscode.Disposable {
   private retry = 0;
   private retryTimer: NodeJS.Timeout | null = null;
   private pingTimer: NodeJS.Timeout | null = null;
+  /** Когда от сервера последний раз что-то приходило (в т.ч. pong) — для «зависшего» соединения. */
+  private lastSeen = 0;
+  /**
+   * Очередь ученика на время обрыва: ответ, статус, прогресс не теряются,
+   * а уходят сами после переподключения. Старше 3 минут — выбрасываются.
+   */
+  private outbox: { msg: ClientMessage; at: number }[] = [];
+  /** Сервер подтвердил вход ученика на текущем соединении (до этого его сообщения отклонит). */
+  private joinedHere = false;
   private listeners = new Set<Listener>();
   private disposed = false;
   /** Разница «часы сервера − мои часы», мс (обновляется сообщением state). */
@@ -97,7 +113,7 @@ export class Session implements vscode.Disposable {
     try {
       exists = await this.roomExists(code);
     } catch (e) {
-      const message = (e as Error).message === "too_many" ? "too_many" : "server_unreachable";
+      const message = (e as Error).message === "too_many" ? "too_many" : `net:${classify(e).problem}`;
       return this.set({ busy: false, error: { field: "general", message } });
     }
     if (!exists) return this.set({ busy: false, error: { field: "code", message: "bad_code" } });
@@ -116,26 +132,45 @@ export class Session implements vscode.Disposable {
     this.closeSocket();
     this.set({ ...EMPTY_SESSION, savedName: this.state.savedName, busy: true });
     try {
-      const r = await fetch(`${this.serverUrl}/rooms`, { method: "POST" });
+      const r = await fetchJson<unknown>(`${this.serverUrl}/rooms`, { method: "POST" });
       if (r.status === 429) return this.set({ busy: false, error: { field: "general", message: "too_many" } });
-      if (!r.ok) throw new Error(String(r.status));
-      const { code, teacherToken } = CreateRoomResponse.parse(await r.json());
+      if (r.status < 200 || r.status >= 300) throw new NetError("http", String(r.status));
+      const { code, teacherToken } = CreateRoomResponse.parse(r.body);
       this.token = teacherToken;
       await this.save({ role: "teacher", code, token: teacherToken, at: Date.now() });
       this.set({ role: "teacher", code, status: "connecting", busy: false, ...this.links(code, "teacher") });
       this.setWatchLink(code, teacherToken);
       this.connect();
-    } catch {
-      this.set({ busy: false, error: { field: "general", message: "server_unreachable" } });
+    } catch (e) {
+      this.set({ busy: false, error: { field: "general", message: `net:${classify(e).problem}` } });
     }
   }
 
   /** Отправить сообщение серверу (команды учителя, ответы ученика). */
   send(msg: ClientMessage): boolean {
     const ok = ClientMessage.safeParse(msg);
-    if (!ok.success || !this.ws || this.ws.readyState !== WebSocket.OPEN) return false;
-    this.ws.send(JSON.stringify(ok.data));
-    return true;
+    if (!ok.success) return false;
+    const online = this.ws?.readyState === WebSocket.OPEN && (this.state.role !== "student" || this.joinedHere);
+    if (online) {
+      this.ws!.send(JSON.stringify(ok.data));
+      return true;
+    }
+    // Обрыв: важное от ученика — в очередь, уйдёт после переподключения.
+    if (this.state.role === "student" && QUEUED.has(ok.data.type)) {
+      const m = ok.data;
+      // Статус и прогресс — важен только последний; ответы и флаги — все.
+      if (m.type === "status" || m.type === "progress" || m.type === "confused") this.outbox = this.outbox.filter((x) => x.msg.type !== m.type);
+      this.outbox.push({ msg: m, at: Date.now() });
+      return true;
+    }
+    return false;
+  }
+
+  /** Отправить накопленное за время обрыва (после «joined»). */
+  private flushOutbox(): void {
+    const fresh = this.outbox.filter((x) => Date.now() - x.at < OUTBOX_TTL_MS);
+    this.outbox = [];
+    for (const { msg } of fresh) this.ws?.send(JSON.stringify(msg));
   }
 
   /** Ответ ученика на текущее задание. */
@@ -187,8 +222,11 @@ export class Session implements vscode.Disposable {
     if (this.disposed || !this.state.code) return;
     const base = this.serverUrl.replace(/^http/, "ws");
     const q = this.state.role === "teacher" && this.token ? `?teacher=${encodeURIComponent(this.token)}` : "";
-    const ws = new WebSocket(`${base}/rooms/${this.state.code}/ws${q}`);
+    // Медленная сеть: на подключение 15 секунд, потом — новая попытка.
+    const ws = new WebSocket(`${base}/rooms/${this.state.code}/ws${q}`, { handshakeTimeout: 15_000 });
     this.ws = ws;
+    this.lastSeen = Date.now();
+    this.joinedHere = false;
 
     ws.on("open", () => {
       if (ws !== this.ws) return;
@@ -203,6 +241,7 @@ export class Session implements vscode.Disposable {
 
     ws.on("message", (data) => {
       if (ws !== this.ws) return;
+      this.lastSeen = Date.now();
       const msg = parseServerMessage(data.toString());
       if (msg) void this.onServer(msg);
     });
@@ -237,9 +276,15 @@ export class Session implements vscode.Disposable {
   private startPing(): void {
     this.stopPing();
     // Сервер отвечает на ping без пробуждения комнаты — бесплатно.
+    // На плохом Wi-Fi соединение может «зависнуть»: снаружи открыто, а данные не идут.
+    // Нет ответа дольше 35 секунд — рвём сами и переподключаемся, а не ждём минутами.
+    this.lastSeen = Date.now();
     this.pingTimer = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) this.ws.send('{"type":"ping"}');
-    }, 25_000);
+      const ws = this.ws;
+      if (ws?.readyState !== WebSocket.OPEN) return;
+      if (Date.now() - this.lastSeen > DEAD_AFTER_MS) return void ws.terminate();
+      ws.send('{"type":"ping"}');
+    }, PING_EVERY_MS);
   }
 
   private stopPing(): void {
@@ -254,6 +299,8 @@ export class Session implements vscode.Disposable {
         const name = this.pendingName ?? this.state.savedName;
         await this.save({ role: "student", code: this.state.code!, token: msg.token, name, at: Date.now() });
         this.set({ status: "online", busy: false, error: null, me: { playerId: msg.playerId, name, team: msg.team } });
+        this.joinedHere = true;
+        this.flushOutbox();
         break;
       }
       case "lobby": {
@@ -336,11 +383,10 @@ export class Session implements vscode.Disposable {
   /* ─────────────── Утилиты ─────────────── */
 
   private async roomExists(code: string): Promise<boolean> {
-    const r = await fetch(`${this.serverUrl}/rooms/${code}`, { signal: AbortSignal.timeout(8000) });
+    const r = await fetchJson<{ exists?: boolean }>(`${this.serverUrl}/rooms/${code}`);
     if (r.status === 429) throw new Error("too_many");
-    if (!r.ok) throw new Error(String(r.status));
-    const body = (await r.json()) as { exists?: boolean };
-    return body.exists === true;
+    if (r.status < 200 || r.status >= 300) throw new NetError("http", String(r.status));
+    return r.body?.exists === true;
   }
 
   /** Учитель: ссылка «смотреть с телефона» (токен наблюдателя считается из токена учителя). */

@@ -6,6 +6,7 @@ import { CodeCells } from "../ui/CodeCells.tsx";
 import { Field } from "../ui/Input.tsx";
 import { Logo } from "../ui/Controls.tsx";
 import { useT } from "../lib/i18n.ts";
+import { host } from "../lib/session.ts";
 
 export interface JoinProps {
   initialCode?: string;
@@ -14,12 +15,14 @@ export interface JoinProps {
   codeError?: string | null;
   nameError?: string | null;
   generalError?: string | null;
+  /** Ошибка сети — показать «Проверить соединение». */
+  canDiagnose?: boolean;
   onJoin: (code: string, name: string) => void;
   onTeacher: () => void;
 }
 
 /** Экран входа ученика: логотип, 6 ячеек кода, имя, одна большая кнопка. */
-export function JoinScreen({ initialCode = "", initialName = "", busy, codeError, nameError, generalError, onJoin, onTeacher }: JoinProps) {
+export function JoinScreen({ initialCode = "", initialName = "", busy, codeError, nameError, generalError, canDiagnose, onJoin, onTeacher }: JoinProps) {
   const t = useT();
   const [code, setCode] = useState(initialCode);
   const [name, setName] = useState(initialName);
@@ -88,7 +91,14 @@ export function JoinScreen({ initialCode = "", initialName = "", busy, codeError
       {generalError && (
         <div role="alert" className="flex items-start gap-2 rounded-btn border border-warning/40 bg-warning/10 px-3 py-2 text-[12px]">
           <WifiOff size={14} className="mt-0.5 shrink-0 text-warning" />
-          <span>{generalError}</span>
+          <span className="flex flex-col gap-1">
+            <span>{generalError}</span>
+            {canDiagnose && (
+              <button type="button" onClick={() => host.post({ type: "diagnose" })} className="self-start font-semibold text-link hover:underline">
+                {t("net.check")}
+              </button>
+            )}
+          </span>
         </div>
       )}
 

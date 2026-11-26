@@ -35,6 +35,8 @@ const GAMES = {
       starter: "List<int> evens(List<int> nums) {\n  return [];\n}", tests: [{ call: "evens([1, 2, 3, 4])", expected: "[2, 4]" }, { call: "evens([])", expected: "[]" }] }],
   },
   lesson: { game: "quiz", tasks: [] },
+  // Слабый Wi-Fi: один вопрос, ученик отвечает ровно в момент обрыва связи.
+  flaky: { game: "quiz", settings: { questionSec: 120 }, tasks: [{ type: "choice", topic: "t", prompt: "2 + 2?", options: ["4", "5"], correct: 0 }] },
   fixbug: {
     game: "bug",
     settings: NO_PASTE_GUARD,
@@ -143,6 +145,8 @@ t.on("message", (d) => {
     setTimeout(() => t.send(JSON.stringify({ type: "next" })), 500); // без отсчёта
   }
   if (m.type === "flags") lastFlags = m.flags;
+  if (SCENARIO === "flaky" && m.type === "state") flakyTeacher.answered = Math.max(flakyTeacher.answered, m.state.answered);
+  if (SCENARIO === "flaky" && m.type === "lesson_state" && Object.values(m.statuses).includes("lost")) flakyTeacher.lost = true;
   if (m.type === "teacher_feed" && m.event.kind === "submission") feed.push({ correct: m.event.correct, code: m.event.code, report: m.event.report });
 });
 
@@ -252,9 +256,45 @@ if (SCENARIO === "teacherbug") {
     }
   }, 200);
 }
+// flaky: «Wi-Fi» между учеником и сервером — TCP-прокси, который умеет рвать связь (drop)
+// и замораживать её (freeze: соединение открыто, а данные не идут). Управление — файлами из suite.cjs.
+const flakyTeacher = { answered: 0, lost: false };
+let serverForStudent = server;
+if (SCENARIO === "flaky") {
+  const net = await import("node:net");
+  const { existsSync, rmSync } = await import("node:fs");
+  let mode = "pass";
+  const pairs = new Set();
+  const proxy = net.createServer((client) => {
+    if (mode === "drop") return client.destroy();
+    const upstream = net.connect(8787, "127.0.0.1");
+    const pair = { client, upstream };
+    pairs.add(pair);
+    // В заморозке данные молча копятся, а не идут — как на зависшем Wi-Fi.
+    client.on("data", (d) => mode === "pass" && upstream.write(d));
+    upstream.on("data", (d) => mode === "pass" && client.write(d));
+    const end = () => { pairs.delete(pair); client.destroy(); upstream.destroy(); };
+    client.on("error", end); upstream.on("error", end); client.on("close", end); upstream.on("close", end);
+  });
+  await new Promise((r) => proxy.listen(0, "127.0.0.1", r));
+  serverForStudent = `127.0.0.1:${proxy.address().port}`;
+  proxy.unref();
+  setInterval(() => {
+    for (const [file, next] of [[".drop", "drop"], [".freeze", "freeze"], [".thaw", "pass"]]) {
+      if (!existsSync(handoff + file)) continue;
+      rmSync(handoff + file);
+      mode = next;
+      console.log("[wifi] " + next);
+      if (next === "drop") {
+        for (const p of pairs) { p.client.destroy(); p.upstream.destroy(); }
+        setTimeout(() => { mode = "pass"; console.log("[wifi] back"); }, 3000);
+      }
+    }
+  }, 100).unref();
+}
 // Тесты ходят на локальный сервер, а не на публичный.
 mkdirSync(join(tmp, "user", "User"), { recursive: true });
-writeFileSync(join(tmp, "user", "User", "settings.json"), JSON.stringify({ "codearena.serverUrl": `http://${server}`, ...(geminiUrl ? { "codearena.ai.endpoint": geminiUrl } : {}) }));
+writeFileSync(join(tmp, "user", "User", "settings.json"), JSON.stringify({ "codearena.serverUrl": `http://${serverForStudent}`, ...(geminiUrl ? { "codearena.ai.endpoint": geminiUrl } : {}) }));
 // Файлы учителя для сценария mytasks.
 writeFileSync(join(tmp, "notes.txt"), "Сегодня прошли flexbox. Свойство display: flex включает flex-раскладку, gap задаёт отступы.\nВопросы к уроку: какое свойство включает flex? чем задают отступ?");
 const out = join(tmp, "result.json");
@@ -311,6 +351,9 @@ if (SCENARIO === "livestudent") {
 } else if (SCENARIO === "mytasks") {
   console.log("gemini calls:", gemini.calls.map((c) => `${c.path} (key ${c.key})`).join(", "), "| key in URL:", gemini.keyInUrl);
   liveOk = !gemini.keyInUrl && gemini.calls.some((c) => c.path.includes("gemini-3.6-flash:generateContent"));
+} else if (SCENARIO === "flaky") {
+  console.log("teacher saw answered:", flakyTeacher.answered, "| status lost after the freeze:", flakyTeacher.lost);
+  liveOk = flakyTeacher.answered === 1 && flakyTeacher.lost;
 } else if (SCENARIO === "lesson") {
   console.log("teacher saw:", teacherSaw.join(", "));
   console.log((hoverResult?.results ?? ["hover driver did not run"]).map((r) => "  ▸ " + r).join("\n"));

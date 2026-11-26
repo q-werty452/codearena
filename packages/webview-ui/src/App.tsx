@@ -8,7 +8,7 @@ import { EndedScreen } from "./screens/Ended.tsx";
 import { ConnectionBanner } from "./ui/Controls.tsx";
 import { Skeleton } from "./ui/Card.tsx";
 import { Toast } from "./ui/Status.tsx";
-import { useT } from "./lib/i18n.ts";
+import { useT, type MessageKey } from "./lib/i18n.ts";
 import { ErrorBoundary } from "./ui/ErrorBoundary.tsx";
 import { host, useHostSession } from "./lib/session.ts";
 
@@ -56,7 +56,8 @@ export function Screen({ view, session, prefill }: { view: "sidebar" | "panel"; 
       busy={session.busy || (session.role === "student" && session.status === "connecting")}
       codeError={err?.field === "code" ? t("join.badCode") : null}
       nameError={err?.field === "name" ? t("join.nameTaken") : null}
-      generalError={err?.field === "general" ? (err.message === "too_many" ? t("join.tooMany") : t("join.offline")) : null}
+      generalError={err?.field === "general" ? (err.message === "too_many" ? t("join.tooMany") : err.message.startsWith("net:") ? t(`net.${err.message.slice(4)}` as MessageKey) : t("join.offline")) : null}
+      canDiagnose={err?.field === "general" && err.message !== "too_many"}
       onJoin={(code, name) => host.post({ type: "join", code, name })}
       onTeacher={() => host.post({ type: "create_room" })}
     />

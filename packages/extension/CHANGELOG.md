@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.2
+
+- **Steadier on weak Wi-Fi**:
+  - an answer, status or progress sent while the connection blinks is no longer lost — it is sent as soon as
+    the connection is back (checked by a test that drops the «Wi-Fi» right when the student answers);
+  - a frozen connection (looks open, nothing arrives) is noticed in under a minute and reconnected automatically;
+  - creating and joining a room try three times with 10, 15 and 20 s timeouts instead of giving up after 8 s.
+- **Clear connection errors**: instead of «can't reach the server» the student or teacher sees why — the network
+  can't find the server, intercepts the secure connection, drops it, shows a Wi-Fi sign-in page, or is too slow.
+  A **«Check the connection»** button (and command) tests DNS, HTTPS and the live connection step by step and
+  gives a report to show the network admin.
+
 ## 0.4.1
 
 - **Fixed: the teacher didn't see students' submissions in «Find the bug» and Codewars** — everyone stayed

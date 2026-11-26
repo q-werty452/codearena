@@ -124,6 +124,31 @@ async function liveStudentScenario(session, step, api) {
   step("student fixed the line → hint gone");
 }
 
+// Слабый Wi-Fi: ответ в момент обрыва не теряется; «зависшее» соединение замечается само.
+async function flakyScenario(session, step) {
+  const h = process.env.CODEARENA_E2E_HANDOFF;
+  const task = await waitFor("question", () => session.snapshot.game?.phase === "playing" && session.snapshot.game.task, 20000);
+  step("question on screen; Wi-Fi drops now");
+  fs.writeFileSync(h + ".drop", "x");
+  await waitFor("connection lost", () => session.snapshot.status !== "online", 10000);
+  session.answer(task.id, 0); // ученик жмёт ответ во время обрыва
+  step("answered while offline (status: " + session.snapshot.status + ")");
+  await waitFor("answer delivered after reconnect", () => session.snapshot.status === "online" && session.snapshot.game?.myAnswer === 0, 30000);
+  step("Wi-Fi back → reconnected, the answer reached the server");
+
+  // Зависшее соединение: открыто, но данные не идут.
+  await sleep(500);
+  fs.writeFileSync(h + ".freeze", "x");
+  const t0 = Date.now();
+  await waitFor("frozen connection noticed", () => session.snapshot.status !== "online", 60000);
+  step("frozen connection noticed after " + Math.round((Date.now() - t0) / 1000) + " s → reconnecting");
+  fs.writeFileSync(h + ".thaw", "x");
+  await waitFor("online again", () => session.snapshot.status === "online", 30000);
+  session.setStatus("lost");
+  await sleep(1500);
+  step("back online; status «lost» sent");
+}
+
 // Учитель ведёт «Найди баг»: отправки учеников (и неверные) и флаги должны дойти до панели учителя.
 async function teacherBugScenario(session, step) {
   await session.createRoom();
@@ -305,6 +330,11 @@ exports.run = async function run() {
     await session.join(process.env.CODEARENA_E2E_CODE, "E2E Student");
     await waitFor("joined", () => session.snapshot.me);
     step("joined room " + session.snapshot.code);
+    if (SCENARIO === "flaky") {
+      await flakyScenario(session, step);
+      fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));
+      return;
+    }
     if (SCENARIO === "livestudent") {
       await liveStudentScenario(session, step, api);
       fs.writeFileSync(out, JSON.stringify({ ok: true, log }, null, 2));

@@ -28,5 +28,6 @@
   "displayName": "CodeArena — lessons and coding games for class",
   "command.hintLine": "Lesson: hint for the student on this line",
   "color.hintBackground": "Background of a line with the teacher's hint",
-  "color.hintForeground": "Text of the teacher's hint"
+  "color.hintForeground": "Text of the teacher's hint",
+  "command.diagnose": "Check the connection to the server"
 }

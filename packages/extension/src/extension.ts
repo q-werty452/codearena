@@ -10,6 +10,7 @@ import { AntiCheat } from "./antiCheat.ts";
 import { LessonLive } from "./lessonLive.ts";
 import { runChecks } from "./runner.ts";
 import { MyTasks } from "./myTasks.ts";
+import { diagnose } from "./diagnose.ts";
 
 /**
  * CodeArena — точка входа расширения.
@@ -58,6 +59,7 @@ export function activate(context: vscode.ExtensionContext): CodeArenaApi {
       if (session.snapshot.role === "teacher") GamePanel.show(context);
     }),
     vscode.commands.registerCommand("codearena.leave", () => session.leave()),
+    vscode.commands.registerCommand("codearena.diagnose", () => diagnose(session.serverUrl)),
     vscode.window.registerUriHandler({
       handleUri(uri) {
         if (uri.path === "/join") {
@@ -242,6 +244,9 @@ class WebviewHost implements vscode.WebviewViewProvider {
         break;
       case "ai_clear_key":
         await myTasks.clearKey();
+        break;
+      case "diagnose":
+        await vscode.commands.executeCommand("codearena.diagnose");
         break;
       case "open_url":
         if (/^https:\/\//.test(msg.url)) void vscode.env.openExternal(vscode.Uri.parse(msg.url));

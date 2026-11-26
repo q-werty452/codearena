@@ -219,6 +219,8 @@ export type UiToHost =
   | { type: "ai_clear_key" }
   /** Открыть ссылку во внешнем браузере (только https). */
   | { type: "open_url"; url: string }
+  /** «Проверить соединение» (сеть колледжа, где «нет соединения»). */
+  | { type: "diagnose" }
   /** Codewars у ученика: открыть файл задачи, прогнать тесты, отправить. */
   | { type: "open_task_file" }
   | { type: "run_tests" }
